@@ -4,7 +4,7 @@ Dale Mexic Dale
 
 DealDirection is a Romanian-language mobile app that helps shoppers **save money on their whole grocery cart**. It gathers offers from supermarkets, builds the cheapest shopping plan, guides the client to the store, and rewards them with points when a scanned receipt confirms the purchase.
 
-**Status:** planning is finished and no application code exists yet. This is the MVP for a 24-hour hackathon, built by a team of 4.
+**Status:** planning is finished, and the project skeleton is in place with no features built yet. This is the MVP for a 24-hour hackathon, built by a team of 4.
 
 This README holds the product rules and technical reference. [TEAM_TASKS.md](TEAM_TASKS.md) holds the team plan and the details of all 19 build tasks.
 
@@ -141,10 +141,45 @@ Auchan's product search is `https://www.auchan.ro/api/catalog_system/pub/product
 
 ## Technical reference
 
+### Architecture
+
+```text
+Phone (Angular PWA)
+   │  HTTPS, /api and the built app, from one address
+   ▼
+FastAPI
+   ├─ router.py files    HTTP, login checks, database reads and writes
+   ├─ optimizer, points  pure logic, no database or HTTP
+   └─ documents          OCR and parsing, behind the DocumentReader protocol
+   ▼
+PostgreSQL  ◄── dealdata load ◄── data/snapshot/products.json ◄── scrapers (offline)
+```
+
+The app has three parts, and each one can be worked on alone:
+
+- **`frontend/`** only talks to the backend through `/api`. Until a route is ready, a screen can use mock data.
+- **`backend/`** has one folder per unit, as listed in [Backend units](#backend-units). Business rules stay in the pure `logic.py` files, so they can be tested without a database.
+- **`data/`** runs offline. The running app only reads what `dealdata.load` put in Postgres, so a blocked scraper can't break the demo.
+
+### Where new code goes
+
+| Adding | Put it in |
+|---|---|
+| An API route | The unit's `router.py`. `main.py` already mounts every router under `/api`. |
+| A database table or column | `backend/app/models.py` |
+| A setting | `backend/app/config.py`, and `.env.example` if it's a secret |
+| Business logic | The unit's `logic.py`, with no database or HTTP code |
+| An OCR engine change | `backend/app/documents/ocr.py` only |
+| A screen | Its folder in `frontend/src/app/`, plus one line in `app.routes.ts` |
+| A call to the API | One typed method in `frontend/src/app/core/api.ts` |
+| Romanian text | `frontend/src/app/shared/ro.ts` |
+
+Each placeholder file names its owner and task. Stay inside your own files where you can, because shared files like `models.py`, `api.ts`, `ro.ts` and `app.routes.ts` are the likeliest to conflict. Keep those changes small and merge them often.
+
 ### Project structure
 
 ```text
-pyproject.toml, .python-version, .env.example, .gitignore
+pyproject.toml, uv.lock, .python-version, .env.example, .gitignore
 backend/app/
   main.py config.py db.py models.py textutil.py deps.py
   auth/router.py   catalog/router.py   lists/router.py
@@ -158,8 +193,10 @@ data/dealdata/
   normalize.py tree.py scrape_auchan.py scrape_carrefour.py scrape.py load.py
 data/tree.yaml  data/abbreviations.yaml  data/stores.yaml  data/snapshot/products.json
 tests/conftest.py  tests/backend/  tests/data/  tests/fixtures/
+frontend/proxy.conf.json
 frontend/src/app/
-  core/ (api, auth, guard, interceptor)  shared/ro.ts
+  app.ts app.html app.scss app.routes.ts app.config.ts
+  core/ (api, auth, auth.guard, auth.interceptor)  shared/ro.ts
   login/ browse/ cart/ plan/ import/ lists/ receipt/ wallet/ cards/ settings/
 ```
 
@@ -288,7 +325,7 @@ All screens are in Romanian.
 
 ## Getting started
 
-These steps describe the planned setup, since the code doesn't exist yet.
+The skeleton runs today, but `dealdata.load` does nothing until Task 5 is built.
 
 You'll need [uv](https://docs.astral.sh/uv/), Node.js, PostgreSQL 16+, and Tesseract with Romanian language data.
 
