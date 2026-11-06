@@ -1,7 +1,7 @@
 # DealDirection: MVP design
 
 **Date:** 2026-11-06
-**Status:** Awaiting review
+**Status:** Approved
 **Scope:** The MVP for a 24-hour hackathon, built by an assumed team of 3–4 people.
 
 ## 1. Goal
