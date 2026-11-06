@@ -2,13 +2,23 @@ import json
 from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
+from typing import Any
 
 import pytest
 import yaml
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from app.models import Category, Store, StoreLocation, StoreProduct, User, UserStore
+from app.models import (
+    Category,
+    ListItem,
+    ShoppingList,
+    Store,
+    StoreLocation,
+    StoreProduct,
+    User,
+    UserStore,
+)
 from dealdata.load import load_snapshot
 from dealdata.normalize import Size
 from dealdata.tree import LeafRule, load_tree
@@ -190,6 +200,57 @@ def test_loading_again_keeps_the_demo_users_password(db: Session) -> None:
     load_snapshot(db, [snapshot_item()], STORES, RULES)
 
     assert db.scalars(select(User.password_hash).where(User.is_demo)).one() == first_hash
+
+
+SECOND_MILK = snapshot_item(
+    name="Lapte Secund Load, 1 l", path=["Grupa Load", "Lapte Load", "1.5%", "1 l"]
+)
+
+
+def test_loading_removes_a_product_gone_from_the_snapshot(db: Session) -> None:
+    load_snapshot(db, [snapshot_item(), SECOND_MILK], STORES, RULES)
+
+    load_snapshot(db, [snapshot_item()], STORES, RULES)
+
+    names = db.scalars(select(StoreProduct.name).where(StoreProduct.name.like("%Load%"))).all()
+    assert names == ["Lapte Brânză Load, 1 l"]
+
+
+def test_loading_removes_categories_nothing_uses_any_more(db: Session) -> None:
+    load_snapshot(db, [snapshot_item(), SECOND_MILK], STORES, RULES)
+
+    load_snapshot(db, [snapshot_item()], STORES, RULES)
+
+    milk = category(db, "Lapte Load")
+    assert db.scalars(select(Category.name).where(Category.parent_id == milk.id)).all() == ["3.5%"]
+
+
+def test_loading_keeps_a_product_used_in_a_shopping_list(db: Session) -> None:
+    load_snapshot(db, [snapshot_item(), SECOND_MILK], STORES, RULES)
+    saved = product(db, "Lapte Secund Load, 1 l")
+    user = db.scalars(select(User).where(User.is_demo)).one()
+    shopping_list = ShoppingList(user_id=user.id, name="Lista Load")
+    db.add(shopping_list)
+    db.flush()
+    db.add(
+        ListItem(
+            list_id=shopping_list.id,
+            size_category_id=saved.size_category_id,
+            chosen_product_id=saved.id,
+            quantity=Decimal("1"),
+        )
+    )
+    db.flush()
+
+    load_snapshot(db, [snapshot_item()], STORES, RULES)
+
+    assert product(db, "Lapte Secund Load, 1 l").id == saved.id
+
+
+def test_loading_leaves_other_stores_alone(db: Session, sample: Any) -> None:
+    load_snapshot(db, [snapshot_item()], STORES, RULES)
+
+    assert product(db, sample.products[0].name).id == sample.products[0].id
 
 
 def test_load_snapshot_rejects_a_product_whose_store_is_unknown(db: Session) -> None:

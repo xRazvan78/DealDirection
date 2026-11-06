@@ -1,7 +1,8 @@
 """Entry point: uv run python -m dealdata.load. Re-runnable. Owner: Member 1, Task 5.
 
 Loads data/snapshot/products.json, the categories it uses, the stores and the demo
-user into Postgres. Running it again updates rows, and never adds duplicates.
+user into Postgres. Running it again updates rows, never adds duplicates, and removes
+products and categories gone from the snapshot, unless a shopping list uses them.
 """
 
 import json
@@ -15,7 +16,15 @@ import yaml
 from app.config import get_settings
 from app.db import get_engine
 from app.init_db import init_db
-from app.models import Category, Store, StoreLocation, StoreProduct, User, UserStore
+from app.models import (
+    Category,
+    ListItem,
+    Store,
+    StoreLocation,
+    StoreProduct,
+    User,
+    UserStore,
+)
 from app.textutil import fold
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -34,6 +43,9 @@ def load_snapshot(
     category_ids = _load_categories(db, products, rules)
     _load_products(db, products, store_ids, category_ids)
     _load_demo_user(db, store_ids)
+    db.flush()
+    _remove_stale_products(db, products, store_ids)
+    _remove_unused_categories(db)
     db.flush()
 
 
@@ -114,6 +126,38 @@ def _load_products(
         row.source_url = item["source_url"]
         row.search_text = fold(" ".join(filter(None, (item["name"], item["brand"]))))
         row.updated_at = datetime.fromisoformat(item["updated_at"]).replace(tzinfo=UTC)
+
+
+def _remove_stale_products(
+    db: Session, products: list[dict], store_ids: dict[str, int]
+) -> None:
+    """Delete these stores' products gone from the snapshot, unless a list uses them."""
+    current = {(store_ids[item["store"]], item["name"]) for item in products}
+    in_lists = set(db.scalars(select(ListItem.chosen_product_id))) | set(
+        db.scalars(select(ListItem.assigned_product_id))
+    )
+    query = select(StoreProduct).where(StoreProduct.store_id.in_(store_ids.values()))
+    for row in db.scalars(query):
+        if (row.store_id, row.name) not in current and row.id not in in_lists:
+            db.delete(row)
+    db.flush()
+
+
+def _remove_unused_categories(db: Session) -> None:
+    """Delete rows with no products, lists or children, from the bottom up."""
+    while True:
+        used = (
+            set(db.scalars(select(StoreProduct.size_category_id)))
+            | set(db.scalars(select(StoreProduct.type_category_id)))
+            | set(db.scalars(select(ListItem.size_category_id)))
+            | set(db.scalars(select(Category.parent_id)))
+        )
+        unused = [row for row in db.scalars(select(Category)) if row.id not in used]
+        if not unused:
+            return
+        for row in unused:
+            db.delete(row)
+        db.flush()
 
 
 def _load_demo_user(db: Session, store_ids: dict[str, int]) -> None:

@@ -411,6 +411,62 @@ def test_classify_keeps_a_chocolate_with_milk_out_of_the_milk_leaf() -> None:
     assert leaf.path[0] == "Ciocolată"
 
 
+def category_of(name: str) -> str | None:
+    size = parse_size(name)
+    assert size is not None, name
+    leaf = classify(product_named(name), size, load_tree(REAL_TREE))
+    return leaf.path[0] if leaf else None
+
+
+@pytest.mark.parametrize(
+    ("name", "category"),
+    [
+        ("Lapte praf integral Dr. Oetker 250g", "Lapte"),
+        ("Lapte de crestere Nestle NAN Optipro 5, 3+ ani, 700 g", "Hrană bebeluși"),
+        ("Apa plata Vedda Baby, 1 l", "Apă"),
+        ("Rezerva detergent de vase cu otet Svelto, 1 l", "Detergent"),
+        ("Detergent de vase Sano Spark migdale, 1L", "Detergent"),
+        ("Detergent de vase cu bicarbonat Triumf, 500 ml", "Detergent"),
+        ("Otet din cidru de mere De Nigris 500 ml", "Oțet"),
+        ("Faina alba pentru prajituri Auchan, tip 000, 1 kg", "Făină"),
+        ("Faina alba de grau 550 pentru pizza Panzani, 1kg", "Făină"),
+        ("Paine din faina alba de grau Vel Pitar, feliata 600 g", "Pâine"),
+        ("Ulei din turte de masline Costa d'Oro 1L", "Ulei"),
+        ("Ulei de masline extravirgin 250 ml Kaiser Franz Josef", "Ulei"),
+        ("Bautura din ovaz Alpro, 1 l", "Lapte"),
+        ("Knorr Cub Vita 10 Buc 5L 100G", "Supe"),
+        ("Bautura necarbogazoasa cu extract de ceai negru si lamaie, 1.5 l", "Ceai"),
+    ],
+)
+def test_real_tree_files_a_product_by_what_it_is(name: str, category: str) -> None:
+    assert category_of(name) == category
+
+
+@pytest.mark.parametrize(
+    ("name", "wrong"),
+    [
+        ("Lapte praf integral Dr.Oetker 130g", "Hrană bebeluși"),
+        ("Lotiune hidratanta Auchan Baby Bio, cu ulei de masline, 200 ml", "Hrană bebeluși"),
+        ("Lotiune tonica Garnier Vitamin C cu efect de iluminare, 200 ml", "Băuturi răcoritoare"),
+        ("Mirin din vin de orez Saitaku 150ml", "Vin"),
+        ("Dr.Oetker Ciocco Latte cu Rom 21g", "Băuturi spirtoase"),
+        ("Soia texturat cuburi Inedit 100 g", "Supe"),
+        ("Crochete vegetale din soia Inedit in sos tomat 155 g", "Sosuri"),
+        ("Dropsuri fara zahar cu aroma de capsuni si frisca 40 g", "Frișcă"),
+    ],
+)
+def test_real_tree_keeps_a_product_out_of_a_category_it_only_mentions(
+    name: str, wrong: str
+) -> None:
+    assert category_of(name) != wrong
+
+
+def test_real_tree_gives_every_leaf_an_alias() -> None:
+    missing = [rule.path for rule in load_tree(REAL_TREE) if not rule.aliases]
+
+    assert missing == []
+
+
 def test_category_nodes_turn_a_leaf_into_database_rows() -> None:
     rule = LeafRule(
         path=("Lapte", "3.5%", "1 l"),
