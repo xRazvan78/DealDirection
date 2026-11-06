@@ -109,7 +109,7 @@ describe('Browse', () => {
     const shop = page.querySelector('.point-shop');
 
     expect(shop?.textContent).toContain(ro.browse.pointShop);
-    expect(shop?.getAttribute('href')).toBe('/wallet#rewards');
+    expect(shop?.getAttribute('href')).toBe('/wallet');
   });
 
   it('keeps the page usable when the points fail to load', async () => {
@@ -179,6 +179,14 @@ describe('Browse', () => {
       storeName: 'Auchan',
     });
     expect(page.querySelector('.product .add')?.textContent).toContain(ro.browse.added);
+  });
+
+  it('remembers the size category, so stores can be compared later', async () => {
+    await openProducts();
+
+    page.querySelector<HTMLButtonElement>('.product .add')!.click();
+
+    expect(TestBed.inject(CartService).items()[0].sizeCategoryId).toBe(100);
   });
 
   it('adds the cheapest generic option to the cart', async () => {

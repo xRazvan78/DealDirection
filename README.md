@@ -327,6 +327,7 @@ Each unit has one job, and can be tested without the others.
 | `receipts`        | list, store, fingerprint (unique), purchased_at, total, estimate, paid, modifier, points; unique on list and store                         |
 | `receipt_lines`   | receipt, raw text, quantity, line total, matched list item                                                                                 |
 | `points_ledger`   | user, amount, reason, receipt, created_at                                                                                                  |
+| `vouchers`        | user, reward, store, code (unique), expires_at, used_at |
 | `loyalty_cards`   | user, store, code image; unique on user and store                                                                                          |
 
 Create tables with `Base.metadata.create_all`, since a hackathon doesn't need migrations.
@@ -346,8 +347,8 @@ All routes are under `/api`.
 | Plans      | `POST /lists/{id}/plans`, `POST /lists/{id}/suggestion/accept`, `POST /lists/{id}/activate`, `GET /lists/{id}/parts`   |
 | Receipts   | `POST /lists/{id}/receipts?store_id=`                                                                                  |
 | Import     | `POST /imports`, `POST /imports/confirm`                                                                               |
-| Wallet     | `GET /wallet`, `GET /rewards`, `POST /rewards/{id}/redeem`                                                             |
-| Cards      | `GET /cards`, `POST /cards`, `GET /cards/{id}/image`, `DELETE /cards/{id}`                                             |
+| Wallet     | `GET /wallet`, `GET /rewards`, `POST /rewards/{id}/redeem`, `GET /vouchers` |
+| Cards          | Saved cards with a typed label, added from a photo or the camera, and a large code view |
 
 ### Configuration
 
@@ -379,13 +380,13 @@ All screens are in Romanian.
 | Login          | Simple login with minimal details, and a demo user entry                     |
 | Browse         | Category → type → size, generic price, brand search                          |
 | Deals          | Seasonal offers and large discounts, opened from the Home screen             |
-| Cart           | Items added by hand, from Home or by import, total, points, shops, directions, receipt scan |
+| Cart           | Items added by hand, from Home or by import, store comparison, total, points, shops, directions, receipt scan |
 | Plan           | Chosen plan by store, with directions and a receipt button per store         |
 | Import         | One button for a PDF, picture or text, the number of days, the review screen |
 | Lists          | Saved lists: view, edit, delete                                              |
 | Receipt result | Matched and unmatched items, estimate, paid, modifier, points                |
-| Wallet         | Points balance, history, simulated rewards                                   |
-| Cards          | Card wallet and large code view                                              |
+| Point Shop     | Points balance, simulated rewards, point history, at `/wallet`                 |
+| Cards          | Saved cards with a typed label, added from a photo or the camera, and a large code view |
 | Settings       | Store selection, logout                                                      |
 
 ### Error handling

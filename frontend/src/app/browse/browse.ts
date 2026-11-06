@@ -38,6 +38,7 @@ export class Browse {
   protected readonly results = signal<SearchResult[] | null>(null);
   protected readonly products = signal<CategoryProducts | null>(null);
   protected readonly productsTitle = signal('');
+  private readonly productsCategoryId = signal<number | null>(null);
   protected readonly query = signal('');
   protected readonly loading = signal(true);
   protected readonly failed = signal(false);
@@ -75,6 +76,7 @@ export class Browse {
     this.load(this.api.getCategoryProducts(categoryId), (products) => {
       this.products.set(products);
       this.productsTitle.set(title);
+      this.productsCategoryId.set(categoryId);
     });
   }
 
@@ -91,7 +93,7 @@ export class Browse {
   }
 
   protected addToCart(product: Product): void {
-    this.cart.addProduct(product);
+    this.cart.addProduct(product, this.productsCategoryId());
     this.addedId.set(product.id);
   }
 

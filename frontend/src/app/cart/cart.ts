@@ -1,12 +1,14 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, inject, signal } from '@angular/core';
-import { finalize, forkJoin, map, of, switchMap } from 'rxjs';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { Observable, catchError, finalize, forkJoin, map, of, switchMap } from 'rxjs';
 import { ApiService } from '../core/api';
 import { ImportPreview, Product, ReceiptResult } from '../core/models';
 import { formatLei } from '../shared/format';
 import { isPrice, isQuantity, normalizeAmount } from '../shared/money';
 import { ro } from '../shared/ro';
 import { CartItem, CartService } from './cart.service';
+import { CartPlan, comparePlans } from './plans';
 
 // `/imports` scales a plan by days. A plain list has no days, so it stays as written.
 const IMPORT_DAYS = 1;
@@ -54,10 +56,33 @@ export class Cart {
     return stores.find(({ id }) => id === this.chosenStoreId()) ?? stores[0] ?? null;
   });
 
+  private readonly categoryKey = computed(() => {
+    const ids = this.cart.items().flatMap(({ sizeCategoryId }) => sizeCategoryId ?? []);
+    return [...new Set(ids)].sort((a, b) => a - b).join(',');
+  });
+  private readonly offers = toSignal(
+    toObservable(this.categoryKey).pipe(switchMap((key) => this.loadOffers(key))),
+    { initialValue: new Map<number, Product[]>() },
+  );
+  protected readonly comparison = computed(() => comparePlans(this.cart.items(), this.offers()));
+
   protected readonly directionsFailed = signal(false);
   protected readonly scanning = signal(false);
   protected readonly receiptError = signal<string | null>(null);
   protected readonly receiptResult = signal<ReceiptResult | null>(null);
+
+  protected isChosen(plan: CartPlan): boolean {
+    const items = this.cart.items();
+    return plan.lines.every(({ itemId, offer }) => {
+      const item = items.find(({ id }) => id === itemId);
+      return item?.storeId === offer.store_id && item.price === offer.price;
+    });
+  }
+
+  protected choosePlan(plan: CartPlan): void {
+    this.cart.applyPlan(plan.lines);
+    this.chosenStoreId.set(null);
+  }
 
   protected chooseStore(id: number): void {
     this.chosenStoreId.set(id);
@@ -203,14 +228,35 @@ export class Cart {
   private findStore(itemId: number, name: string): void {
     this.api.search(name).subscribe({
       next: (results) => {
-        const generic = results[0]?.generic;
+        const match = results[0];
+        const generic = match?.generic;
         if (generic) {
-          this.cart.setStore(itemId, { id: generic.store_id, name: generic.store_name });
+          this.cart.setStore(
+            itemId,
+            { id: generic.store_id, name: generic.store_name },
+            match.size_category_id,
+          );
+        } else {
+          this.cart.clearStore(itemId);
         }
       },
       // The product stays in the cart, just without a known store.
       error: () => undefined,
     });
+  }
+
+  // One price that fails to load only leaves that product out of the comparison.
+  private loadOffers(key: string): Observable<Map<number, Product[]>> {
+    if (!key) {
+      return of(new Map<number, Product[]>());
+    }
+    const lookups = key.split(',').map((id) =>
+      this.api.getCategoryProducts(Number(id)).pipe(
+        map(({ products }): [number, Product[]] => [Number(id), products]),
+        catchError(() => of<[number, Product[]]>([Number(id), []])),
+      ),
+    );
+    return forkJoin(lookups).pipe(map((entries) => new Map(entries)));
   }
 
   private priceImport(preview: ImportPreview) {
@@ -233,9 +279,15 @@ export class Cart {
           quantity,
           price: generic.price,
           store: { id: generic.store_id, name: generic.store_name },
+          sizeCategoryId: item.size_category_id,
         });
       } else {
-        this.cart.add({ name: item.food, quantity, price: '0' });
+        this.cart.add({
+          name: item.food,
+          quantity,
+          price: '0',
+          sizeCategoryId: item.size_category_id,
+        });
       }
     }
     unmapped.forEach((food) => this.cart.add({ name: food, quantity: '1', price: '0' }));
