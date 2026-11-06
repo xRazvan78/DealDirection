@@ -100,6 +100,36 @@ python -m dealdata.load
 
 This also creates two test users, `ana@dealdirection.ro` and `mihai@dealdirection.ro`. Both log in with `SEED_PASSWORD`, which is in `.env.example`.
 
+**Open it on a phone:** this needs `cloudflared` installed and the backend from step 2 running. The tunnel gives the app a public HTTPS address, which the phone's camera needs. Anyone with the link can reach your app while the tunnel is running.
+
+In a new terminal, build the frontend, because the backend serves that build. Do this again after any frontend change:
+
+```bash
+cd frontend
+```
+
+```bash
+npx ng build
+```
+
+Start the tunnel and leave it running:
+
+```bash
+cloudflared tunnel --url http://localhost:8000
+```
+
+It prints a box with an address ending in `.trycloudflare.com`. Copy that address. In another new terminal, make the QR code, replacing the sample address with yours:
+
+```bash
+cd frontend
+```
+
+```bash
+npx qrcode --small "https://your-address.trycloudflare.com"
+```
+
+Scan the code with your phone. The address changes each time you restart `cloudflared`, so you'll need a new QR code then.
+
 [requirements.txt](requirements.txt) also lists the tools pip can't install.
 
 ## Demo goal
