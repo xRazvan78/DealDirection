@@ -1,4 +1,6 @@
-import { CanActivateFn } from '@angular/router';
+import { inject } from '@angular/core';
+import { CanActivateFn, Router } from '@angular/router';
+import { AuthService } from './auth';
 
-// Task 14: redirect to /login when there is no token. Not attached to any route yet.
-export const authGuard: CanActivateFn = () => true;
+export const authGuard: CanActivateFn = () =>
+  inject(AuthService).token() ? true : inject(Router).parseUrl('/login');

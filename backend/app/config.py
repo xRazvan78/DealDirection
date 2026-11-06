@@ -14,7 +14,6 @@ class Settings(BaseSettings):
 
     # Secrets and machine-specific values (see .env.example)
     DATABASE_URL: str
-    TEST_DATABASE_URL: str = ""
     JWT_SECRET: str
     TESSERACT_CMD: str = "tesseract"
     DEFAULT_LAT: float = 0.0

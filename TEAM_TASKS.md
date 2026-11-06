@@ -139,7 +139,7 @@ Stop for 10 minutes at each one, and make a cut if you're behind.
 ## Working rules
 
 - Agree the API in hours 0–2, and don't change a route without telling the frontend members.
-- Use one branch per task, and merge to `main` only when its tests pass.
+- Use one branch per task, and merge to `main` only when its tests pass. Frontend tasks merge into the `frontend` branch instead, and `frontend` merges to `main` when all of it is ready.
 - Keep Romanian text in `frontend/src/app/shared/ro.ts`.
 - Keep `.env`, secrets and raw scrape output out of git.
 - After hour 21, fix bugs only.
@@ -155,7 +155,7 @@ Each task lists its files, what other tasks rely on, the decisions already made,
 - **Files:** `pyproject.toml`, `.python-version`, `.gitignore`, `.env.example`, `backend/app/{__init__,config,db,models,textutil,main}.py`, `tests/conftest.py`
 - **Setup:** require Python `>=3.12,<3.13`, and make both `app` and `dealdata` importable under `uv run` and pytest. `.gitignore` covers `.env`, `.venv`, `data/raw/`, `node_modules` and `frontend/dist`.
 - **Produces:** `get_settings() -> Settings`, `get_db()`, all models in `app.models`, `fold(text: str) -> str`, `app.main.app`
-- **Test fixtures:** `db`, `client`, and `sample` (2 stores, `Lapte → 3.5% → 1 l`, 3 products)
+- **Test fixtures:** `db` (connects to the one `dealdirection` database through `DATABASE_URL` and rolls back a transaction after each test), `client`, and `sample` (2 stores, `Lapte → 3.5% → 1 l`, 3 products)
 - **Tests:**
   - Settings match the README's configuration table.
   - `fold("Brânză de Țară") == "branza de tara"`.
@@ -446,7 +446,7 @@ Each task lists its files, what other tasks rely on, the decisions already made,
 ### Task 14: Frontend shell, login and settings (Member 4)
 
 - **Files:** `frontend/` from `ng new frontend --routing --style=scss --ssr=false` and `ng add @angular/pwa`, `src/app/core/`, `src/app/shared/ro.ts`, `src/app/login/`, `src/app/settings/`, `proxy.conf.json`. Also update `backend/app/main.py`.
-- **Produces:** `ApiService` with one typed method per route, `AuthService.token`, the bottom navigation (Browse, Cart, Lists, Wallet, Cards), and `formatLei(value: string): string`
+- **Produces:** `ApiService` with one typed method per route, `AuthService.token`, the bottom navigation (Deals, Cart, Cards, from left to right), and `formatLei(value: string): string`. Deals opens the Browse screen. Lists, Wallet and Settings are linked from the top bar until the final design arrives.
 - **Rules:** keep the token in `localStorage`. Settings has store toggles and logout. FastAPI serves `frontend/dist/frontend/browser`, and returns `index.html` for unknown non-API paths. Design for phone width first.
 - **Tests:**
   - The token is stored after login, and sent on API calls.
