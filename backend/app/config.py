@@ -14,7 +14,6 @@ class Settings(BaseSettings):
 
     # Secrets and machine-specific values (see .env.example)
     DATABASE_URL: str
-    TEST_DATABASE_URL: str = ""
     JWT_SECRET: str
     TESSERACT_CMD: str = "tesseract"
     DEFAULT_LAT: float = 0.0
@@ -28,7 +27,9 @@ class Settings(BaseSettings):
     MIN_SPLIT_SAVING_LEI: Decimal = Decimal("10")
 
     # Scanning and uploads
-    OCR_LANG: str = "ron+eng"
+    OCR_ENGINE: str = "rapidocr"  # or "tesseract"; RapidOCR read real receipt photos far better
+    OCR_RAPID_LANG: str = "ro"
+    OCR_LANG: str = "ron+eng"  # Tesseract only
     OCR_PSM: int = 4
     OCR_MIN_MATCH_SCORE: int = 70
     MAX_UPLOAD_MB: int = 10

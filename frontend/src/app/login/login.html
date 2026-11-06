@@ -1,1 +1,33 @@
-<p>login works!</p>
+<h1>{{ ro.appName }}</h1>
+<h2>{{ registering() ? ro.login.registerTitle : ro.login.title }}</h2>
+
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <label>
+    {{ ro.login.email }}
+    <input type="email" formControlName="email" autocomplete="email" />
+  </label>
+  <label>
+    {{ ro.login.password }}
+    <input
+      type="password"
+      formControlName="password"
+      [attr.autocomplete]="registering() ? 'new-password' : 'current-password'"
+    />
+  </label>
+
+  @if (error(); as message) {
+    <p class="error" role="alert">{{ message }}</p>
+  }
+
+  <button type="submit" [disabled]="busy()">
+    {{ registering() ? ro.login.registerSubmit : ro.login.submit }}
+  </button>
+</form>
+
+<button type="button" class="switch-mode" (click)="switchMode()">
+  {{ registering() ? ro.login.toLogin : ro.login.toRegister }}
+</button>
+
+<button type="button" class="demo" [disabled]="busy()" (click)="demo()">
+  {{ ro.login.demo }}
+</button>

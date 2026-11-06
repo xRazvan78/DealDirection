@@ -1,1 +1,11 @@
 # Receipt abbreviations and their full words. Owners: Members 1 and 3, Task 10.
+#
+# Each entry is `short: full words`, written in lower case without diacritics.
+# Short forms are replaced as whole words before matching, so
+# "LAPTE ALB 1L" becomes "lapte albalact 1 l" with the entry below.
+#
+# Add entries from real receipts, not guesses. For example:
+#   alb: albalact
+#   pn: paine
+#   ciocol: ciocolata
+{}
