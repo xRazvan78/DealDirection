@@ -130,7 +130,7 @@ export const ro = {
     demo: 'Continuă cu contul demo',
     toRegister: 'Nu ai cont? Creează unul',
     toLogin: 'Ai deja cont? Intră',
-    invalid: 'Introdu un email valid și o parolă de cel puțin 8 caractere.',
+    invalid: 'Introdu un email valid și o parolă de cel puțin 6 caractere, cu o cifră și un caracter special.',
     wrongDetails: 'Emailul sau parola nu sunt corecte.',
     emailTaken: 'Există deja un cont cu acest email.',
     failed: 'Nu ne-am putut conecta. Încearcă din nou.',

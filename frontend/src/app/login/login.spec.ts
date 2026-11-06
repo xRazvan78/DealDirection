@@ -6,7 +6,7 @@ import { ro } from '../shared/ro';
 import { Login } from './login';
 
 // Built in code, so secret scanners have no literal to flag. Not real passwords.
-const testPassword = 'x'.repeat(8);
+const testPassword = 'x'.repeat(4) + '1!';
 const wrongPassword = 'y'.repeat(8);
 
 describe('Login', () => {
@@ -78,6 +78,19 @@ describe('Login', () => {
 
     http.expectNone('/api/auth/login');
   });
+
+  it.each(['x'.repeat(3) + '1!', 'x'.repeat(5) + '!', 'x'.repeat(5) + '1'])(
+    'refuses a weak password when registering: %s',
+    (password) => {
+      page.querySelector<HTMLButtonElement>('.switch-mode')!.click();
+      fixture.detectChanges();
+      type('input[type=email]', 'ana@example.com');
+      type('input[type=password]', password);
+      submit();
+
+      http.expectNone('/api/auth/register');
+    },
+  );
 
   it('shows a clear message for wrong details', async () => {
     type('input[type=email]', 'ana@example.com');
