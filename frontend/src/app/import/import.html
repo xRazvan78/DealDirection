@@ -1,1 +1,133 @@
-<p>import works!</p>
+<h1>{{ reviewing() ? ro.import.reviewTitle : ro.import.title }}</h1>
+
+@if (!reviewing()) {
+  <p>{{ ro.import.hint }}</p>
+
+  <form class="source" (submit)="read($event)">
+    <label>
+      {{ ro.import.file }}
+      <input
+        #fileBox
+        type="file"
+        accept="application/pdf,image/*"
+        (change)="chooseFile(fileBox)"
+      />
+    </label>
+
+    <label>
+      {{ ro.import.text }}
+      <textarea
+        rows="6"
+        [value]="text()"
+        (input)="typeText($any($event.target).value)"
+      ></textarea>
+    </label>
+
+    <label class="days">
+      {{ ro.import.days }}
+      <input
+        type="number"
+        min="1"
+        step="1"
+        inputmode="numeric"
+        [value]="days()"
+        (input)="days.set($any($event.target).value)"
+      />
+    </label>
+
+    @if (readError(); as message) {
+      <p class="error" role="alert">{{ message }}</p>
+    }
+    @if (reading()) {
+      <p class="reading" role="status">{{ ro.import.reading }}</p>
+    }
+
+    <button type="submit" class="submit primary" [disabled]="!canRead()">
+      {{ ro.import.submit }}
+    </button>
+  </form>
+} @else {
+  <label class="list-name">
+    {{ ro.import.listName }}
+    <input
+      type="text"
+      maxlength="200"
+      [value]="listName()"
+      (input)="listName.set($any($event.target).value)"
+    />
+  </label>
+
+  @for (item of items(); track $index) {
+    <article class="item-row">
+      <div>
+        <strong>{{ item.food }}</strong>
+        <span class="details">{{ item.path }}</span>
+        <span class="details">
+          {{ item.packs }} {{ item.packs === 1 ? ro.import.pack : ro.import.packs }}
+        </span>
+      </div>
+      <button type="button" class="remove" (click)="removeItem($index)">
+        {{ ro.import.remove }}
+      </button>
+    </article>
+  }
+
+  @if (unmapped().length > 0) {
+    <section class="unmapped">
+      <h2>{{ ro.import.unmappedTitle }}</h2>
+      <p>{{ ro.import.unmappedHint }}</p>
+
+      @for (food of unmapped(); track food) {
+        <article class="unmapped-row">
+          <strong>{{ food }}</strong>
+          <div class="actions">
+            <button type="button" class="pick" (click)="startPicking(food)">
+              {{ ro.import.pick }}
+            </button>
+            <button type="button" class="remove" (click)="removeUnmapped(food)">
+              {{ ro.import.remove }}
+            </button>
+          </div>
+
+          @if (picking() === food) {
+            <form class="picker" role="search" (submit)="searchPick($event)">
+              <input
+                type="search"
+                [attr.aria-label]="ro.import.search"
+                [value]="pickQuery()"
+                (input)="pickQuery.set($any($event.target).value)"
+              />
+              <button type="submit">{{ ro.import.searchButton }}</button>
+            </form>
+
+            @if (pickFailed()) {
+              <p class="error" role="alert">{{ ro.import.searchFailed }}</p>
+            }
+            @if (pickResults(); as results) {
+              @for (result of results; track result.size_category_id) {
+                <button type="button" class="result" (click)="pick(food, result)">
+                  {{ result.path }}
+                </button>
+              } @empty {
+                <p>{{ ro.import.noResults }}</p>
+              }
+            }
+          }
+        </article>
+      }
+    </section>
+  } @else if (items().length === 0) {
+    <p>{{ ro.import.nothingLeft }}</p>
+  }
+
+  @if (confirmFailed()) {
+    <p class="error" role="alert">{{ ro.import.confirmFailed }}</p>
+  }
+
+  <button type="button" class="confirm primary" [disabled]="!canConfirm()" (click)="confirm()">
+    {{ ro.import.confirm }}
+  </button>
+  <button type="button" class="start-over" (click)="startOver()">
+    {{ ro.import.startOver }}
+  </button>
+}

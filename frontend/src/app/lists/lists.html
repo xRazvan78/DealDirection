@@ -1,1 +1,53 @@
-<p>lists works!</p>
+<h1>{{ ro.lists.title }}</h1>
+
+@if (saveFailed()) {
+  <p class="error" role="alert">{{ ro.lists.saveFailed }}</p>
+}
+
+@if (lists(); as items) {
+  @for (list of items; track list.id) {
+    <article class="list-row">
+      @if (renamingId() === list.id) {
+        <form (submit)="saveName($event, list)">
+          <input
+            type="text"
+            maxlength="200"
+            [attr.aria-label]="ro.lists.name"
+            [value]="newName()"
+            (input)="newName.set($any($event.target).value)"
+          />
+          <div class="actions">
+            <button type="submit" class="save">{{ ro.lists.save }}</button>
+            <button type="button" class="cancel" (click)="cancelRename()">
+              {{ ro.lists.cancel }}
+            </button>
+          </div>
+        </form>
+      } @else {
+        <a class="open" [routerLink]="linkTo(list)">
+          <strong>{{ list.name }}</strong>
+          <span class="details">
+            {{ ro.lists.states[list.state] }} · {{ list.items.length }}
+            {{ list.items.length === 1 ? ro.lists.product : ro.lists.products }}
+          </span>
+        </a>
+        <div class="actions">
+          <button type="button" class="rename" (click)="startRename(list)">
+            {{ ro.lists.rename }}
+          </button>
+          <button type="button" class="delete" (click)="remove(list)">
+            {{ ro.lists.delete }}
+          </button>
+        </div>
+      }
+    </article>
+  } @empty {
+    <p>{{ ro.lists.empty }}</p>
+  }
+} @else if (loadFailed()) {
+  <p class="error" role="alert">{{ ro.lists.loadFailed }}</p>
+} @else {
+  <p>{{ ro.loading }}</p>
+}
+
+<a class="import" routerLink="/import">{{ ro.lists.importLink }}</a>

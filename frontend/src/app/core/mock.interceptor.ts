@@ -1,6 +1,6 @@
 import { HttpInterceptorFn, HttpRequest, HttpResponse } from '@angular/common/http';
 import { delay, of } from 'rxjs';
-import { Category, CategoryProducts, Product, Store } from './models';
+import { Category, CategoryProducts, Product, ShoppingList, Store } from './models';
 
 // Fake API for `ng serve`, active only in development builds. Delete a route's
 // handler as soon as the real one exists: unmatched calls go to the backend.
@@ -73,6 +73,25 @@ function pathOf(sizeId: number): string {
   return names.join(' > ');
 }
 
+const emptyList = (id: number, name: string, state: ShoppingList['state']): ShoppingList => ({
+  id,
+  name,
+  state,
+  items: [],
+});
+
+let lists: ShoppingList[] = [
+  emptyList(1, 'Cumpărături săptămânale', 'draft'),
+  emptyList(2, 'Plan alimentar', 'active'),
+  emptyList(3, 'Lista de luna trecută', 'completed'),
+];
+
+function createList(name: string): ShoppingList {
+  const list = emptyList(Math.max(0, ...lists.map(({ id }) => id)) + 1, name, 'draft');
+  lists = [list, ...lists];
+  return list;
+}
+
 type Handler = (request: HttpRequest<unknown>) => unknown;
 
 const handlers: Record<string, Handler> = {
@@ -103,15 +122,47 @@ const handlers: Record<string, Handler> = {
         generic: productsFor(sizeId).generic,
       }));
   },
+  'GET /api/lists': () => lists,
+  'POST /api/imports': () => ({
+    items: [
+      { food: 'lapte', size_category_id: 100, path: pathOf(100), packs: 2 },
+      { food: 'pâine', size_category_id: 200, path: pathOf(200), packs: 1 },
+    ],
+    unmapped: ['quinoa'],
+  }),
+  'POST /api/imports/confirm': (request) => ({
+    list_id: createList((request.body as { name: string }).name).id,
+  }),
 };
 
+function listHandler(request: HttpRequest<unknown>, listId: number): Handler | undefined {
+  if (request.method === 'PATCH') {
+    return () => {
+      const { name } = request.body as { name: string };
+      lists = lists.map((list) => (list.id === listId ? { ...list, name } : list));
+      return lists.find((list) => list.id === listId);
+    };
+  }
+  if (request.method === 'DELETE') {
+    return () => {
+      lists = lists.filter((list) => list.id !== listId);
+      return null;
+    };
+  }
+  return undefined;
+}
+
 const categoryProductsRoute = /^\/api\/categories\/(\d+)\/products$/;
+const listRoute = /^\/api\/lists\/(\d+)$/;
 
 export const mockInterceptor: HttpInterceptorFn = (request, next) => {
   const sizeId = request.url.match(categoryProductsRoute)?.[1];
+  const listId = request.url.match(listRoute)?.[1];
   const handler = sizeId
     ? () => productsFor(Number(sizeId))
-    : handlers[`${request.method} ${request.url}`];
+    : listId
+      ? listHandler(request, Number(listId))
+      : handlers[`${request.method} ${request.url}`];
   return handler
     ? of(new HttpResponse({ status: 200, body: handler(request) })).pipe(delay(300))
     : next(request);
