@@ -207,11 +207,22 @@ class PointsLedger(Base):
 
 
 class LoyaltyCard(Base):
+    """A loyalty card: one per brand per user, for any supermarket in app.cards.brands.
+
+    The code read from the card's photo is kept and redrawn cleanly at the till.
+    The photo itself is only kept when no code could be read from it.
+    """
+
     __tablename__ = "loyalty_cards"
-    __table_args__ = (UniqueConstraint("user_id", "store_id"),)
+    __table_args__ = (
+        UniqueConstraint("user_id", "brand"),
+        CheckConstraint("code_text IS NOT NULL OR photo IS NOT NULL", name="has_code_or_photo"),
+    )
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
-    store_id: Mapped[int] = mapped_column(ForeignKey("stores.id"))
-    code_image: Mapped[bytes] = mapped_column(LargeBinary)
-    image_media_type: Mapped[str] = mapped_column(String(50))
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    brand: Mapped[str] = mapped_column(String(30))
+    code_text: Mapped[str | None] = mapped_column(String(500))
+    code_format: Mapped[str | None] = mapped_column(String(20))
+    photo: Mapped[bytes | None] = mapped_column(LargeBinary)
+    created_at: Mapped[datetime] = utc_timestamp()
