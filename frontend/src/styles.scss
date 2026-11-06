@@ -1,8 +1,19 @@
-/* Global styles. The app stays light until the final design arrives. */
+/* Global styles and colours. Screens use these tokens, not their own colours. */
+:root {
+  --navy: #0b2545;
+  --navy-soft: #1b3a6b;
+  --accent: #f2a900;
+  --surface: #f3f5f9;
+  --border: #d3dae6;
+  --text: #14213d;
+  --muted: #5a6780;
+  --on-navy: #fff;
+}
+
 html {
   color-scheme: light;
   background: #fff;
-  color: #111;
+  color: var(--text);
   font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 }
 

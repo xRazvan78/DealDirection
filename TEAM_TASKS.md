@@ -447,7 +447,7 @@ Each task lists its files, what other tasks rely on, the decisions already made,
 ### Task 14: Frontend shell, login and settings (Member 4)
 
 - **Files:** `frontend/` from `ng new frontend --routing --style=scss --ssr=false` and `ng add @angular/pwa`, `src/app/core/`, `src/app/shared/ro.ts`, `src/app/login/`, `src/app/settings/`, `proxy.conf.json`. Also update `backend/app/main.py`.
-- **Produces:** `ApiService` with one typed method per route, `AuthService.token`, the bottom navigation (Deals, Cart, Cards, from left to right), and `formatLei(value: string): string`. Deals opens the Browse screen. Lists, Wallet and Settings are linked from the top bar until the final design arrives.
+- **Produces:** `ApiService` with one typed method per route, `AuthService.token`, the bottom navigation (Home, Cart, Cards, from left to right), and `formatLei(value: string): string`. Home opens the Browse screen, and its seasonal offers box opens `/deals`. Lists, Import, Wallet and Settings are in the hamburger menu, and the account icon opens Settings.
 - **Rules:** keep the token in `localStorage`. Settings has store toggles and logout. FastAPI serves `frontend/dist/frontend/browser`, and returns `index.html` for unknown non-API paths. Design for phone width first.
 - **Tests:**
   - The token is stored after login, and sent on API calls.

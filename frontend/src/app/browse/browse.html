@@ -1,1 +1,94 @@
-<p>browse works!</p>
+<div class="points-row">
+  <a class="points" routerLink="/wallet">
+    {{ ro.browse.points }}: <strong>{{ balance() ?? '–' }}</strong>
+  </a>
+  <a class="point-shop" routerLink="/wallet" fragment="rewards">{{ ro.browse.pointShop }}</a>
+</div>
+
+<form class="search" role="search" (submit)="search($event)">
+  <input
+    type="search"
+    [placeholder]="ro.browse.search"
+    [attr.aria-label]="ro.browse.search"
+    [value]="query()"
+    (input)="query.set($any($event.target).value)"
+  />
+  <button type="submit" [attr.aria-label]="ro.browse.searchButton">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="11" cy="11" r="6.5" />
+      <path d="m16 16 5 5" />
+    </svg>
+  </button>
+</form>
+
+@if (heading(); as title) {
+  <div class="heading">
+    <button type="button" class="back" [attr.aria-label]="ro.browse.back" (click)="back()">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 5-7 7 7 7" /></svg>
+    </button>
+    <h1>{{ title }}</h1>
+  </div>
+}
+
+<div #list class="list">
+  @if (failed()) {
+    <p class="error" role="alert">{{ ro.browse.loadFailed }}</p>
+  }
+
+  @if (loading()) {
+    <p class="note">{{ ro.loading }}</p>
+  } @else if (products(); as found) {
+    <div class="products">
+      @if (found.generic; as generic) {
+        <article class="generic">
+          <span class="label">{{ ro.browse.cheapest }}</span>
+          <strong>{{ formatLei(generic.price) }}</strong>
+          <span class="details">
+            {{ generic.store_name }} · {{ ro.browse.updated }}
+            {{ generic.updated_at | date: 'dd.MM.yyyy' }}
+          </span>
+        </article>
+      }
+      @for (product of found.products; track product.id) {
+        <article class="product">
+          <span class="name">{{ product.name }}</span>
+          <strong>{{ formatLei(product.price) }}</strong>
+          <span class="details">
+            {{ product.store_name }} · {{ ro.browse.updated }}
+            {{ product.updated_at | date: 'dd.MM.yyyy' }}
+          </span>
+        </article>
+      } @empty {
+        <p class="note">{{ ro.browse.empty }}</p>
+      }
+    </div>
+  } @else if (results(); as found) {
+    @for (result of found; track result.size_category_id) {
+      <button
+        type="button"
+        class="row"
+        (click)="openProducts(result.size_category_id, result.path)"
+      >
+        {{ result.path }}
+        @if (result.generic; as generic) {
+          <strong>{{ formatLei(generic.price) }}</strong>
+        }
+      </button>
+    } @empty {
+      <p class="note">{{ ro.browse.noResults }}</p>
+    }
+  } @else {
+    @for (category of categories(); track category.id) {
+      <button type="button" class="row" (click)="open(category)">{{ category.name }}</button>
+    } @empty {
+      @if (!failed()) {
+        <p class="note">{{ ro.browse.empty }}</p>
+      }
+    }
+  }
+</div>
+
+<a class="seasonal" routerLink="/deals">
+  <h2>{{ ro.browse.seasonalTitle }}</h2>
+  <p>{{ ro.browse.seasonalText }}</p>
+</a>

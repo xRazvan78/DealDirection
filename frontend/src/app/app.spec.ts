@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { App } from './app';
 import { ro } from './shared/ro';
@@ -8,6 +8,8 @@ import { ro } from './shared/ro';
 class Blank {}
 
 describe('App', () => {
+  let fixture: ComponentFixture<App>;
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [App],
@@ -15,35 +17,139 @@ describe('App', () => {
         provideRouter([
           { path: 'login', component: Blank },
           { path: 'browse', component: Blank },
+          { path: 'lists', component: Blank },
         ]),
       ],
     }).compileComponents();
   });
 
   async function openAt(url: string): Promise<HTMLElement> {
-    const fixture = TestBed.createComponent(App);
+    fixture = TestBed.createComponent(App);
     await TestBed.inject(Router).navigateByUrl(url);
     await fixture.whenStable();
     return fixture.nativeElement;
   }
 
-  it('shows three tabs: deals, cart, cards, from left to right', async () => {
+  async function openMenu(page: HTMLElement): Promise<void> {
+    page.querySelector<HTMLButtonElement>('.menu-button')!.click();
+    await fixture.whenStable();
+  }
+
+  function scroll(page: HTMLElement, top: number): HTMLElement {
+    const content = page.querySelector<HTMLElement>('.content')!;
+    content.scrollTop = top;
+    content.dispatchEvent(new Event('scroll'));
+    return content;
+  }
+
+  it('hides the scroll-to-top button near the top', async () => {
+    const page = await openAt('/browse');
+
+    scroll(page, 100);
+    await fixture.whenStable();
+
+    expect(page.querySelector('.scroll-top')).toBeNull();
+  });
+
+  it('shows the scroll-to-top button after scrolling down', async () => {
+    const page = await openAt('/browse');
+
+    scroll(page, 400);
+    await fixture.whenStable();
+
+    expect(page.querySelector('.scroll-top')?.getAttribute('aria-label')).toBe(ro.nav.scrollTop);
+  });
+
+  it('scrolls back to the top when pressed', async () => {
+    const page = await openAt('/browse');
+    const content = scroll(page, 400);
+    content.scrollTo = vi.fn();
+    await fixture.whenStable();
+
+    page.querySelector<HTMLButtonElement>('.scroll-top')!.click();
+
+    expect(content.scrollTo).toHaveBeenCalledWith({ top: 0, behavior: 'smooth' });
+  });
+
+  it('hides the button again after scrolling back up', async () => {
+    const page = await openAt('/browse');
+    scroll(page, 400);
+    await fixture.whenStable();
+
+    scroll(page, 0);
+    await fixture.whenStable();
+
+    expect(page.querySelector('.scroll-top')).toBeNull();
+  });
+
+  it('hides the button when opening another page', async () => {
+    const page = await openAt('/browse');
+    scroll(page, 400);
+    await fixture.whenStable();
+
+    await TestBed.inject(Router).navigateByUrl('/lists');
+    await fixture.whenStable();
+
+    expect(page.querySelector('.scroll-top')).toBeNull();
+  });
+
+  it('shows three tabs: home, cart, cards, from left to right', async () => {
     const page = await openAt('/browse');
     const tabs = [...page.querySelectorAll('.bottom-nav a')];
 
     expect(tabs.map((tab) => tab.getAttribute('href'))).toEqual(['/browse', '/cart', '/cards']);
     expect(tabs.map((tab) => tab.textContent?.trim())).toEqual([
-      ro.nav.deals,
+      ro.nav.home,
       ro.nav.cart,
       ro.nav.cards,
     ]);
   });
 
-  it('keeps lists, points and settings reachable from the top bar', async () => {
+  it('has the hamburger on the left and the account link on the right', async () => {
     const page = await openAt('/browse');
-    const links = [...page.querySelectorAll('.top-bar a')].map((a) => a.getAttribute('href'));
+    const bar = page.querySelector('.top-bar')!;
 
-    expect(links).toEqual(['/lists', '/wallet', '/settings']);
+    expect(bar.firstElementChild?.classList.contains('menu-button')).toBe(true);
+    expect(bar.lastElementChild?.getAttribute('href')).toBe('/settings');
+    expect(bar.lastElementChild?.getAttribute('aria-label')).toBe(ro.nav.account);
+  });
+
+  it('keeps the menu closed at first', async () => {
+    const page = await openAt('/browse');
+
+    expect(page.querySelector('.side-menu')).toBeNull();
+    expect(page.querySelector('.menu-button')?.getAttribute('aria-expanded')).toBe('false');
+  });
+
+  it('opens the menu with lists, import, points and settings', async () => {
+    const page = await openAt('/browse');
+
+    await openMenu(page);
+    const links = [...page.querySelectorAll('.side-menu a')].map((a) => a.getAttribute('href'));
+
+    expect(links).toEqual(['/lists', '/import', '/wallet', '/settings']);
+    expect(page.querySelector('.menu-button')?.getAttribute('aria-expanded')).toBe('true');
+  });
+
+  it('closes the menu after choosing a link', async () => {
+    const page = await openAt('/browse');
+    await openMenu(page);
+
+    page.querySelector<HTMLAnchorElement>('.side-menu a')!.click();
+    await fixture.whenStable();
+
+    expect(page.querySelector('.side-menu')).toBeNull();
+    expect(TestBed.inject(Router).url).toBe('/lists');
+  });
+
+  it('closes the menu when tapping outside it', async () => {
+    const page = await openAt('/browse');
+    await openMenu(page);
+
+    page.querySelector<HTMLElement>('.menu-backdrop')!.click();
+    await fixture.whenStable();
+
+    expect(page.querySelector('.side-menu')).toBeNull();
   });
 
   it('hides the navigation on the login page', async () => {
