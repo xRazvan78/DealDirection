@@ -325,6 +325,7 @@ Each unit has one job, and can be tested without the others.
 | `receipts`        | list, store, fingerprint (unique), purchased_at, total, estimate, paid, modifier, points; unique on list and store                         |
 | `receipt_lines`   | receipt, raw text, quantity, line total, matched list item                                                                                 |
 | `points_ledger`   | user, amount, reason, receipt, created_at                                                                                                  |
+| `vouchers`        | user, reward, store, code (unique), expires_at, used_at |
 | `loyalty_cards`   | user, store, code image; unique on user and store                                                                                          |
 
 Create tables with `Base.metadata.create_all`, since a hackathon doesn't need migrations.
@@ -344,7 +345,7 @@ All routes are under `/api`.
 | Plans      | `POST /lists/{id}/plans`, `POST /lists/{id}/suggestion/accept`, `POST /lists/{id}/activate`, `GET /lists/{id}/parts`   |
 | Receipts   | `POST /lists/{id}/receipts?store_id=`                                                                                  |
 | Import     | `POST /imports`, `POST /imports/confirm`                                                                               |
-| Wallet     | `GET /wallet`, `GET /rewards`, `POST /rewards/{id}/redeem`                                                             |
+| Wallet     | `GET /wallet`, `GET /rewards`, `POST /rewards/{id}/redeem`, `GET /vouchers` |
 | Cards          | Saved cards with a typed label, added from a photo or the camera, and a large code view |
 
 ### Configuration
@@ -382,7 +383,7 @@ All screens are in Romanian.
 | Import         | One button for a PDF, picture or text, the number of days, the review screen |
 | Lists          | Saved lists: view, edit, delete                                              |
 | Receipt result | Matched and unmatched items, estimate, paid, modifier, points                |
-| Wallet         | Points balance, history, simulated rewards                                   |
+| Point Shop     | Points balance, simulated rewards, point history, at `/wallet`                 |
 | Cards          | Saved cards with a typed label, added from a photo or the camera, and a large code view |
 | Settings       | Store selection, logout                                                      |
 

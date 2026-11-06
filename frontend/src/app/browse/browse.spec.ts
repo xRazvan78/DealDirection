@@ -109,7 +109,7 @@ describe('Browse', () => {
     const shop = page.querySelector('.point-shop');
 
     expect(shop?.textContent).toContain(ro.browse.pointShop);
-    expect(shop?.getAttribute('href')).toBe('/wallet#rewards');
+    expect(shop?.getAttribute('href')).toBe('/wallet');
   });
 
   it('keeps the page usable when the points fail to load', async () => {

@@ -1,6 +1,6 @@
 import { HttpInterceptorFn, HttpRequest, HttpResponse } from '@angular/common/http';
 import { delay, of } from 'rxjs';
-import { Category, CategoryProducts, Product, Store } from './models';
+import { Category, CategoryProducts, Product, Reward, Store, Voucher, Wallet } from './models';
 
 // Fake API for `ng serve`, active only in development builds. Delete a route's
 // handler as soon as the real one exists: unmatched calls go to the backend.
@@ -79,6 +79,37 @@ function pathOf(sizeId: number): string {
   return names.join(' > ');
 }
 
+// Kept in memory, so a page reload resets the points.
+const wallet: Wallet = {
+  balance: 1250,
+  history: [{ amount: 1250, reason: 'Puncte de test', created_at: '2026-11-02T09:00:00Z' }],
+};
+
+const rewards: Reward[] = [
+  { id: 1, name: 'Cafea gratuită', cost: 500, store_name: 'Auchan' },
+  { id: 2, name: 'Reducere de 10 lei', cost: 1000, store_name: 'Carrefour' },
+  { id: 3, name: 'Reducere de 50 lei', cost: 5000, store_name: 'Auchan' },
+];
+
+const vouchers: Voucher[] = [];
+
+function createVoucher(reward: Reward): Voucher {
+  const expires = new Date();
+  expires.setDate(expires.getDate() + 30);
+  return {
+    id: vouchers.length + 1,
+    code: `DEMO-${String(100000 + vouchers.length * 7919)}`,
+    reward_name: reward.name,
+    store_name: reward.store_name,
+    expires_at: expires.toISOString(),
+  };
+}
+
+function recordPoints(amount: number, reason: string): void {
+  wallet.balance += amount;
+  wallet.history.unshift({ amount, reason, created_at: new Date().toISOString() });
+}
+
 type Handler = (request: HttpRequest<unknown>) => unknown;
 
 const handlers: Record<string, Handler> = {
@@ -91,7 +122,9 @@ const handlers: Record<string, Handler> = {
     stores.forEach((store) => (store.selected = store_ids.includes(store.id)));
     return null;
   },
-  'GET /api/wallet': () => ({ balance: 1250, history: [] }),
+  'GET /api/wallet': () => ({ ...wallet, history: [...wallet.history] }),
+  'GET /api/rewards': () => rewards,
+  'GET /api/vouchers': () => [...vouchers],
   'GET /api/categories': (request) => {
     const parentId = request.params.get('parent_id');
     return categories.filter(
@@ -131,14 +164,31 @@ const routesWithIds: [RegExp, string, Handler][] = [
   [
     /^\/api\/lists\/\d+\/receipts$/,
     'POST',
-    () => ({
-      matched: [{ name: 'Lapte 3.5% 1 l', line_total: '8.50' }],
-      unmatched_items: [],
-      estimate: '8.50',
-      paid: '8.50',
-      modifier: '1.00',
-      points: 85,
-    }),
+    () => {
+      recordPoints(85, 'Bon validat');
+      return {
+        matched: [{ name: 'Lapte 3.5% 1 l', line_total: '8.50' }],
+        unmatched_items: [],
+        estimate: '8.50',
+        paid: '8.50',
+        modifier: '1.00',
+        points: 85,
+      };
+    },
+  ],
+  [
+    /^\/api\/rewards\/\d+\/redeem$/,
+    'POST',
+    ({ url }) => {
+      const reward = rewards.find(({ id }) => id === idIn(url));
+      if (!reward) {
+        return null;
+      }
+      recordPoints(-reward.cost, reward.name);
+      const voucher = createVoucher(reward);
+      vouchers.unshift(voucher);
+      return voucher;
+    },
   ],
 ];
 

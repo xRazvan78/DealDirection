@@ -432,7 +432,7 @@ Each task lists its files, what other tasks rely on, the decisions already made,
 ### Task 13: Wallet, rewards and cards (Member 2)
 
 - **Files:** `backend/app/wallet/router.py`, `backend/app/wallet/rewards.py`, `backend/app/cards/router.py`, `tests/backend/test_wallet.py`, `tests/backend/test_cards.py`
-- **Produces:** the Wallet and Cards routes. `GET /wallet` returns `{balance, history: [{amount, reason, created_at}]}`. `GET /rewards` returns `[{id, name, cost}]` from a static list labelled as sample data.
+- **Produces:** the Wallet and Cards routes. `GET /wallet` returns `{balance, history: [{amount, reason, created_at}]}`. `GET /rewards` returns `[{id, name, cost, store_name}]` from a static list labelled as sample data. `POST /rewards/{id}/redeem` returns the new voucher, `{id, code, reward_name, store_name, expires_at}`, and `GET /vouchers` returns the unused, unexpired ones.
 - **Rules:** `redeem` locks the user row with `SELECT ... FOR UPDATE` before checking the balance, so two taps can't overspend. Card images use the same size limit as receipts.
 - **Tests:**
   - The balance is the ledger's sum.
