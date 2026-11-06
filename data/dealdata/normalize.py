@@ -2,7 +2,7 @@
 
 import re
 from dataclasses import dataclass
-from decimal import Decimal
+from decimal import ROUND_HALF_UP, Decimal
 
 
 @dataclass(frozen=True)
@@ -39,13 +39,24 @@ _UNITS: dict[str, tuple[Decimal, str]] = {
     "bucată": (Decimal("1"), "buc"),
     "bucati": (Decimal("1"), "buc"),
     "bucăți": (Decimal("1"), "buc"),
+    "rola": (Decimal("1"), "buc"),
+    "role": (Decimal("1"), "buc"),
+    "plic": (Decimal("1"), "buc"),
+    "plicuri": (Decimal("1"), "buc"),
+    "pliculete": (Decimal("1"), "buc"),
+    "capsula": (Decimal("1"), "buc"),
+    "capsule": (Decimal("1"), "buc"),
+    "spalari": (Decimal("1"), "buc"),
+    "spălări": (Decimal("1"), "buc"),
 }
 
-# The lookarounds stop "5" in "0.5" starting a match, and "l" in "4 lapte" being a unit.
+# The lookarounds stop "5" in "0.5" or "1,5" starting a match, and "l" in "4 lapte"
+# being a unit. A comma after a word is fine, as in "Classica ,250G".
 _SIZE = re.compile(
-    r"(?<![\w.,])"
+    r"(?<![\w.])(?<!\d,)"
     r"(?:(?P<count>\d+)\s*[x×*]\s*)?"
     r"(?P<amount>\d+(?:[.,]\d+)?)\s*"
+    r"(?:de\s+)?"
     rf"(?P<unit>{'|'.join(_UNITS)})"
     r"(?!\w)"
 )
@@ -61,4 +72,5 @@ def parse_size(name: str) -> Size | None:
     amount = Decimal(match["amount"].replace(",", ".")) * factor
     if match["count"]:
         amount *= int(match["count"])
-    return Size(amount, unit)
+    # The database keeps 3 decimals, so sizes must match it exactly.
+    return Size(amount.quantize(Decimal("0.001"), ROUND_HALF_UP), unit)
