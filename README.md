@@ -224,7 +224,7 @@ Receipt photos are read and discarded, and only the extracted data is kept.
 | Lidl       | Website pages                | Optional third source                          |
 | Mega Image | Not tested                   | Backup source                                  |
 
-The team scrapes once, slowly, and demos from a saved snapshot of 150–300 products in about 30 categories. A block during the pitch can't affect it.
+The team scrapes once, slowly, and demos from a saved snapshot of about 2,700 products in about 65 categories. A block during the pitch can't affect it.
 
 ### Data import steps
 

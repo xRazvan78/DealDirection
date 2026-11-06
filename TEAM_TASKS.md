@@ -50,7 +50,7 @@ Stop for 10 minutes at each one, and make a cut if you're behind.
 - [ ] Run a small test scrape of both stores.
 
 **During the event**
-- [ ] Task 4: write `data/tree.yaml` with about 30 categories, and the size parser and classifier.
+- [ ] Task 4: write `data/tree.yaml` with about 65 categories, and the size parser and classifier.
 - [ ] Task 5: build the scrapers, save the snapshot, and load it with store locations and the demo user.
 - [ ] Task 16: build the lists and import screens, using mock data until the API is ready.
 - [ ] Help Member 3 with `data/abbreviations.yaml` and the tree's food aliases.
@@ -233,7 +233,7 @@ Each task lists its files, what other tasks rely on, the decisions already made,
   - `Paine alba` has no size.
   - `Lapte de curatare Pouce, 300ml` isn't classified.
   - `Lapte integral Albalact, 3.5% grasime, 1 l` becomes `("Lapte", "3.5%", "1 l")`.
-  - The real tree has 25–35 categories.
+  - The real tree has about 65 categories.
 
 ### Task 5: Scrapers and data load (Member 1)
 
@@ -252,7 +252,7 @@ Each task lists its files, what other tasks rely on, the decisions already made,
   - Both parsers read the real fixtures, with expected values taken from them.
   - Out-of-stock Auchan products are skipped.
   - Running the load twice doesn't duplicate rows, and the demo user exists.
-- **Done when:** the snapshot has 150–300 products across both stores, and at least 30 leaves have products at both. If a site blocks the scrape, stop and tell the team.
+- **Done when:** the snapshot has about 2,700 products across both stores, and at least 30 leaves have products at both. If a site blocks the scrape, stop and tell the team.
 
 ### Task 6: Login (Member 2)
 
