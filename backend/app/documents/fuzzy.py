@@ -86,7 +86,8 @@ def map_foods(foods: Sequence[Food], leaves: Sequence[Mapping], min_score: float
     """Map each food to a size-level category by its aliases and type names.
 
     `leaves` dicts hold id, path (category, type, size) and aliases. A food
-    with no candidate at or above `min_score` gets no category.
+    with no candidate at or above `min_score` gets no category. On a tie the
+    leaf given first wins, so callers should list the most common ones first.
     """
     candidates: list[tuple[int, str]] = []
     for leaf in leaves:
@@ -101,8 +102,7 @@ def map_foods(foods: Sequence[Food], leaves: Sequence[Mapping], min_score: float
         best_id, best_score = None, 0.0
         for leaf_id, name in candidates:
             score = fuzz.token_sort_ratio(wanted, name)
-            better = score > best_score or (score == best_score and best_id is not None and leaf_id < best_id)
-            if better:
+            if score > best_score:  # ties keep the earlier leaf: callers list common ones first
                 best_id, best_score = leaf_id, score
         mappings.append(
             FoodMapping(

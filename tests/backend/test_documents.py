@@ -413,3 +413,13 @@ def test_settings_default_to_rapidocr(monkeypatch: pytest.MonkeyPatch) -> None:
     settings = Settings(_env_file=None)
 
     assert (settings.OCR_ENGINE, settings.OCR_RAPID_LANG) == ("rapidocr", "ro")
+
+
+def test_map_foods_tie_goes_to_the_first_leaf_given() -> None:
+    # Callers list the most common type first; a tie must not fall back to the lowest id.
+    leaves = [
+        {"id": 50, "path": ["Lapte", "3.5%"], "aliases": ["lapte"]},
+        {"id": 7, "path": ["Lapte", "Alte tipuri"], "aliases": ["lapte"]},
+    ]
+
+    assert map_foods([food("lapte")], leaves, MIN_SCORE)[0].size_category_id == 50
