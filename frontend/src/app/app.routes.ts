@@ -10,6 +10,7 @@ export const routes: Routes = [
     children: [
       { path: '', pathMatch: 'full', redirectTo: 'browse' },
       { path: 'browse', loadComponent: () => import('./browse/browse').then((m) => m.Browse) },
+      { path: 'deals', loadComponent: () => import('./deals/deals').then((m) => m.Deals) },
       // `/cart` opens the current list, and CartService resolves its id in Task 15.
       { path: 'cart', loadComponent: () => import('./cart/cart').then((m) => m.Cart) },
       { path: 'cart/:listId', loadComponent: () => import('./cart/cart').then((m) => m.Cart) },

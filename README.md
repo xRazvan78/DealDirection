@@ -369,6 +369,7 @@ All screens are in Romanian.
 | -------------- | ---------------------------------------------------------------------------- |
 | Login          | Simple login with minimal details, and a demo user entry                     |
 | Browse         | Category → type → size, generic price, brand search                          |
+| Deals          | Seasonal offers and large discounts, opened from the Home screen             |
 | Cart           | Items, plans, missing-item prompts, the unselected-store suggestion          |
 | Plan           | Chosen plan by store, with directions and a receipt button per store         |
 | Import         | One button for a PDF, picture or text, the number of days, the review screen |
