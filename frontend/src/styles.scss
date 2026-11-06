@@ -1,22 +1,90 @@
-/* Global styles and colours. Screens use these tokens, not their own colours. */
+/* Design system. Screens use these tokens, not their own colours or sizes.
+   The look comes from a shop receipt: paper cards, perforated edges, dashed rules. */
 :root {
   --navy: #0b2545;
   --navy-soft: #1b3a6b;
+  --navy-deep: #071a33;
   --accent: #f2a900;
-  --surface: #f3f5f9;
-  --border: #d3dae6;
+  --accent-soft: #fff3d1;
+  --surface: #f2f4f9;
+  --card: #fff;
+  --border: #e2e7f0;
   --text: #14213d;
   --muted: #5a6780;
   --on-navy: #fff;
+  --on-navy-muted: #b9c6dc;
+  --danger: #b00020;
+  --danger-soft: #fdecef;
+  --success: #0b6b3a;
+
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-pill: 999px;
+
+  --shadow-card: 0 1px 2px rgb(11 37 69 / 5%), 0 6px 16px rgb(11 37 69 / 6%);
+  --shadow-float: 0 8px 24px rgb(11 37 69 / 28%);
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  --font-display: 'Bricolage Grotesque Variable', 'Segoe UI', system-ui, sans-serif;
+  --font-body: 'Figtree Variable', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 }
 
 html {
   color-scheme: light;
-  background: #fff;
+  background: var(--navy);
   color: var(--text);
-  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  font-family: var(--font-body);
+  font-variant-numeric: tabular-nums;
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
   margin: 0;
+}
+
+h1,
+h2 {
+  font-family: var(--font-display);
+  letter-spacing: -0.01em;
+}
+
+button,
+a {
+  transition:
+    transform 0.16s var(--ease),
+    background-color 0.16s var(--ease),
+    color 0.16s var(--ease);
+}
+
+button:not(:disabled) {
+  cursor: pointer;
+}
+
+button:not(:disabled):active {
+  transform: scale(0.97);
+}
+
+:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* A receipt's torn edge: two notches cut from the sides, at --notch-y. */
+.seasonal,
+.voucher,
+.summary {
+  mask:
+    radial-gradient(circle 8px at 0 var(--notch-y, 50%), #0000 97%, #000) left / 51% 100% no-repeat,
+    radial-gradient(circle 8px at 100% var(--notch-y, 50%), #0000 97%, #000) right / 51% 100% no-repeat;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition: none !important;
+    animation: none !important;
+  }
 }

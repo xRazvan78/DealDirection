@@ -29,4 +29,19 @@
   <p>{{ ro.loading }}</p>
 }
 
+<h2>{{ ro.settings.language }}</h2>
+<div class="languages">
+  @for (option of languages; track option.code) {
+    <button
+      type="button"
+      class="language-{{ option.code }}"
+      [attr.lang]="option.code"
+      [attr.aria-pressed]="option.code === language()"
+      (click)="choose(option.code)"
+    >
+      {{ option.name }}
+    </button>
+  }
+</div>
+
 <button type="button" class="logout" (click)="logout()">{{ ro.settings.logout }}</button>

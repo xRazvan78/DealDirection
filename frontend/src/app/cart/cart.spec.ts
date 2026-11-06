@@ -3,6 +3,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { Product, ReceiptResult, SearchResult } from '../core/models';
+import { SavedListsService } from '../lists/saved-lists.service';
 import { ro } from '../shared/ro';
 import { Cart } from './cart';
 import { CartService } from './cart.service';
@@ -81,6 +82,11 @@ describe('Cart', () => {
   function type(input: HTMLInputElement, value: string): void {
     input.value = value;
     input.dispatchEvent(new Event('input'));
+  }
+
+  async function pickFirstRow(): Promise<void> {
+    buttons('.row')[0].click();
+    await settle();
   }
 
   function rowTexts(): string[] {
@@ -166,6 +172,17 @@ describe('Cart', () => {
       expect(cart.items()).toEqual([]);
     });
 
+    it('scrolls the new box fully into view', async () => {
+      const scrollIntoView = vi.fn();
+      Element.prototype.scrollIntoView = scrollIntoView;
+      await open();
+
+      button('.add-row').click();
+      await settle();
+
+      expect(scrollIntoView).toHaveBeenCalledWith({ block: 'nearest' });
+    });
+
     it('can cancel adding a product', async () => {
       await open();
       button('.add-row').click();
@@ -199,6 +216,212 @@ describe('Cart', () => {
     });
   });
 
+  describe('quantity buttons', () => {
+    async function startEdit(): Promise<void> {
+      await open();
+      button('.edit').click();
+      await settle();
+    }
+
+    async function press(selector: string, row = 0): Promise<void> {
+      page.querySelectorAll('.row')[row].querySelector<HTMLButtonElement>(selector)!.click();
+      await settle();
+    }
+
+    async function save(): Promise<void> {
+      button('.save').click();
+      await settle();
+    }
+
+    function hasButton(selector: string): boolean {
+      return page.querySelector(`.row ${selector}`) !== null;
+    }
+
+    it('shows only the number outside edit mode', async () => {
+      cart.add({ name: 'Mere', quantity: '2', price: '5' });
+      await open();
+
+      expect(hasButton('.increase')).toBe(false);
+      expect(hasButton('.decrease')).toBe(false);
+      expect(hasButton('.trash')).toBe(false);
+      expect(rowTexts()).toEqual(['Mere 2 5,00 lei']);
+    });
+
+    it('shows no trash bin outside edit mode, even at quantity 1', async () => {
+      cart.add({ name: 'Mere', quantity: '1', price: '5' });
+      await open();
+
+      expect(hasButton('.trash')).toBe(false);
+    });
+
+    it('puts a minus and a plus on either side of the number in edit mode', async () => {
+      cart.add({ name: 'Mere', quantity: '2', price: '5' });
+      await startEdit();
+      const counter = page.querySelector('.row .quantity')!;
+
+      expect([...counter.children].map((child) => child.classList[0])).toEqual([
+        'decrease',
+        'count',
+        'increase',
+      ]);
+      expect(counter.querySelector('.count')?.textContent?.trim()).toBe('2');
+    });
+
+    it('applies a raised quantity on save', async () => {
+      cart.add({ name: 'Mere', quantity: '2', price: '5' });
+      await startEdit();
+
+      await press('.increase');
+      expect(page.querySelector('.row .count')?.textContent?.trim()).toBe('3');
+      expect(cart.items()[0].quantity).toBe('2');
+
+      await save();
+      expect(cart.items()[0].quantity).toBe('3');
+      expect(page.querySelector('.total')?.textContent).toContain('15,00 lei');
+    });
+
+    it('applies a lowered quantity on save', async () => {
+      cart.add({ name: 'Mere', quantity: '3', price: '5' });
+      await startEdit();
+
+      await press('.decrease');
+      await save();
+
+      expect(cart.items()[0].quantity).toBe('2');
+    });
+
+    it('undoes quantity changes on cancel', async () => {
+      cart.add({ name: 'Mere', quantity: '3', price: '5' });
+      await startEdit();
+
+      await press('.increase');
+      await press('.increase');
+      button('.cancel').click();
+      await settle();
+
+      expect(cart.items()[0].quantity).toBe('3');
+      expect(rowTexts()).toEqual(['Mere 3 5,00 lei']);
+    });
+
+    it('shows a trash bin instead of a minus at quantity 1', async () => {
+      cart.add({ name: 'Mere', quantity: '1', price: '5' });
+      await startEdit();
+
+      expect(hasButton('.trash')).toBe(true);
+      expect(hasButton('.decrease')).toBe(false);
+      expect(page.querySelector('.row .trash')?.getAttribute('aria-label')).toBe(
+        `${ro.cart.remove} Mere`,
+      );
+    });
+
+    it('changes the minus to a trash bin on the way down to 1', async () => {
+      cart.add({ name: 'Mere', quantity: '2', price: '5' });
+      await startEdit();
+
+      await press('.decrease');
+
+      expect(hasButton('.trash')).toBe(true);
+    });
+
+    it('changes the trash bin back to a minus on the way up', async () => {
+      cart.add({ name: 'Mere', quantity: '1', price: '5' });
+      await startEdit();
+
+      await press('.increase');
+
+      expect(hasButton('.decrease')).toBe(true);
+      expect(hasButton('.trash')).toBe(false);
+    });
+
+    it('removes only that product with the trash bin, on save', async () => {
+      cart.add({ name: 'Mere', quantity: '1', price: '5' });
+      cart.add({ name: 'Pere', quantity: '1', price: '4' });
+      await startEdit();
+
+      await press('.trash', 0);
+      expect(cart.items().length).toBe(2);
+
+      await save();
+      expect(cart.items().map((item) => item.name)).toEqual(['Pere']);
+    });
+
+    it('brings a trashed product back on cancel', async () => {
+      cart.add({ name: 'Mere', quantity: '1', price: '5' });
+      await startEdit();
+
+      await press('.trash');
+      button('.cancel').click();
+      await settle();
+
+      expect(cart.items().length).toBe(1);
+      expect(rowTexts()).toEqual(['Mere 1 5,00 lei']);
+    });
+
+    it('shows the trash bin for a weighed amount under 1', async () => {
+      cart.add({ name: 'Mere', quantity: '0.5', price: '5' });
+      await startEdit();
+
+      expect(hasButton('.trash')).toBe(true);
+    });
+
+    it('steps a weighed amount by one', async () => {
+      cart.add({ name: 'Mere', quantity: '1.5', price: '5' });
+      await startEdit();
+
+      await press('.decrease');
+      await save();
+
+      expect(cart.items()[0].quantity).toBe('0.5');
+    });
+
+    it('does not open the row when the plus or minus is pressed', async () => {
+      cart.add({ name: 'Mere', quantity: '2', price: '5' });
+      await startEdit();
+
+      await press('.increase');
+
+      expect(page.querySelector('.edit-quantity')).toBeNull();
+    });
+
+    it('survives an unfinished quantity left in another row', async () => {
+      cart.add({ name: 'Mere', quantity: '2', price: '5' });
+      cart.add({ name: 'Pere', quantity: '1', price: '4' });
+      await startEdit();
+      await press('[data-field="quantity"]', 0);
+      type(page.querySelector<HTMLInputElement>('.edit-quantity')!, 'abc');
+
+      await press('[data-field="name"]', 1);
+      await press('.increase', 0);
+
+      expect(page.querySelector('.row .count')?.textContent?.trim()).toBe('1');
+    });
+
+    it('accepts a comma quantity left in another row', async () => {
+      cart.add({ name: 'Mere', quantity: '2', price: '5' });
+      cart.add({ name: 'Pere', quantity: '1', price: '4' });
+      await startEdit();
+      await press('[data-field="quantity"]', 0);
+      type(page.querySelector<HTMLInputElement>('.edit-quantity')!, '2,5');
+
+      await press('[data-field="name"]', 1);
+      await press('.increase', 0);
+
+      expect(page.querySelector('.row .count')?.textContent?.trim()).toBe('3.5');
+    });
+
+    it('counts as an unsaved change on a saved list', async () => {
+      const lists = TestBed.inject(SavedListsService);
+      cart.add({ name: 'Mere', quantity: '2', price: '5' });
+      lists.saveCurrent('Săptămâna');
+      await startEdit();
+
+      await press('.increase');
+      await save();
+
+      expect(lists.unsaved()).toBe(true);
+    });
+  });
+
   describe('editing', () => {
     beforeEach(async () => {
       cart.add({ name: 'Mere', quantity: '2', price: '3.50' });
@@ -217,19 +440,108 @@ describe('Cart', () => {
       expect(page.querySelector('.remove')).toBeNull();
     });
 
-    it('swaps edit for save and cancel, and shows a remove button per row', async () => {
+    it('swaps edit for save and cancel, and shows a counter per row', async () => {
       await startEdit();
 
       expect(page.querySelector('.edit')).toBeNull();
       expect(page.querySelector('.save')).not.toBeNull();
       expect(page.querySelector('.cancel')).not.toBeNull();
-      expect(buttons('.remove').length).toBe(2);
+      expect(buttons('.increase').length).toBe(2);
+      expect(buttons('.remove').length).toBe(0);
+    });
+
+    it('offers delete on the opened row, for any quantity', async () => {
+      await startEdit();
+
+      await pickFirstRow();
+
+      expect(buttons('.remove').length).toBe(1);
     });
 
     it('hides + while editing', async () => {
       await startEdit();
 
       expect(page.querySelector('.add-row')).toBeNull();
+    });
+
+    function tapCell(field: string): void {
+      buttons('.row')[0].querySelector<HTMLElement>(`[data-field="${field}"]`)!.click();
+    }
+
+    function focused(): HTMLInputElement {
+      return document.activeElement as HTMLInputElement;
+    }
+
+    it('goes straight to the quantity when it is tapped', async () => {
+      await startEdit();
+
+      tapCell('quantity');
+      await settle();
+
+      expect(focused().classList.contains('edit-quantity')).toBe(true);
+    });
+
+    it('goes straight to the price when it is tapped', async () => {
+      await startEdit();
+
+      tapCell('price');
+      await settle();
+
+      expect(focused().classList.contains('edit-price')).toBe(true);
+    });
+
+    it('goes straight to the name when it is tapped', async () => {
+      await startEdit();
+
+      tapCell('name');
+      await settle();
+
+      expect(focused().classList.contains('edit-name')).toBe(true);
+    });
+
+    it('selects the value, so typing replaces it', async () => {
+      await startEdit();
+
+      tapCell('quantity');
+      await settle();
+
+      expect(focused().selectionStart).toBe(0);
+      expect(focused().selectionEnd).toBe(1);
+    });
+
+    it('types a new quantity after one tap, and saves it', async () => {
+      await startEdit();
+
+      tapCell('quantity');
+      await settle();
+      type(focused(), '7');
+      button('.save').click();
+      await settle();
+
+      expect(cart.items()[0].quantity).toBe('7');
+    });
+
+    it('keeps the field in view when the keyboard opens', async () => {
+      const scrollIntoView = vi.fn();
+      Element.prototype.scrollIntoView = scrollIntoView;
+      await startEdit();
+      tapCell('quantity');
+      await settle();
+      scrollIntoView.mockClear();
+
+      window.dispatchEvent(new Event('resize'));
+
+      expect(scrollIntoView).toHaveBeenCalledWith({ block: 'center' });
+    });
+
+    it('leaves the page alone on a resize with nothing being typed', async () => {
+      const scrollIntoView = vi.fn();
+      Element.prototype.scrollIntoView = scrollIntoView;
+      await startEdit();
+
+      window.dispatchEvent(new Event('resize'));
+
+      expect(scrollIntoView).not.toHaveBeenCalled();
     });
 
     it('edits the row that is picked', async () => {
@@ -269,6 +581,7 @@ describe('Cart', () => {
 
     it('cancel undoes every change', async () => {
       await startEdit();
+      await pickFirstRow();
       buttons('.remove')[0].click();
       await settle();
       buttons('.row')[0].click();
@@ -285,6 +598,7 @@ describe('Cart', () => {
     it('removes a row on save', async () => {
       await startEdit();
 
+      await pickFirstRow();
       buttons('.remove')[0].click();
       await settle();
       button('.save').click();
@@ -305,6 +619,117 @@ describe('Cart', () => {
       expect(page.textContent).toContain(ro.cart.invalidRow);
       expect(cart.items()[0].price).toBe('3.50');
       expect(page.querySelector('.save')).not.toBeNull();
+    });
+  });
+
+  describe('saving the list', () => {
+    function addSomething(): void {
+      cart.add({ name: 'Mere', quantity: '2', price: '5' });
+    }
+
+    function lists(): SavedListsService {
+      return TestBed.inject(SavedListsService);
+    }
+
+    async function saveWithName(name: string): Promise<void> {
+      button('.save-list').click();
+      await settle();
+      type(page.querySelector<HTMLInputElement>('.list-name-input')!, name);
+      page.querySelector('.name-form')!.dispatchEvent(new Event('submit'));
+      await settle();
+    }
+
+    it('cannot save an empty cart', async () => {
+      await open();
+
+      expect(button('.save-list').disabled).toBe(true);
+    });
+
+    it('asks for a name, suggesting the default', async () => {
+      addSomething();
+      await open();
+
+      button('.save-list').click();
+      await settle();
+
+      const input = page.querySelector<HTMLInputElement>('.list-name-input');
+      expect(input?.value).toBe('');
+      expect(input?.placeholder).toBe('Lista 1');
+    });
+
+    it('saves under the typed name and shows it', async () => {
+      addSomething();
+      await open();
+
+      await saveWithName('Săptămâna');
+
+      expect(lists().lists()[0].name).toBe('Săptămâna');
+      expect(page.querySelector('.list-title')?.textContent).toContain('Săptămâna');
+      expect(page.querySelector('.name-form')).toBeNull();
+    });
+
+    it('uses Lista 1 when no name is typed', async () => {
+      addSomething();
+      await open();
+
+      await saveWithName('');
+
+      expect(lists().lists()[0].name).toBe('Lista 1');
+    });
+
+    it('can cancel naming', async () => {
+      addSomething();
+      await open();
+      button('.save-list').click();
+      await settle();
+
+      button('.cancel-name').click();
+      await settle();
+
+      expect(page.querySelector('.name-form')).toBeNull();
+      expect(lists().lists()).toEqual([]);
+    });
+
+    it('shows Salvat with nothing new to save', async () => {
+      addSomething();
+      await open();
+
+      await saveWithName('Săptămâna');
+
+      expect(button('.save-list').disabled).toBe(true);
+      expect(button('.save-list').textContent).toContain(ro.cart.saved);
+    });
+
+    it('saves an open list straight away, without asking again', async () => {
+      addSomething();
+      await open();
+      await saveWithName('Săptămâna');
+      cart.add({ name: 'Pere', quantity: '1', price: '4' });
+      await settle();
+      answerOffers(() => []);
+
+      button('.save-list').click();
+      await settle();
+
+      expect(page.querySelector('.name-form')).toBeNull();
+      expect(lists().lists()[0].items.length).toBe(2);
+    });
+
+    it('lets edits to an opened list work like any cart', async () => {
+      addSomething();
+      await open();
+      await saveWithName('Săptămâna');
+
+      button('.edit').click();
+      await settle();
+      await pickFirstRow();
+      buttons('.remove')[0].click();
+      await settle();
+      button('.save').click();
+      await settle();
+
+      expect(cart.items()).toEqual([]);
+      expect(button('.save-list').disabled).toBe(false);
     });
   });
 

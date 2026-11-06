@@ -1,6 +1,7 @@
 import {
   addQuantities,
   compareAmounts,
+  decreaseQuantity,
   isPrice,
   isQuantity,
   normalizeAmount,
@@ -77,6 +78,13 @@ describe('money', () => {
   it('rounds points half up', () => {
     expect(pointsFor('1.05')).toBe(11);
     expect(pointsFor('1.04')).toBe(10);
+  });
+
+  it('lowers a quantity by one, or gives null when it runs out', () => {
+    expect(decreaseQuantity('2')).toBe('1');
+    expect(decreaseQuantity('1.5')).toBe('0.5');
+    expect(decreaseQuantity('1')).toBeNull();
+    expect(decreaseQuantity('0.5')).toBeNull();
   });
 
   it('adds quantities exactly', () => {

@@ -3,6 +3,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { Store } from '../core/models';
+import { language, setLanguage } from '../shared/language';
 import { ro } from '../shared/ro';
 import { Settings } from './settings';
 
@@ -40,6 +41,61 @@ describe('Settings', () => {
   function toggles(): HTMLInputElement[] {
     return [...page.querySelectorAll<HTMLInputElement>('input[type=checkbox]')];
   }
+
+  describe('language', () => {
+    afterEach(() => setLanguage('ro'));
+
+    function option(code: string): HTMLButtonElement {
+      return page.querySelector<HTMLButtonElement>(`.language-${code}`)!;
+    }
+
+    it('offers both languages, each in its own words', async () => {
+      await loadStores();
+
+      expect(option('ro').textContent).toContain('Română');
+      expect(option('en').textContent).toContain('English');
+    });
+
+    it('marks the current language', async () => {
+      await loadStores();
+
+      expect(option('ro').getAttribute('aria-pressed')).toBe('true');
+      expect(option('en').getAttribute('aria-pressed')).toBe('false');
+    });
+
+    it('changes the whole page straight away', async () => {
+      await loadStores();
+
+      option('en').click();
+      await fixture.whenStable();
+
+      expect(page.querySelector('h1')?.textContent).toContain('Settings');
+      expect(page.querySelector('.logout')?.textContent).toContain('Log out');
+      expect(option('en').getAttribute('aria-pressed')).toBe('true');
+    });
+
+    it('changes back', async () => {
+      await loadStores();
+      option('en').click();
+      await fixture.whenStable();
+
+      option('ro').click();
+      await fixture.whenStable();
+
+      expect(page.querySelector('h1')?.textContent).toContain('Setări');
+    });
+
+    it('keeps the choice after logging out', async () => {
+      await loadStores();
+      vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
+      option('en').click();
+      await fixture.whenStable();
+
+      page.querySelector<HTMLButtonElement>('.logout')!.click();
+
+      expect(language()).toBe('en');
+    });
+  });
 
   it('shows a loading message first', () => {
     expect(page.textContent).toContain(ro.loading);

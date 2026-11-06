@@ -1,33 +1,39 @@
 :host {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 18px;
 }
 
 h1 {
   margin: 0;
   color: var(--navy);
-  font-size: 20px;
+  font-size: 26px;
 }
 
 h2 {
   margin: 0 0 8px;
   color: var(--navy);
-  font-size: 16px;
+  font-size: 17px;
 }
 
 .balance {
+  position: relative;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 16px;
-  border-radius: 12px;
-  background: var(--navy);
-  color: var(--on-navy);
+  flex-direction: column;
+  gap: 2px;
+  padding: 16px 18px;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(120deg, var(--navy), var(--navy-soft));
+  box-shadow: var(--shadow-card);
+  color: var(--on-navy-muted);
+  font-size: 14px;
+  overflow: hidden;
 
   strong {
     color: var(--accent);
-    font-size: 28px;
+    font-family: var(--font-display);
+    font-size: 40px;
+    line-height: 1.1;
   }
 }
 
@@ -37,20 +43,17 @@ h2 {
   gap: 2px;
   width: 100%;
   margin-bottom: 8px;
-  padding: 10px 14px;
+  padding: 12px 20px;
   border: 0;
-  border-radius: 8px;
-  background: var(--navy);
-  color: var(--on-navy);
+  border-radius: var(--radius-md);
+  background: var(--accent);
+  color: var(--navy);
   font: inherit;
   text-align: left;
 
   .name {
+    font-family: var(--font-display);
     font-weight: 700;
-  }
-
-  small {
-    color: var(--accent);
   }
 }
 
@@ -63,14 +66,14 @@ h2 {
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  padding: 24px 16px calc(24px + env(safe-area-inset-bottom));
+  padding: calc(24px + env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom));
   overflow-y: auto;
   background: #fff;
   text-align: center;
 
   h2 {
     margin: 0;
-    font-size: 20px;
+    font-size: 24px;
   }
 
   p {
@@ -86,10 +89,10 @@ h2 {
   button {
     flex-shrink: 0;
     width: 100%;
-    min-height: 44px;
+    min-height: 50px;
     margin-top: auto;
     border: 0;
-    border-radius: 8px;
+    border-radius: var(--radius-pill);
     background: var(--navy);
     color: var(--on-navy);
     font: inherit;
@@ -100,7 +103,7 @@ h2 {
 .code {
   color: var(--navy);
   font-family: ui-monospace, Consolas, monospace;
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 700;
 }
 
@@ -112,8 +115,8 @@ h2 {
 
 .demo {
   padding: 8px 12px;
-  border-radius: 8px;
-  background: #fdf1d3;
+  border-radius: var(--radius-sm);
+  background: var(--accent-soft);
   color: var(--navy);
   font-size: 13px;
   font-weight: 700;
@@ -122,13 +125,13 @@ h2 {
 .reward {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  gap: 2px 12px;
+  gap: 1px 12px;
   align-items: center;
   margin-bottom: 8px;
-  padding: 10px 14px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: var(--surface);
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  background: var(--card);
+  box-shadow: var(--shadow-card);
 
   .name {
     font-weight: 700;
@@ -150,10 +153,10 @@ h2 {
   button {
     grid-row: 1 / span 3;
     grid-column: 2;
-    min-height: 40px;
-    padding: 0 14px;
+    min-height: 42px;
+    padding: 0 16px;
     border: 0;
-    border-radius: 8px;
+    border-radius: var(--radius-pill);
     background: var(--accent);
     color: var(--navy);
     font: inherit;
@@ -162,8 +165,9 @@ h2 {
   }
 
   button:disabled {
-    background: var(--border);
+    background: var(--surface);
     color: var(--muted);
+    font-weight: 600;
   }
 }
 
@@ -172,24 +176,27 @@ h2 {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 8px 0;
-  border-bottom: 1px solid var(--border);
+  padding: 10px 0;
+  border-bottom: 2px dashed var(--border);
 
   strong {
-    color: #b00020;
+    color: var(--danger);
+    font-size: 16px;
   }
 
   &.earned strong {
-    color: #0b6b3a;
+    color: var(--success);
   }
 }
 
 .reason {
+  font-weight: 600;
   overflow-wrap: anywhere;
 
   small {
     display: block;
     color: var(--muted);
+    font-weight: 400;
   }
 }
 
@@ -201,13 +208,6 @@ h2 {
 
 .error {
   margin: 0 0 8px;
-  color: #b00020;
+  color: var(--danger);
   font-size: 14px;
-}
-
-.success {
-  margin: 0 0 8px;
-  color: #0b6b3a;
-  font-size: 14px;
-  font-weight: 700;
 }

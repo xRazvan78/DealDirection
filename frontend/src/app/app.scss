@@ -2,6 +2,7 @@
   display: flex;
   flex-direction: column;
   height: 100dvh;
+  background: var(--surface);
 }
 
 svg {
@@ -13,12 +14,20 @@ svg {
 }
 
 .top-bar {
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 6px 8px;
+  padding: calc(6px + env(safe-area-inset-top)) 10px 6px;
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
   background: var(--navy);
   color: var(--on-navy);
+}
+
+/* Home continues the header into its points row. */
+.top-bar.flush {
+  border-radius: 0;
 }
 
 .menu-button,
@@ -29,12 +38,13 @@ svg {
   height: 44px;
   padding: 0;
   border: 0;
+  border-radius: var(--radius-sm);
   background: none;
   color: inherit;
 
   svg {
-    width: 30px;
-    height: 30px;
+    width: 28px;
+    height: 28px;
   }
 }
 
@@ -50,39 +60,49 @@ svg {
 .bottom-nav {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  padding-bottom: env(safe-area-inset-bottom);
+  gap: 4px;
+  margin: 0 12px calc(10px + env(safe-area-inset-bottom));
+  padding: 6px;
+  border-radius: var(--radius-lg);
   background: var(--navy);
+  box-shadow: var(--shadow-float);
 
   a {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 2px;
-    padding: 8px 4px;
-    color: var(--on-navy);
-    font-size: 13px;
+    padding: 6px 4px 4px;
+    border-radius: 18px;
+    color: var(--on-navy-muted);
+    font-size: 12px;
+    font-weight: 600;
     text-decoration: none;
   }
 
-  a + a {
-    border-left: 1px solid var(--navy-soft);
+  svg {
+    width: 24px;
+    height: 24px;
   }
 
   a.active {
-    color: var(--accent);
+    background: var(--accent);
+    color: var(--navy);
     font-weight: 700;
   }
+}
 
-  svg {
-    width: 26px;
-    height: 26px;
+/* Height this short means an on-screen keyboard is open, so give its space to the page. */
+@media (max-height: 520px) {
+  .bottom-nav {
+    display: none;
   }
 }
 
 .scroll-top {
   position: fixed;
-  right: 16px;
-  bottom: calc(72px + env(safe-area-inset-bottom));
+  right: 18px;
+  bottom: calc(92px + env(safe-area-inset-bottom));
   z-index: 5;
   display: grid;
   place-items: center;
@@ -91,13 +111,15 @@ svg {
   padding: 0;
   border: 0;
   border-radius: 50%;
-  background: var(--navy);
-  box-shadow: 0 2px 8px rgb(11 37 69 / 40%);
-  color: var(--on-navy);
+  background: var(--accent);
+  box-shadow: var(--shadow-float);
+  color: var(--navy);
+  animation: pop-in 0.22s var(--ease);
 
   svg {
     width: 24px;
     height: 24px;
+    stroke-width: 2.4;
   }
 }
 
@@ -106,7 +128,8 @@ svg {
   inset: 0;
   z-index: 10;
   border: 0;
-  background: rgb(11 37 69 / 50%);
+  background: rgb(7 26 51 / 55%);
+  animation: fade-in 0.2s var(--ease);
 }
 
 .side-menu {
@@ -117,17 +140,41 @@ svg {
   z-index: 11;
   display: flex;
   flex-direction: column;
-  width: min(75vw, 300px);
-  padding-top: 16px;
+  gap: 4px;
+  width: min(76vw, 300px);
+  padding: calc(24px + env(safe-area-inset-top)) 12px 12px;
+  border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
   background: var(--navy);
+  animation: slide-in 0.26s var(--ease);
 
   a {
-    padding: 16px 24px;
+    padding: 14px 16px;
+    border-radius: var(--radius-md);
     color: var(--on-navy);
+    font-weight: 600;
     text-decoration: none;
   }
 
-  a + a {
-    border-top: 1px solid var(--navy-soft);
+  a:active {
+    background: var(--navy-soft);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes slide-in {
+  from {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.7);
   }
 }

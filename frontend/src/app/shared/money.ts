@@ -42,9 +42,18 @@ export function pointsFor(total: string): number {
 }
 
 export function addQuantities(first: string, second: string): string {
-  const sum = scaled(first, QUANTITY_DECIMALS) + scaled(second, QUANTITY_DECIMALS);
-  const whole = sum / 1000n;
-  const decimals = String(sum % 1000n)
+  return formatQuantity(scaled(first, QUANTITY_DECIMALS) + scaled(second, QUANTITY_DECIMALS));
+}
+
+// One less, or null when that leaves nothing.
+export function decreaseQuantity(value: string): string | null {
+  const remaining = scaled(value, QUANTITY_DECIMALS) - 1000n;
+  return remaining > 0n ? formatQuantity(remaining) : null;
+}
+
+function formatQuantity(thousandths: bigint): string {
+  const whole = thousandths / 1000n;
+  const decimals = String(thousandths % 1000n)
     .padStart(QUANTITY_DECIMALS, '0')
     .replace(/0+$/, '');
   return decimals ? `${whole}.${decimals}` : `${whole}`;

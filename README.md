@@ -78,6 +78,16 @@ npx ng serve --proxy-config proxy.conf.json
 - http://localhost:4200/api/health should show the same, which proves the frontend reaches the backend.
 - http://localhost:4200 should open the app.
 
+**Open the app on a phone (optional)**
+
+You'll need [cloudflared](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/). From `frontend`, this serves the app over HTTPS and prints a QR code to scan. Anyone with the address can open the app until you press Ctrl+C.
+
+```bash
+npm run mobile
+```
+
+If the backend is off, login uses a demo account and all data is fake. PWA install isn't available this way, since it needs a production build.
+
 **5. Terminal 3: activate `.venv` and run the automated tests from the repo root**
 
 ```bash
@@ -119,7 +129,7 @@ A presenter completes this loop live on a phone, using real scraped prices and a
 | **Must**      | Price data, product browsing, cart and optimiser, receipt scan with points, list import, store selection, saved lists, directions, simple login, demo user |
 | **Should**    | Loyalty card wallet                                                                                                                                        |
 | **Simulated** | Spending points, using a fake rewards page                                                                                                                 |
-| **Out**       | Admin dashboard, live scraping, real partner integrations, multiple cities, per-store pricing, password reset, social login, other languages               |
+| **Out**       | Admin dashboard, live scraping, real partner integrations, multiple cities, per-store pricing, password reset, social login               |
 
 If the team falls behind, cut the card wallet first, then PDF import.
 
@@ -194,7 +204,7 @@ A deleted list goes to the trash for 2 weeks, and can be restored until then. Af
 
 | Part        | Technology                                                                 |
 | ----------- | -------------------------------------------------------------------------- |
-| Frontend    | Angular PWA, Romanian only                                                 |
+| Frontend    | Angular PWA, Romanian and English  |
 | Backend     | Python 3.12, FastAPI, SQLAlchemy                                           |
 | Database    | PostgreSQL                                                                 |
 | Data import | Python scripts, run offline                                                |
@@ -268,7 +278,7 @@ The app has three parts, and each one can be worked on alone:
 | An OCR engine change       | `backend/app/documents/ocr.py` only                                         |
 | A screen                   | Its folder in `frontend/src/app/`, plus one line in `app.routes.ts`         |
 | A call to the API          | One typed method in `frontend/src/app/core/api.ts`                          |
-| Romanian text              | `frontend/src/app/shared/ro.ts`                                             |
+| UI text                    | `frontend/src/app/shared/ro.ts` and `en.ts`  |
 
 Each placeholder file names its owner and task. Stay inside your own files where you can, because shared files like `models.py`, `api.ts`, `ro.ts` and `app.routes.ts` are the likeliest to conflict. Keep those changes small and merge them often.
 
@@ -373,7 +383,7 @@ All values live in backend config and can be changed without a code change.
 
 ### Screens
 
-All screens are in Romanian.
+All screens are in Romanian by default, and Settings switches them to English.
 
 | Screen         | Purpose                                                                      |
 | -------------- | ---------------------------------------------------------------------------- |
@@ -383,7 +393,7 @@ All screens are in Romanian.
 | Cart           | Items added by hand, from Home or by import, store comparison, total, points, shops, directions, receipt scan |
 | Plan           | Chosen plan by store, with directions and a receipt button per store         |
 | Import         | One button for a PDF, picture or text, the number of days, the review screen |
-| Lists          | Saved lists: view, edit, delete                                              |
+| Lists          | Saved lists, opened and edited in the Cart, plus rename, delete and new list |
 | Receipt result | Matched and unmatched items, estimate, paid, modifier, points                |
 | Point Shop     | Points balance, simulated rewards, point history, at `/wallet`                 |
 | Cards          | Saved cards with a typed label, added from a photo or the camera, and a large code view |
@@ -408,7 +418,7 @@ All screens are in Romanian.
 
 ### Development rules
 
-- All UI text is Romanian, kept in `frontend/src/app/shared/ro.ts`. Product names stay as published.
+- All UI text lives in `frontend/src/app/shared/ro.ts` (Romanian) and `en.ts` (English), and every string needs both. Product names stay as published.
 - Money and quantities use `Decimal` in Python and `NUMERIC` in Postgres, never floats.
 - Config values are never hardcoded.
 - Never store or log receipt images.

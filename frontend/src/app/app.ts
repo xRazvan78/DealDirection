@@ -30,18 +30,18 @@ export class App {
 
   protected readonly ro = ro;
   protected readonly showNavigation = computed(() => !this.url().startsWith('/login'));
+  protected readonly onHome = computed(() => this.url().startsWith('/browse'));
   protected readonly menuOpen = signal(false);
-  protected readonly tabs = [
+  protected readonly tabs = computed(() => [
     { path: '/browse', label: ro.nav.home, icon: 'home' },
     { path: '/cart', label: ro.nav.cart, icon: 'cart' },
     { path: '/cards', label: ro.nav.cards, icon: 'cards' },
-  ];
-  protected readonly menuLinks = [
+  ]);
+  protected readonly menuLinks = computed(() => [
     { path: '/lists', label: ro.nav.lists },
-    { path: '/import', label: ro.nav.import },
     { path: '/wallet', label: ro.nav.wallet },
     { path: '/settings', label: ro.nav.settings },
-  ];
+  ]);
   private readonly scrolled = signal(false);
   // The cart's fixed lower section sits where the arrow would float.
   protected readonly showScrollTop = computed(

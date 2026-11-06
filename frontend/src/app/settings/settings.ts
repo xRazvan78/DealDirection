@@ -4,6 +4,7 @@ import { finalize } from 'rxjs';
 import { ApiService } from '../core/api';
 import { AuthService } from '../core/auth';
 import { Store } from '../core/models';
+import { LANGUAGES, Language, language, setLanguage } from '../shared/language';
 import { ro } from '../shared/ro';
 
 @Component({
@@ -17,6 +18,8 @@ export class Settings {
   private readonly router = inject(Router);
 
   protected readonly ro = ro;
+  protected readonly languages = LANGUAGES;
+  protected readonly language = language;
   protected readonly stores = signal<Store[] | null>(null);
   protected readonly saving = signal(false);
   protected readonly error = signal<string | null>(null);
@@ -48,6 +51,10 @@ export class Settings {
           this.error.set(ro.settings.saveFailed);
         },
       });
+  }
+
+  protected choose(code: Language): void {
+    setLanguage(code);
   }
 
   protected logout(): void {
