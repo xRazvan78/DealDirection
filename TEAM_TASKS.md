@@ -523,5 +523,5 @@ Each task lists its files, what other tasks rely on, the decisions already made,
   3. Build the frontend, load the data, and run `uv run uvicorn app.main:app --app-dir backend --port 8000`.
   4. Run `cloudflared tunnel --url http://localhost:8000`. The phone should open the HTTPS address, install the PWA and open the camera.
   5. Do the real-world checks in the README, and record the results in this file.
-  6. Write the demo script, prepare the demo user's data, and record a backup video.
+  6. Write the demo script, prepare the demo user's data from `data/demo_list.yaml`, and record a backup video.
 - **Done when:** the full loop works on the phone with the real receipt.

@@ -1,0 +1,44 @@
+# The demo shopping list. Owner: Member 1, Task 19.
+#
+# Every item is sold by both stores, and each store's named product is its cheapest
+# in that leaf, which is what the optimiser picks. tests/data/test_demo_list.py checks
+# this against the snapshot, so run it after any new scrape.
+#
+# Quantity is 1 throughout, so the items to buy for the demo receipts stay few.
+
+items:
+  # Cheaper at Auchan.
+  - path: ["Cafea, ceai și cacao", "Cafea", "Măcinată", "500 g"]
+    quantity: 1
+    auchan: "Cafea macinata Tchibo Exclusive, 500 g"
+    carrefour: "Cafea macinata, Tchibo Exclusive Good Mood Blend, 500 g"
+  - path: ["Dulciuri și snacks", "Ciocolată", "Cu lapte", "100 g"]
+    quantity: 1
+    auchan: "Ciocolata cu lapte Merci, 100 g"
+    carrefour: "Ciocolata cu lapte 100 g Merci"
+  - path: ["Băcănie", "Făină", "Albă", "1 kg"]
+    quantity: 1
+    auchan: "Faina alba de grau superioara 000 Auchan, 1 kg"
+    carrefour: "Faina alba Dobrogea, superioara 000, 1 kg"
+  - path: ["Băcănie", "Paste", "Penne", "500 g"]
+    quantity: 1
+    auchan: "Penne din grau dur Auchan, 500 g"
+    carrefour: "Antonio di Vaio Penne rigate integrale 500g"
+  - path: ["Băcănie", "Orez", "Basmati", "1 kg"]
+    quantity: 1
+    auchan: "Orez basmati calitatea 1 Deroni, 1 kg"
+    carrefour: "Orez Basmati 1Kg Carrefour Extra"
+
+  # Cheaper at Carrefour.
+  - path: ["Curățenie și casă", "Detergent", "Vase", "545 ml"]
+    quantity: 1
+    auchan: "Detergent de vase Fairy Max Power, rodie, 545 ml"
+    carrefour: "Detergent de vase Fairy MaxPower Pomegranate, 545 ml"
+  - path: ["Curățenie și casă", "Hârtie igienică", "Role", "16 buc"]
+    quantity: 1
+    auchan: "Hartie igienica Auchan 16 role, 3 straturi"
+    carrefour: "Hartie igienica Carrefour Essential piersica 16 role, 3 straturi"
+  - path: ["Băcănie", "Ulei", "Măsline", "250 ml"]
+    quantity: 1
+    auchan: "Ulei de masline extravirgin Campo Dorato, 250 ml"
+    carrefour: "Ulei de masline extravirgin 250 ml Kaiser Franz Josef"
