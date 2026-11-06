@@ -1,50 +1,46 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
+import { Observable, tap } from 'rxjs';
+import { ApiService } from '../core/api';
+import { CardBrand, CardScan, LoyaltyCard } from '../core/models';
 
-export interface SavedCard {
-  id: number;
-  label: string;
-  image: string;
-}
-
-const CARDS_KEY = 'dealdirection.cards';
-
-// `/cards` expects a store id and clients here type a free label, so cards stay
-// on this device until the backend accepts labels.
+// The account's loyalty cards, kept on the backend so they follow the client
+// to any phone. One card per brand: replacing a card means deleting it first.
 @Injectable({ providedIn: 'root' })
 export class CardsService {
-  readonly cards = signal<SavedCard[]>(readSavedCards());
+  private readonly api = inject(ApiService);
 
-  // False means the device has no room left, and nothing was saved.
-  add(label: string, image: string): boolean {
-    const id = Math.max(0, ...this.cards().map((card) => card.id)) + 1;
-    return this.save([...this.cards(), { id, label, image }]);
+  readonly cards = signal<LoyaltyCard[]>([]);
+  readonly brands = signal<CardBrand[]>([]);
+
+  load(): void {
+    if (!this.brands().length) {
+      this.api.getCardBrands().subscribe((brands) => this.brands.set(brands));
+    }
+    this.api.getCards().subscribe((cards) => this.cards.set(cards));
   }
 
-  remove(id: number): void {
-    this.save(this.cards().filter((card) => card.id !== id));
+  scan(photo: File): Observable<CardScan> {
+    return this.api.scanCard(photo);
   }
 
+  add(brand: string, source: { scan: CardScan } | { photo: File }): Observable<LoyaltyCard> {
+    return this.api
+      .saveCard(brand, source)
+      .pipe(tap((card) => this.cards.update((cards) => [...cards, card])));
+  }
+
+  remove(id: number): Observable<void> {
+    return this.api
+      .deleteCard(id)
+      .pipe(tap(() => this.cards.update((cards) => cards.filter((card) => card.id !== id))));
+  }
+
+  // On logout, so the next user doesn't see this account's cards.
   clear(): void {
     this.cards.set([]);
-    localStorage.removeItem(CARDS_KEY);
   }
 
-  private save(cards: SavedCard[]): boolean {
-    try {
-      localStorage.setItem(CARDS_KEY, JSON.stringify(cards));
-    } catch {
-      return false;
-    }
-    this.cards.set(cards);
-    return true;
-  }
-}
-
-function readSavedCards(): SavedCard[] {
-  try {
-    const saved: unknown = JSON.parse(localStorage.getItem(CARDS_KEY) ?? '[]');
-    return Array.isArray(saved) ? (saved as SavedCard[]) : [];
-  } catch {
-    return [];
+  hasBrand(brand: string): boolean {
+    return this.cards().some((card) => card.brand === brand);
   }
 }

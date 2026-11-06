@@ -71,7 +71,12 @@ describe('AuthService', () => {
   it('removes saved cards on logout, so the next user does not see them', () => {
     const auth = setup();
     const cards = TestBed.inject(CardsService);
-    cards.add('Auchan', 'data:image/jpeg;base64,AAAA');
+    cards.load();
+    http.expectOne('/api/card-brands').flush([]);
+    http.expectOne('/api/cards').flush([
+      { id: 1, brand: 'lidl', name: 'Lidl', colour: '#0050aa', code_text: '123', code_format: 'qr', image: 'data:x' },
+    ]);
+    expect(cards.cards().length).toBe(1);
 
     auth.logout();
 

@@ -2,33 +2,63 @@
 
 <div class="list">
   @for (card of wallet.cards(); track card.id) {
-    <button type="button" class="card" (click)="viewing.set(card)">
-      <span class="name">{{ card.label }}</span>
+    <button
+      type="button"
+      class="card"
+      [style.background]="card.colour"
+      (click)="viewing.set(card)"
+    >
+      <span class="name">{{ card.name }}</span>
       <img [src]="card.image" alt="" />
     </button>
   } @empty {
-    @if (!newImage() && !choosing()) {
+    @if (!pickingBrand() && !choosing()) {
       <p class="note">{{ ro.cards.empty }}</p>
     }
   }
 
-  @if (newImage(); as image) {
+  @if (pickingBrand()) {
     <form class="new-card" (submit)="saveCard($event)">
-      <img [src]="image" [alt]="ro.cards.preview" />
-      <label>
-        {{ ro.cards.label }}
-        <input
-          class="card-label"
-          autocomplete="off"
-          [value]="newLabel()"
-          (input)="newLabel.set($any($event.target).value)"
-        />
-      </label>
+      @if (scan(); as found) {
+        <img class="preview" [src]="found.image" [alt]="ro.cards.code" />
+        <p class="code-text">{{ found.code_text }}</p>
+      } @else if (photoPreview(); as preview) {
+        <img class="preview" [src]="preview" [alt]="ro.cards.preview" />
+        <p class="note">{{ ro.cards.photoOnly }}</p>
+      }
+
+      <fieldset class="brands">
+        <legend>{{ ro.cards.whichStore }}</legend>
+        @for (option of wallet.brands(); track option.id) {
+          <label
+            class="brand"
+            [class.chosen]="brand() === option.id"
+            [class.taken]="wallet.hasBrand(option.id)"
+            [style.--brand]="option.colour"
+          >
+            <input
+              type="radio"
+              name="brand"
+              [value]="option.id"
+              [checked]="brand() === option.id"
+              [disabled]="wallet.hasBrand(option.id)"
+              (change)="brand.set(option.id)"
+            />
+            {{ option.name }}
+            @if (wallet.hasBrand(option.id)) {
+              <small>{{ ro.cards.alreadySaved }}</small>
+            }
+          </label>
+        }
+      </fieldset>
+
       <div class="actions">
         <button type="button" class="cancel-card" (click)="cancelCard()">
           {{ ro.cards.cancel }}
         </button>
-        <button type="submit" class="save-card">{{ ro.cards.save }}</button>
+        <button type="submit" class="save-card" [disabled]="saving()">
+          {{ saving() ? ro.loading : ro.cards.save }}
+        </button>
       </div>
     </form>
   } @else if (choosing()) {
@@ -36,15 +66,15 @@
       <button
         type="button"
         class="pick-photo"
-        [disabled]="reading()"
+        [disabled]="scanning()"
         (click)="photoInput.click()"
       >
-        {{ reading() ? ro.loading : ro.cards.choosePhoto }}
+        {{ scanning() ? ro.cards.reading : ro.cards.choosePhoto }}
       </button>
       <button
         type="button"
         class="scan-card"
-        [disabled]="reading()"
+        [disabled]="scanning()"
         (click)="cameraInput.click()"
       >
         {{ ro.cards.scanCard }}
@@ -68,6 +98,11 @@
 @if (error(); as message) {
   <p class="error" role="alert">{{ message }}</p>
 }
+@if (unreadPhoto() && !savingPhoto()) {
+  <button type="button" class="save-photo" (click)="savePhotoInstead()">
+    {{ ro.cards.savePhotoInstead }}
+  </button>
+}
 
 <input
   #photoInput
@@ -88,9 +123,14 @@
 />
 
 @if (viewing(); as card) {
-  <div class="card-view" role="dialog" [attr.aria-label]="card.label">
-    <h2>{{ card.label }}</h2>
-    <img [src]="card.image" [alt]="ro.cards.code + ' ' + card.label" />
+  <div class="card-view" role="dialog" [attr.aria-label]="card.name">
+    <h2 [style.background]="card.colour">{{ card.name }}</h2>
+    <div class="code">
+      <img [src]="card.image" [alt]="ro.cards.code + ' ' + card.name" />
+    </div>
+    @if (card.code_text) {
+      <p class="code-text">{{ card.code_text }}</p>
+    }
     <div class="actions">
       @if (confirmingDelete()) {
         <p class="question">{{ ro.cards.confirmDelete }}</p>

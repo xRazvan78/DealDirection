@@ -212,7 +212,7 @@ Points can be spent on specific products at partner stores, online or in person.
 
 ### Loyalty cards
 
-The client uploads a photo of a card and crops it to the barcode or QR code. The app shows that code on a generic card, in a colour unique to the store, with its name or logo clearly visible.
+The client photographs a card's QR code or barcode, and the backend reads it (QR, EAN-13, EAN-8, UPC-A, Code 128, Code 39). The client then picks the card's supermarket from a fixed list (Lidl, Kaufland, Auchan, Carrefour, Mega Image, Profi, Penny), with the brand suggested when its name is printed on the card or inside the code. The app saves the code, not the photo, and redraws it sharply on a card in the brand's colour, because a till reads a clean code far better than a photo. If no code can be read, the photo itself can be saved instead. Each account keeps one card per brand: to replace a card, delete it first. Card brands are separate from the price-comparison stores.
 
 ### Lists
 
@@ -358,7 +358,7 @@ Each unit has one job, and can be tested without the others.
 | `receipt_lines`   | receipt, raw text, quantity, line total, matched list item                                                                                 |
 | `points_ledger`   | user, amount, reason, receipt, created_at                                                                                                  |
 | `vouchers`        | user, reward, store, code (unique), expires_at, used_at |
-| `loyalty_cards`   | user, store, code image; unique on user and store                                                                                          |
+| `loyalty_cards`   | user, brand, code text, code format, photo (only if no code was read); unique on user and brand                                            |
 
 Create tables with `Base.metadata.create_all`, since a hackathon doesn't need migrations.
 
@@ -379,7 +379,7 @@ All routes are under `/api`.
 | Receipts   | `POST /lists/{id}/receipts?store_id=`                                                                                  |
 | Import     | `POST /imports`, `POST /imports/confirm`                                                                               |
 | Wallet     | `GET /wallet`, `GET /rewards`, `POST /rewards/{id}/redeem`, `GET /vouchers` |
-| Cards          | Saved cards with a typed label, added from a photo or the camera, and a large code view |
+| Cards      | `GET /card-brands`, `POST /cards/scan`, `GET /cards`, `POST /cards`, `DELETE /cards/{id}`                              |
 
 ### Configuration
 
@@ -417,7 +417,7 @@ All screens are in Romanian.
 | Lists          | Saved lists: view, edit, delete                                              |
 | Receipt result | Matched and unmatched items, estimate, paid, modifier, points                |
 | Point Shop     | Points balance, simulated rewards, point history, at `/wallet`                 |
-| Cards          | Saved cards with a typed label, added from a photo or the camera, and a large code view |
+| Cards          | Scan a card's code, pick its supermarket, and show a clean redrawn code at the till |
 | Settings       | Store selection, logout                                                      |
 
 ### Error handling

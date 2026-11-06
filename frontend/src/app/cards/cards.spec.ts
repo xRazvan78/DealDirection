@@ -1,265 +1,243 @@
+import { provideHttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { CardBrand, CardScan, LoyaltyCard } from '../core/models';
 import { ro } from '../shared/ro';
-import { CardImageReader } from './card-image';
 import { Cards } from './cards';
-import { CardsService } from './cards.service';
 
-const image = 'data:image/jpeg;base64,AAAA';
+const brands: CardBrand[] = [
+  { id: 'lidl', name: 'Lidl', colour: '#0050aa' },
+  { id: 'kaufland', name: 'Kaufland', colour: '#e10915' },
+  { id: 'auchan', name: 'Auchan', colour: '#d6001c' },
+];
+const lidl: LoyaltyCard = {
+  id: 1,
+  brand: 'lidl',
+  name: 'Lidl',
+  colour: '#0050aa',
+  code_text: '4812345678901',
+  code_format: 'qr',
+  image: 'data:image/svg+xml;base64,AAAA',
+};
+const scan: CardScan = {
+  code_text: '2401234567891',
+  code_format: 'ean13',
+  image: 'data:image/svg+xml;base64,BBBB',
+  suggested_brand: 'kaufland',
+};
 const photo = new File(['x'], 'card.jpg', { type: 'image/jpeg' });
 
 describe('Cards', () => {
   let fixture: ComponentFixture<Cards>;
+  let http: HttpTestingController;
   let page: HTMLElement;
-  let cards: CardsService;
-  let read: ReturnType<typeof vi.spyOn>;
 
   beforeEach(async () => {
-    localStorage.clear();
-    await TestBed.configureTestingModule({ imports: [Cards] }).compileComponents();
-    cards = TestBed.inject(CardsService);
-    read = vi.spyOn(TestBed.inject(CardImageReader), 'read').mockResolvedValue(image);
+    await TestBed.configureTestingModule({
+      imports: [Cards],
+      providers: [provideHttpClient(), provideHttpClientTesting()],
+    }).compileComponents();
+    http = TestBed.inject(HttpTestingController);
+    URL.createObjectURL = vi.fn(() => 'blob:card-photo');
+    URL.revokeObjectURL = vi.fn();
   });
 
-  afterEach(() => vi.restoreAllMocks());
+  afterEach(() => {
+    http.verify();
+    vi.restoreAllMocks();
+  });
 
-  async function open(): Promise<void> {
+  async function open(cards: LoyaltyCard[] = []): Promise<void> {
     fixture = TestBed.createComponent(Cards);
     page = fixture.nativeElement;
-    await fixture.whenStable();
+    fixture.detectChanges();
+    http.expectOne('/api/card-brands').flush(brands);
+    http.expectOne('/api/cards').flush(cards);
+    await settle();
   }
 
   async function settle(): Promise<void> {
     await new Promise((resolve) => setTimeout(resolve));
+    fixture.detectChanges();
     await fixture.whenStable();
   }
 
-  function button(selector: string): HTMLButtonElement {
-    return page.querySelector<HTMLButtonElement>(selector)!;
+  function el<T extends HTMLElement = HTMLElement>(selector: string): T | null {
+    return page.querySelector<T>(selector);
   }
 
   async function press(selector: string): Promise<void> {
-    button(selector).click();
+    el<HTMLButtonElement>(selector)!.click();
     await settle();
   }
 
-  async function pick(selector: string, file: File): Promise<void> {
-    const input = page.querySelector<HTMLInputElement>(selector)!;
+  async function pick(file: File): Promise<void> {
+    await press('.add-card');
+    const input = el<HTMLInputElement>('.photo-input')!;
     Object.defineProperty(input, 'files', { value: [file], configurable: true });
     input.dispatchEvent(new Event('change'));
     await settle();
   }
 
-  async function label(text: string): Promise<void> {
-    const input = page.querySelector<HTMLInputElement>('.card-label')!;
-    input.value = text;
-    input.dispatchEvent(new Event('input'));
+  async function choose(brand: string): Promise<void> {
+    const radio = el<HTMLInputElement>(`input[value="${brand}"]`)!;
+    radio.checked = true;
+    radio.dispatchEvent(new Event('change'));
     await settle();
   }
 
   async function submit(): Promise<void> {
-    page.querySelector('.new-card')!.dispatchEvent(new Event('submit'));
+    el('.new-card')!.dispatchEvent(new Event('submit'));
     await settle();
   }
 
-  it('explains an empty wallet', async () => {
-    await open();
+  it('lists the account cards in their brand colours', async () => {
+    await open([lidl]);
 
-    expect(page.textContent).toContain(ro.cards.empty);
+    const card = el<HTMLButtonElement>('.card')!;
+    expect(card.textContent).toContain('Lidl');
+    expect(card.style.background).toContain('rgb(0, 80, 170)');
+    expect(card.querySelector('img')!.getAttribute('src')).toBe(lidl.image);
   });
 
-  it('shows each saved card with its label', async () => {
-    cards.add('Auchan', image);
-    cards.add('Lidl', image);
+  it('says how to add a first card', async () => {
     await open();
 
-    const labels = [...page.querySelectorAll('.card .name')].map((name) => name.textContent);
-    expect(labels).toEqual(['Auchan', 'Lidl']);
+    expect(el('.note')!.textContent).toContain(ro.cards.empty);
   });
 
-  it('keeps + after the last card', async () => {
-    cards.add('Auchan', image);
+  it('scans the code first, then saves it under the chosen brand', async () => {
     await open();
 
-    const order = [...page.querySelector('.list')!.children].map((child) => child.className);
-    expect(order.at(-1)).toContain('add-card');
+    await pick(photo);
+    const request = http.expectOne('/api/cards/scan');
+    expect((request.request.body as FormData).get('file')).toBe(photo);
+    request.flush(scan);
+    await settle();
+
+    expect(el<HTMLImageElement>('.preview')!.getAttribute('src')).toBe(scan.image);
+    expect(el('.code-text')!.textContent).toContain('2401234567891');
+    // The brand printed on the card is pre-selected.
+    expect(el<HTMLInputElement>('input[value="kaufland"]')!.checked).toBe(true);
+
+    await submit();
+    const save = http.expectOne('/api/cards');
+    expect((save.request.body as FormData).get('brand')).toBe('kaufland');
+    save.flush({ ...lidl, id: 2, brand: 'kaufland', name: 'Kaufland', colour: '#e10915' });
+    await settle();
+
+    expect(el('.new-card')).toBeNull();
+    expect(Array.from(page.querySelectorAll('.card')).map((c) => c.textContent?.trim())).toEqual(['Kaufland']);
   });
 
-  it('offers the two ways to add a card when + is pressed', async () => {
+  it('lets the client change the suggested brand', async () => {
     await open();
-    expect(page.querySelector('.add-options')).toBeNull();
+    await pick(photo);
+    http.expectOne('/api/cards/scan').flush(scan);
+    await settle();
 
-    await press('.add-card');
-
-    expect(button('.pick-photo').textContent).toContain(ro.cards.choosePhoto);
-    expect(button('.scan-card').textContent).toContain(ro.cards.scanCard);
-  });
-
-  it('can close the options', async () => {
-    await open();
-    await press('.add-card');
-
-    await press('.close-options');
-
-    expect(page.querySelector('.add-options')).toBeNull();
-  });
-
-  it('chooses an existing photo without forcing the camera', async () => {
-    await open();
-
-    const input = page.querySelector('.photo-input');
-    expect(input?.getAttribute('accept')).toBe('image/*');
-    expect(input?.hasAttribute('capture')).toBe(false);
-  });
-
-  it('opens the camera to scan a physical card', async () => {
-    await open();
-
-    expect(page.querySelector('.camera-input')?.getAttribute('capture')).toBe('environment');
-  });
-
-  it('shows the photo and asks for a label', async () => {
-    await open();
-
-    await pick('.photo-input', photo);
-
-    expect(read).toHaveBeenCalledWith(photo);
-    expect(page.querySelector('.new-card img')?.getAttribute('src')).toBe(image);
-    expect(page.querySelector('.card-label')).not.toBeNull();
-  });
-
-  it('never fills in the label or lets the browser suggest one', async () => {
-    await open();
-
-    await pick('.camera-input', photo);
-    const input = page.querySelector<HTMLInputElement>('.card-label');
-
-    expect(input?.value).toBe('');
-    expect(input?.getAttribute('autocomplete')).toBe('off');
-  });
-
-  it('saves the card with the typed label', async () => {
-    await open();
-    await pick('.camera-input', photo);
-
-    await label('  Card Auchan  ');
+    await choose('auchan');
     await submit();
 
-    expect(cards.cards()[0]).toMatchObject({ label: 'Card Auchan', image });
-    expect(page.querySelector('.new-card')).toBeNull();
+    expect((http.expectOne('/api/cards').request.body as FormData).get('brand')).toBe('auchan');
   });
 
-  it('requires a label', async () => {
+  it('asks for a brand when none is suggested', async () => {
     await open();
-    await pick('.photo-input', photo);
+    await pick(photo);
+    http.expectOne('/api/cards/scan').flush({ ...scan, suggested_brand: null });
+    await settle();
 
     await submit();
 
-    expect(page.textContent).toContain(ro.cards.labelRequired);
-    expect(cards.cards()).toEqual([]);
+    expect(el('.error')!.textContent).toContain(ro.cards.brandRequired);
+    http.expectNone('/api/cards');
   });
 
-  it('can cancel a new card', async () => {
+  it('disables brands that already have a card, even if suggested', async () => {
+    await open([lidl]);
+    await pick(photo);
+    http.expectOne('/api/cards/scan').flush({ ...scan, suggested_brand: 'lidl' });
+    await settle();
+
+    const taken = el<HTMLInputElement>('input[value="lidl"]')!;
+    expect(taken.disabled).toBe(true);
+    expect(taken.checked).toBe(false);
+    expect(taken.closest('label')!.textContent).toContain(ro.cards.alreadySaved);
+  });
+
+  it('offers to save the photo when no code is found', async () => {
     await open();
-    await pick('.photo-input', photo);
+    await pick(photo);
+    http
+      .expectOne('/api/cards/scan')
+      .flush({ detail: 'Nu am găsit niciun cod QR sau cod de bare.' }, { status: 422, statusText: 'Unprocessable' });
+    await settle();
+
+    expect(el('.error')!.textContent).toContain('Nu am găsit niciun cod QR');
+
+    await press('.save-photo');
+    expect(el<HTMLImageElement>('.preview')!.getAttribute('src')).toBe('blob:card-photo');
+    expect(el('.new-card')!.textContent).toContain(ro.cards.photoOnly);
+
+    await choose('lidl');
+    await submit();
+    const body = http.expectOne('/api/cards').request.body as FormData;
+    expect([body.get('brand'), body.get('file'), body.get('code_text')]).toEqual(['lidl', photo, null]);
+  });
+
+  it('shows the backend message when a brand already has a card', async () => {
+    await open();
+    await pick(photo);
+    http.expectOne('/api/cards/scan').flush(scan);
+    await settle();
+
+    await submit();
+    http
+      .expectOne('/api/cards')
+      .flush({ detail: 'Ai deja un card Kaufland. Șterge-l mai întâi.' }, { status: 409, statusText: 'Conflict' });
+    await settle();
+
+    expect(el('.error')!.textContent).toContain('Ai deja un card Kaufland');
+    expect(el('.new-card')).not.toBeNull();
+  });
+
+  it('rejects a file that is not a photo without sending it', async () => {
+    await open();
+
+    await pick(new File(['%PDF'], 'card.pdf', { type: 'application/pdf' }));
+
+    expect(el('.error')!.textContent).toContain(ro.cards.wrongFile);
+    http.expectNone('/api/cards/scan');
+  });
+
+  it('cancelling discards the scanned code', async () => {
+    await open();
+    await pick(photo);
+    http.expectOne('/api/cards/scan').flush(scan);
+    await settle();
 
     await press('.cancel-card');
 
-    expect(page.querySelector('.new-card')).toBeNull();
-    expect(cards.cards()).toEqual([]);
+    expect(el('.new-card')).toBeNull();
+    http.expectNone('/api/cards');
   });
 
-  it('rejects a file that is not an image', async () => {
-    await open();
+  it('shows a card full screen with its code, and deletes it after confirming', async () => {
+    await open([lidl]);
 
-    await pick('.photo-input', new File(['x'], 'card.pdf', { type: 'application/pdf' }));
+    await press('.card');
+    const view = el('.card-view')!;
+    expect(view.querySelector('img')!.getAttribute('src')).toBe(lidl.image);
+    expect(view.textContent).toContain('4812345678901');
 
-    expect(read).not.toHaveBeenCalled();
-    expect(page.textContent).toContain(ro.cards.wrongFile);
-  });
+    await press('.delete-card');
+    expect(el('.question')!.textContent).toContain(ro.cards.confirmDelete);
+    await press('.confirm-delete');
+    http.expectOne({ method: 'DELETE', url: '/api/cards/1' }).flush(null);
+    await settle();
 
-  it('rejects a file that is too large', async () => {
-    await open();
-    const huge = new File(['x'], 'card.jpg', { type: 'image/jpeg' });
-    Object.defineProperty(huge, 'size', { value: 11 * 1024 * 1024 });
-
-    await pick('.photo-input', huge);
-
-    expect(read).not.toHaveBeenCalled();
-    expect(page.textContent).toContain(ro.cards.wrongFile);
-  });
-
-  it('explains a photo that could not be read', async () => {
-    read.mockRejectedValue(new Error('bad'));
-    await open();
-
-    await pick('.photo-input', photo);
-
-    expect(page.textContent).toContain(ro.cards.readFailed);
-  });
-
-  it('explains when the device has no room', async () => {
-    vi.spyOn(cards, 'add').mockReturnValue(false);
-    await open();
-    await pick('.photo-input', photo);
-
-    await label('Auchan');
-    await submit();
-
-    expect(page.textContent).toContain(ro.cards.noRoom);
-    expect(page.querySelector('.new-card')).not.toBeNull();
-  });
-
-  describe('viewing a card', () => {
-    beforeEach(async () => {
-      cards.add('Auchan', image);
-      await open();
-      await press('.card');
-    });
-
-    it('shows the code large', () => {
-      expect(page.querySelector('.card-view h2')?.textContent).toContain('Auchan');
-      expect(page.querySelector('.card-view img')?.getAttribute('src')).toBe(image);
-    });
-
-    it('closes again', async () => {
-      await press('.close-view');
-
-      expect(page.querySelector('.card-view')).toBeNull();
-    });
-
-    it('asks before deleting', async () => {
-      await press('.delete-card');
-
-      expect(cards.cards().length).toBe(1);
-      expect(page.textContent).toContain(ro.cards.confirmDelete);
-    });
-
-    it('deletes after confirming', async () => {
-      await press('.delete-card');
-      await press('.confirm-delete');
-
-      expect(cards.cards()).toEqual([]);
-      expect(page.querySelector('.card-view')).toBeNull();
-    });
-
-    it('keeps the card if the delete is called off', async () => {
-      await press('.delete-card');
-      await press('.keep-card');
-
-      expect(cards.cards().length).toBe(1);
-      expect(page.querySelector('.delete-card')).not.toBeNull();
-    });
-
-    it('does not ask again on the next card after a delete', async () => {
-      cards.add('Lidl', image);
-      await settle();
-      await press('.delete-card');
-      await press('.confirm-delete');
-
-      await press('.card');
-
-      expect(page.querySelector('.card-view h2')?.textContent).toContain('Lidl');
-      expect(page.querySelector('.confirm-delete')).toBeNull();
-    });
+    expect(el('.card-view')).toBeNull();
+    expect(el('.card')).toBeNull();
   });
 });
