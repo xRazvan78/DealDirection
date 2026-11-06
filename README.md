@@ -37,6 +37,10 @@ py -3.12 -m venv .venv
 On macOS or Linux, use `python3.12 -m venv .venv`. Activate it with the command for your terminal, then install everything:
 
 ```bash
+source .venv/Scripts/activate
+```
+
+```bash
 python -m pip install -r requirements.txt
 ```
 
