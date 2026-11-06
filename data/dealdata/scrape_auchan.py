@@ -47,7 +47,16 @@ def _first_offer(item: dict) -> dict | None:
 
 def search_terms(rules: list[LeafRule]) -> list[str]:
     """Return one search for each type in the tree, in tree order."""
-    return list(dict.fromkeys(" ".join(rule.include) for rule in rules))
+    terms = (" ".join(rule.include or rule.any_of[:1]) for rule in rules)
+    return list(dict.fromkeys(term for term in terms if term))
+
+
+def read_raw_auchan(raw_dir: Path) -> list[RawProduct]:
+    """Parse responses already saved in raw_dir, without sending any request."""
+    products = []
+    for raw_file in sorted(raw_dir.glob("auchan_*.json")):
+        products += parse_auchan(json.loads(raw_file.read_text(encoding="utf-8")))
+    return products
 
 
 def scrape_auchan(client: Any, terms: list[str], raw_dir: Path) -> list[RawProduct]:

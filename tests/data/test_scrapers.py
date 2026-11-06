@@ -1,5 +1,6 @@
 import copy
 import json
+from datetime import date
 from decimal import Decimal
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
@@ -7,13 +8,16 @@ from urllib.parse import parse_qs, urlparse
 import httpx
 import pytest
 
+from dealdata import scrape
 from dealdata.normalize import RawProduct, Size
-from dealdata.scrape import Blocked, PoliteClient, unique_products
-from dealdata.scrape_auchan import parse_auchan, scrape_auchan, search_terms
-from dealdata.scrape_carrefour import parse_carrefour, scrape_carrefour
-from dealdata.tree import LeafRule
+from dealdata.scrape import Blocked, PoliteClient, build_snapshot, unique_products
+from dealdata.scrape_auchan import parse_auchan, read_raw_auchan, scrape_auchan, search_terms
+from dealdata.scrape_carrefour import parse_carrefour, read_raw_carrefour, scrape_carrefour
+from dealdata.tree import LeafRule, category_nodes, load_tree
 
 FIXTURES = Path(__file__).parents[1] / "fixtures"
+REAL_TREE = Path(__file__).parents[2] / "data" / "tree.yaml"
+SNAPSHOT = Path(__file__).parents[2] / "data" / "snapshot" / "products.json"
 CATEGORY_URL = "https://carrefour.ro/bacanie-carrefour/alimente/lapte-si-derivate-lapte-uht/"
 
 
@@ -218,6 +222,196 @@ def test_scrape_auchan_sends_spaces_as_percent_20(tmp_path: Path) -> None:
 
     # Auchan answers 400 to the "+" form of a space.
     assert "ft=bautura%20ovaz" in urls[0]
+
+
+def sold_at(store: str, name: str, price: str = "8.50") -> RawProduct:
+    return RawProduct(store, name, "Marca", None, Decimal(price), None, "https://example.com/p")
+
+
+MILK_RULES = [
+    LeafRule(
+        ("Lapte", "3.5%", "1 l"),
+        ("lapte", "3.5%"),
+        (),
+        Size(Decimal("1"), "l"),
+        (),
+        group="Lactate și ouă",
+    ),
+    LeafRule(
+        ("Lapte", "1.5%", "1 l"),
+        ("lapte", "1.5%"),
+        (),
+        Size(Decimal("1"), "l"),
+        (),
+        group="Lactate și ouă",
+    ),
+]
+
+
+def test_build_snapshot_describes_each_product_for_the_load() -> None:
+    products = [
+        sold_at("Auchan", "Lapte 3.5% Albalact, 1 l", "8.50"),
+        sold_at("Carrefour", "Lapte 3,5% Zuzu 1L", "9.10"),
+    ]
+
+    assert build_snapshot(products, MILK_RULES, date(2026, 11, 6))[0] == {
+        "store": "Auchan",
+        "name": "Lapte 3.5% Albalact, 1 l",
+        "brand": "Marca",
+        "price": "8.50",
+        "unit": "l",
+        "source_url": "https://example.com/p",
+        "path": ["Lactate și ouă", "Lapte", "3.5%", "1 l"],
+        "updated_at": "2026-11-06",
+    }
+
+
+def test_build_snapshot_keeps_products_sold_by_only_one_store() -> None:
+    products = [
+        sold_at("Auchan", "Lapte 3.5% Albalact, 1 l"),
+        sold_at("Carrefour", "Lapte 3.5% Zuzu, 1 l"),
+        sold_at("Auchan", "Lapte 1.5% Albalact, 1 l"),
+    ]
+
+    names = [item["name"] for item in build_snapshot(products, MILK_RULES, date(2026, 11, 6))]
+
+    assert names == [
+        "Lapte 3.5% Albalact, 1 l",
+        "Lapte 3.5% Zuzu, 1 l",
+        "Lapte 1.5% Albalact, 1 l",
+    ]
+
+
+def test_build_snapshot_leaves_out_products_with_no_size_or_leaf() -> None:
+    products = [
+        sold_at("Auchan", "Lapte 3.5% Albalact"),
+        sold_at("Carrefour", "Paine alba, 1 l"),
+    ]
+
+    assert build_snapshot(products, MILK_RULES, date(2026, 11, 6)) == []
+
+
+def test_search_terms_never_send_an_empty_search() -> None:
+    size = Size(Decimal("1"), "l")
+    only_alternatives = LeafRule(("Suc", "Altele", "1 l"), (), (), size, (), any_of=("suc", "nectar"))
+
+    assert search_terms([only_alternatives]) == ["suc"]
+
+
+def test_read_raw_auchan_uses_saved_files_only(tmp_path: Path, auchan_payload: list[dict]) -> None:
+    (tmp_path / "auchan_000.json").write_text(json.dumps(auchan_payload), encoding="utf-8")
+
+    assert len(read_raw_auchan(tmp_path)) == 3
+
+
+def test_read_raw_carrefour_uses_saved_files_only(tmp_path: Path, carrefour_html: str) -> None:
+    (tmp_path / "carrefour_000_p1.html").write_text(carrefour_html, encoding="utf-8")
+
+    assert len(read_raw_carrefour(tmp_path)) == 4
+
+
+def write_offline_project(data_dir: Path, auchan: list[dict], carrefour: str) -> Path:
+    raw_dir = data_dir / "raw" / "2026-11-05"
+    raw_dir.mkdir(parents=True)
+    (data_dir / "snapshot").mkdir()
+    (raw_dir / "auchan_000.json").write_text(json.dumps(auchan), encoding="utf-8")
+    (raw_dir / "carrefour_000_p1.html").write_text(carrefour, encoding="utf-8")
+    (data_dir / "tree.yaml").write_text(
+        """
+categories:
+  - name: Lapte
+    group: Lactate
+    types:
+      - name: Toate
+        any_of: [lapte, bautura]
+        sizes: ["1 l"]
+""",
+        encoding="utf-8",
+    )
+    return raw_dir
+
+
+def test_offline_run_builds_the_snapshot_without_any_request(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    auchan_payload: list[dict],
+    carrefour_html: str,
+) -> None:
+    write_offline_project(tmp_path, auchan_payload, carrefour_html)
+    monkeypatch.setattr(scrape, "DATA_DIR", tmp_path)
+    monkeypatch.setattr(scrape, "PoliteClient", refuse_client)
+
+    assert scrape.main(["--offline"]) == 0
+
+    items = json.loads((tmp_path / "snapshot" / "products.json").read_text(encoding="utf-8"))
+    assert {item["store"] for item in items} == {"Auchan", "Carrefour"}
+
+
+def test_offline_run_dates_products_from_the_raw_folder(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    auchan_payload: list[dict],
+    carrefour_html: str,
+) -> None:
+    write_offline_project(tmp_path, auchan_payload, carrefour_html)
+    monkeypatch.setattr(scrape, "DATA_DIR", tmp_path)
+    monkeypatch.setattr(scrape, "PoliteClient", refuse_client)
+
+    scrape.main(["--offline"])
+
+    items = json.loads((tmp_path / "snapshot" / "products.json").read_text(encoding="utf-8"))
+    assert items[0]["updated_at"] == "2026-11-05"
+
+
+def refuse_client() -> None:
+    raise AssertionError("An offline run must not create an HTTP client")
+
+
+def test_real_snapshot_has_every_placed_product() -> None:
+    items = json.loads(SNAPSHOT.read_text(encoding="utf-8"))
+
+    assert len(items) >= 2700
+
+
+def test_real_snapshot_has_at_least_30_leaves_sold_by_both_stores() -> None:
+    items = json.loads(SNAPSHOT.read_text(encoding="utf-8"))
+    stores_per_leaf: dict[tuple[str, ...], set[str]] = {}
+    for item in items:
+        stores_per_leaf.setdefault(tuple(item["path"]), set()).add(item["store"])
+
+    shared = [stores for stores in stores_per_leaf.values() if len(stores) == 2]
+
+    assert len(shared) >= 30
+
+
+def test_real_snapshot_paths_match_category_rows() -> None:
+    items = json.loads(SNAPSHOT.read_text(encoding="utf-8"))
+    leaves = {
+        node.path for node in category_nodes(load_tree(REAL_TREE)) if node.level == "size"
+    }
+
+    assert all(tuple(item["path"]) in leaves for item in items)
+
+
+def test_real_snapshot_keeps_to_names_and_prices() -> None:
+    items = json.loads(SNAPSHOT.read_text(encoding="utf-8"))
+
+    assert all("image_url" not in item and "barcode" not in item for item in items)
+
+
+def test_real_snapshot_has_one_row_per_store_and_name() -> None:
+    items = json.loads(SNAPSHOT.read_text(encoding="utf-8"))
+    keys = [(item["store"], item["name"]) for item in items]
+
+    assert len(keys) == len(set(keys))
+
+
+def test_real_tree_writes_small_sizes_in_grams_and_millilitres() -> None:
+    paths = {rule.path for rule in load_tree(REAL_TREE)}
+
+    assert ("Iaurt", "Natural", "400 g") in paths
+    assert ("Lapte", "3.5%", "500 ml") in paths
+    assert not any(path[2].startswith("0.") for path in paths)
 
 
 def refuse_requests(request: httpx.Request) -> httpx.Response:

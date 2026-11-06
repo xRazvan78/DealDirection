@@ -2,6 +2,10 @@
 
 Raw output goes to data/raw/<date>/, which is never committed. If a site blocks the
 scrape, this stops, and the team should be told.
+
+To rebuild data/snapshot/products.json from the newest raw folder, for example after
+changing tree.yaml, add --offline. That sends no requests. Without it, a tree change
+means new searches, so don't run the plain command just to refresh the snapshot.
 """
 
 import json
@@ -14,10 +18,10 @@ from pathlib import Path
 
 import httpx
 
-from dealdata.normalize import RawProduct
-from dealdata.scrape_auchan import scrape_auchan, search_terms
-from dealdata.scrape_carrefour import CATEGORY_URLS, scrape_carrefour
-from dealdata.tree import load_tree
+from dealdata.normalize import RawProduct, parse_size
+from dealdata.scrape_auchan import read_raw_auchan, scrape_auchan, search_terms
+from dealdata.scrape_carrefour import CATEGORY_URLS, read_raw_carrefour, scrape_carrefour
+from dealdata.tree import LeafRule, classify, load_tree
 
 USER_AGENT = "DealDirection/0.1"
 MIN_SECONDS_BETWEEN_REQUESTS = 1.0
@@ -73,25 +77,64 @@ def unique_products(products: list[RawProduct]) -> list[RawProduct]:
     return list(unique.values())
 
 
-def main() -> int:
-    raw_dir = DATA_DIR / "raw" / date.today().isoformat()
-    raw_dir.mkdir(parents=True, exist_ok=True)
-    rules = load_tree(DATA_DIR / "tree.yaml")
-    client = PoliteClient()
+def build_snapshot(
+    products: list[RawProduct], rules: list[LeafRule], scraped_on: date
+) -> list[dict]:
+    """Describe every product that has a leaf, because store_products requires one."""
+    snapshot = []
+    for product in products:
+        size = parse_size(product.name)
+        leaf = classify(product, size, rules) if size else None
+        if size and leaf:
+            snapshot.append(
+                {
+                    "store": product.store,
+                    "name": product.name,
+                    "brand": product.brand,
+                    "price": str(product.price),
+                    "unit": size.unit,
+                    "source_url": product.source_url,
+                    "path": [leaf.group, *leaf.path],
+                    "updated_at": scraped_on.isoformat(),
+                }
+            )
+    return snapshot
 
-    try:
-        auchan = scrape_auchan(client, search_terms(rules), raw_dir)
-        carrefour = scrape_carrefour(client, CATEGORY_URLS, raw_dir)
-    except Blocked as error:
-        print(f"Stopped: {error}. Tell the team.", file=sys.stderr)
-        return 1
 
-    products = unique_products(auchan + carrefour)
-    (raw_dir / "products.json").write_text(
-        json.dumps([asdict(product) for product in products], default=str, ensure_ascii=False, indent=2),
-        encoding="utf-8",
+def write_json(path: Path, content: list[dict]) -> None:
+    path.write_text(
+        json.dumps(content, default=str, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
     )
-    print(f"Saved {len(products)} products to {raw_dir}")
+
+
+def latest_raw_dir() -> Path:
+    """Return the newest scrape, as raw folders are named by date."""
+    return max(path for path in (DATA_DIR / "raw").iterdir() if path.is_dir())
+
+
+def main(args: list[str] | None = None) -> int:
+    rules = load_tree(DATA_DIR / "tree.yaml")
+
+    if "--offline" in (sys.argv[1:] if args is None else args):
+        raw_dir = latest_raw_dir()
+        scraped = read_raw_auchan(raw_dir) + read_raw_carrefour(raw_dir)
+    else:
+        raw_dir = DATA_DIR / "raw" / date.today().isoformat()
+        raw_dir.mkdir(parents=True, exist_ok=True)
+        client = PoliteClient()
+        try:
+            scraped = scrape_auchan(client, search_terms(rules), raw_dir)
+            scraped += scrape_carrefour(client, CATEGORY_URLS, raw_dir)
+        except Blocked as error:
+            print(f"Stopped: {error}. Tell the team.", file=sys.stderr)
+            return 1
+
+    products = unique_products(scraped)
+    write_json(raw_dir / "products.json", [asdict(product) for product in products])
+
+    snapshot = build_snapshot(products, rules, date.fromisoformat(raw_dir.name))
+    write_json(DATA_DIR / "snapshot" / "products.json", snapshot)
+    print(f"Saved {len(products)} products to {raw_dir}, and {len(snapshot)} to the snapshot")
     return 0
 
 
