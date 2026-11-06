@@ -47,6 +47,30 @@ describe('CartService', () => {
     expect(cart.points()).toBe(100);
   });
 
+  it('remembers the catalog size of a product', () => {
+    const cart = create();
+
+    cart.addProduct(product, 100);
+
+    expect(cart.items()[0].sizeCategoryId).toBe(100);
+  });
+
+  it('applies a chosen plan to the items it covers', () => {
+    const cart = create();
+    const item = cart.add({ name: 'Mere', quantity: '2', price: '9' });
+    const other = cart.add({ name: 'Pere', quantity: '1', price: '4' });
+
+    cart.applyPlan([{ itemId: item.id, offer: { ...product, price: '5' } }]);
+
+    expect(cart.items()[0]).toMatchObject({
+      name: 'Mere',
+      quantity: '2',
+      price: '5',
+      storeName: 'Auchan',
+    });
+    expect(cart.items()[1]).toEqual(other);
+  });
+
   it('adds a catalog product with its store', () => {
     const cart = create();
 

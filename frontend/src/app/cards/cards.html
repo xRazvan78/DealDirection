@@ -1,1 +1,113 @@
-<p>cards works!</p>
+<h1>{{ ro.cards.title }}</h1>
+
+<div class="list">
+  @for (card of wallet.cards(); track card.id) {
+    <button type="button" class="card" (click)="viewing.set(card)">
+      <span class="name">{{ card.label }}</span>
+      <img [src]="card.image" alt="" />
+    </button>
+  } @empty {
+    @if (!newImage() && !choosing()) {
+      <p class="note">{{ ro.cards.empty }}</p>
+    }
+  }
+
+  @if (newImage(); as image) {
+    <form class="new-card" (submit)="saveCard($event)">
+      <img [src]="image" [alt]="ro.cards.preview" />
+      <label>
+        {{ ro.cards.label }}
+        <input
+          class="card-label"
+          autocomplete="off"
+          [value]="newLabel()"
+          (input)="newLabel.set($any($event.target).value)"
+        />
+      </label>
+      <div class="actions">
+        <button type="button" class="cancel-card" (click)="cancelCard()">
+          {{ ro.cards.cancel }}
+        </button>
+        <button type="submit" class="save-card">{{ ro.cards.save }}</button>
+      </div>
+    </form>
+  } @else if (choosing()) {
+    <div class="add-options">
+      <button
+        type="button"
+        class="pick-photo"
+        [disabled]="reading()"
+        (click)="photoInput.click()"
+      >
+        {{ reading() ? ro.loading : ro.cards.choosePhoto }}
+      </button>
+      <button
+        type="button"
+        class="scan-card"
+        [disabled]="reading()"
+        (click)="cameraInput.click()"
+      >
+        {{ ro.cards.scanCard }}
+      </button>
+      <button type="button" class="close-options" (click)="choosing.set(false)">
+        {{ ro.cards.cancel }}
+      </button>
+    </div>
+  } @else {
+    <button
+      type="button"
+      class="add-card"
+      [attr.aria-label]="ro.cards.add"
+      (click)="choosing.set(true)"
+    >
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
+    </button>
+  }
+</div>
+
+@if (error(); as message) {
+  <p class="error" role="alert">{{ message }}</p>
+}
+
+<input
+  #photoInput
+  hidden
+  type="file"
+  class="photo-input"
+  accept="image/*"
+  (change)="usePhoto(photoInput)"
+/>
+<input
+  #cameraInput
+  hidden
+  type="file"
+  class="camera-input"
+  accept="image/*"
+  capture="environment"
+  (change)="usePhoto(cameraInput)"
+/>
+
+@if (viewing(); as card) {
+  <div class="card-view" role="dialog" [attr.aria-label]="card.label">
+    <h2>{{ card.label }}</h2>
+    <img [src]="card.image" [alt]="ro.cards.code + ' ' + card.label" />
+    <div class="actions">
+      @if (confirmingDelete()) {
+        <p class="question">{{ ro.cards.confirmDelete }}</p>
+        <button type="button" class="keep-card" (click)="confirmingDelete.set(false)">
+          {{ ro.cards.keep }}
+        </button>
+        <button type="button" class="confirm-delete" (click)="deleteCard(card)">
+          {{ ro.cards.delete }}
+        </button>
+      } @else {
+        <button type="button" class="delete-card" (click)="confirmingDelete.set(true)">
+          {{ ro.cards.delete }}
+        </button>
+        <button type="button" class="close-view" (click)="viewing.set(null)">
+          {{ ro.cards.close }}
+        </button>
+      }
+    </div>
+  </div>
+}

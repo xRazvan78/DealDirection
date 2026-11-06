@@ -157,10 +157,20 @@ export interface Wallet {
   history: { amount: number; reason: string; created_at: string }[];
 }
 
+// Assumed: added for the voucher design, so the backend doesn't return it yet.
+export interface Voucher {
+  id: number;
+  code: string;
+  reward_name: string;
+  store_name: string;
+  expires_at: string;
+}
+
 export interface Reward {
   id: number;
   name: string;
   cost: number;
+  store_name: string;
 }
 
 // Assumed.

@@ -1,13 +1,26 @@
 import {
   addQuantities,
+  compareAmounts,
   isPrice,
   isQuantity,
   normalizeAmount,
   pointsFor,
+  subtractAmounts,
   totalOf,
 } from './money';
 
 describe('money', () => {
+  it('compares amounts exactly', () => {
+    expect(compareAmounts('9.99', '10')).toBeLessThan(0);
+    expect(compareAmounts('10.00', '10')).toBe(0);
+    expect(compareAmounts('10.01', '10')).toBeGreaterThan(0);
+  });
+
+  it('subtracts amounts exactly', () => {
+    expect(subtractAmounts('0.30', '0.10')).toBe('0.20');
+    expect(subtractAmounts('30', '20')).toBe('10.00');
+  });
+
   it('accepts a decimal comma', () => {
     expect(normalizeAmount(' 8,50 ')).toBe('8.50');
   });
