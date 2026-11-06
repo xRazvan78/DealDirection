@@ -204,6 +204,17 @@ def test_load_snapshot_rejects_a_path_missing_from_the_tree(db: Session) -> None
         load_snapshot(db, [item], STORES, RULES)
 
 
+def test_real_stores_have_locations_around_sibiu() -> None:
+    stores = yaml.safe_load((DATA / "stores.yaml").read_text(encoding="utf-8"))["stores"]
+
+    for name, details in stores.items():
+        assert details["locations"], name
+        for location in details["locations"]:
+            assert location["address"]
+            assert 45.7 < location["latitude"] < 45.85, location
+            assert 24.05 < location["longitude"] < 24.25, location
+
+
 def test_real_data_loads(db: Session) -> None:
     products = json.loads((DATA / "snapshot" / "products.json").read_text(encoding="utf-8"))
     stores = yaml.safe_load((DATA / "stores.yaml").read_text(encoding="utf-8"))["stores"]
