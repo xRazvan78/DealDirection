@@ -45,7 +45,20 @@ describe('Cart', () => {
     cart = TestBed.inject(CartService);
   });
 
-  afterEach(() => http.verify());
+  afterEach(() => {
+    answerOffers(() => []);
+    http.verify();
+  });
+
+  function answerOffers(offersFor: (categoryId: number) => Product[]): void {
+    http
+      .match((request) => /\/api\/categories\/\d+\/products$/.test(request.url))
+      .filter((request) => !request.cancelled)
+      .forEach((request) => {
+        const categoryId = Number(request.request.url.match(/\d+/)?.[0]);
+        request.flush({ generic: null, products: offersFor(categoryId) });
+      });
+  }
 
   async function open(): Promise<void> {
     fixture = TestBed.createComponent(Cart);
@@ -172,6 +185,7 @@ describe('Cart', () => {
       await settle();
 
       expect(cart.stores()).toEqual([{ id: 1, name: 'Auchan' }]);
+      expect(cart.items()[0].sizeCategoryId).toBe(100);
     });
 
     it('keeps a product when the store lookup fails', async () => {
@@ -469,6 +483,164 @@ describe('Cart', () => {
       await settle();
 
       expect(buttons('.shop')[1].getAttribute('aria-pressed')).toBe('true');
+    });
+  });
+
+  describe('store comparison', () => {
+    const lapteAuchan: Product = { ...auchan, id: 11, price: '20' };
+    const lapteCarrefour: Product = { ...carrefour, id: 12, name: 'Lapte', price: '10' };
+    const untAuchan: Product = { ...auchan, id: 13, name: 'Unt', price: '10' };
+    const untCarrefour: Product = { ...carrefour, id: 14, price: '20' };
+
+    function offersFor(categoryId: number): Product[] {
+      return categoryId === 100 ? [lapteAuchan, lapteCarrefour] : [untAuchan, untCarrefour];
+    }
+
+    async function openWithTwoItems(): Promise<void> {
+      cart.add({ name: 'Lapte', quantity: '1', price: '20', sizeCategoryId: 100 });
+      cart.add({ name: 'Unt', quantity: '1', price: '10', sizeCategoryId: 200 });
+      await open();
+    }
+
+    it('compares nothing when no product is in the catalog', async () => {
+      cart.add({ name: 'Mere', quantity: '1', price: '5' });
+      await open();
+
+      expect(page.querySelector('.plans')).toBeNull();
+    });
+
+    it('shows the best single store and the cheaper split', async () => {
+      await openWithTwoItems();
+
+      answerOffers(offersFor);
+      await settle();
+
+      const single = button('.plan-single').textContent;
+      expect(single).toContain(ro.cart.singlePlan);
+      expect(single).toContain('30,00 lei');
+      expect(single).toContain('Auchan');
+      const split = button('.plan-split').textContent;
+      expect(split).toContain(ro.cart.splitPlan);
+      expect(split).toContain('20,00 lei');
+      expect(split).toContain('10,00 lei');
+    });
+
+    it('explains when splitting is not worth it', async () => {
+      await openWithTwoItems();
+
+      answerOffers(() => [lapteAuchan]);
+      await settle();
+
+      expect(page.querySelector('.plan-split')).toBeNull();
+      expect(page.textContent).toContain(ro.cart.splitNotWorth);
+    });
+
+    it('moves each product to its cheapest store when the split is chosen', async () => {
+      await openWithTwoItems();
+      answerOffers(offersFor);
+      await settle();
+
+      button('.plan-split').click();
+      await settle();
+
+      expect(cart.items().map((item) => [item.storeName, item.price])).toEqual([
+        ['Carrefour', '10'],
+        ['Auchan', '10'],
+      ]);
+      expect(page.querySelector('.total')?.textContent).toContain('20,00 lei');
+      expect(button('.plan-split').getAttribute('aria-pressed')).toBe('true');
+      expect(button('.plan-single').getAttribute('aria-pressed')).toBe('false');
+    });
+
+    it('moves everything to one store when the single store is chosen', async () => {
+      await openWithTwoItems();
+      answerOffers(offersFor);
+      await settle();
+
+      button('.plan-single').click();
+      await settle();
+
+      expect(cart.stores()).toEqual([{ id: 1, name: 'Auchan' }]);
+      expect(page.querySelector('.total')?.textContent).toContain('30,00 lei');
+    });
+
+    it('shows which store each product belongs to', async () => {
+      await openWithTwoItems();
+      answerOffers(offersFor);
+      await settle();
+
+      button('.plan-split').click();
+      await settle();
+
+      const stores = [...page.querySelectorAll('.row .store')].map((cell) => cell.textContent);
+      expect(stores).toEqual(['Carrefour', 'Auchan']);
+    });
+
+    it('says how many products the single store lacks', async () => {
+      await openWithTwoItems();
+
+      answerOffers((id) => (id === 100 ? [lapteAuchan] : [untCarrefour]));
+      await settle();
+
+      expect(page.querySelector('.plan-single')?.textContent).toContain(
+        `${ro.cart.missingPrefix} 1`,
+      );
+    });
+
+    it('notes products that could not be compared', async () => {
+      cart.add({ name: 'Mere', quantity: '1', price: '5' });
+      await openWithTwoItems();
+
+      answerOffers(offersFor);
+      await settle();
+
+      expect(page.textContent).toContain(ro.cart.notCompared);
+    });
+
+    it('compares again when a catalog product is added', async () => {
+      await openWithTwoItems();
+      answerOffers(offersFor);
+      await settle();
+
+      cart.add({ name: 'Ouă', quantity: '1', price: '9', sizeCategoryId: 300 });
+      await settle();
+
+      expect(
+        http.match((request) => request.url === '/api/categories/300/products').length,
+      ).toBe(1);
+    });
+
+    it('keeps the cart working when prices fail to load', async () => {
+      await openWithTwoItems();
+
+      http
+        .match((request) => /\/products$/.test(request.url))
+        .forEach((request) => request.flush(null, { status: 500, statusText: 'Error' }));
+      await settle();
+
+      expect(page.querySelector('.plans')).toBeNull();
+      expect(page.querySelector('.total')?.textContent).toContain('30,00 lei');
+    });
+
+    it('drops the store link when a product is renamed to something unknown', async () => {
+      cart.add({ name: 'Lapte', quantity: '1', price: '20', sizeCategoryId: 100 });
+      cart.setStore(1, { id: 1, name: 'Auchan' }, 100);
+      await open();
+
+      button('.edit').click();
+      await settle();
+      buttons('.row')[0].click();
+      await settle();
+      type(page.querySelector<HTMLInputElement>('.edit-name')!, 'Ceva necunoscut');
+      button('.save').click();
+      http.expectOne((r) => r.url === '/api/search').flush([]);
+      await settle();
+
+      expect(cart.items()[0]).toMatchObject({
+        storeId: null,
+        storeName: null,
+        sizeCategoryId: null,
+      });
     });
   });
 

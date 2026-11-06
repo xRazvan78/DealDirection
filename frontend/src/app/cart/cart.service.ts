@@ -1,6 +1,7 @@
 import { Injectable, computed, signal } from '@angular/core';
 import { Product } from '../core/models';
 import { addQuantities, pointsFor, totalOf } from '../shared/money';
+import { PlanLine } from './plans';
 
 export interface StoreRef {
   id: number;
@@ -14,6 +15,7 @@ export interface CartItem {
   price: string;
   storeId: number | null;
   storeName: string | null;
+  sizeCategoryId: number | null;
 }
 
 export interface NewCartItem {
@@ -21,6 +23,7 @@ export interface NewCartItem {
   quantity: string;
   price: string;
   store?: StoreRef;
+  sizeCategoryId?: number | null;
 }
 
 const CART_KEY = 'dealdirection.cart';
@@ -42,7 +45,7 @@ export class CartService {
     return [...stores].map(([id, name]): StoreRef => ({ id, name }));
   });
 
-  add({ name, quantity, price, store }: NewCartItem): CartItem {
+  add({ name, quantity, price, store, sizeCategoryId }: NewCartItem): CartItem {
     const item: CartItem = {
       id: Math.max(0, ...this.items().map((existing) => existing.id)) + 1,
       name,
@@ -50,12 +53,13 @@ export class CartService {
       price,
       storeId: store?.id ?? null,
       storeName: store?.name ?? null,
+      sizeCategoryId: sizeCategoryId ?? null,
     };
     this.replace([...this.items(), item]);
     return item;
   }
 
-  addProduct(product: Product): void {
+  addProduct(product: Product, sizeCategoryId?: number | null): void {
     const existing = this.items().find(
       (item) => item.name === product.name && item.storeId === product.store_id,
     );
@@ -74,14 +78,48 @@ export class CartService {
       quantity: '1',
       price: product.price,
       store: { id: product.store_id, name: product.store_name },
+      sizeCategoryId,
     });
   }
 
-  setStore(itemId: number, store: StoreRef): void {
+  setStore(itemId: number, store: StoreRef, sizeCategoryId?: number): void {
     this.replace(
       this.items().map((item) =>
-        item.id === itemId ? { ...item, storeId: store.id, storeName: store.name } : item,
+        item.id === itemId
+          ? {
+              ...item,
+              storeId: store.id,
+              storeName: store.name,
+              sizeCategoryId: sizeCategoryId ?? item.sizeCategoryId,
+            }
+          : item,
       ),
+    );
+  }
+
+  clearStore(itemId: number): void {
+    this.replace(
+      this.items().map((item) =>
+        item.id === itemId
+          ? { ...item, storeId: null, storeName: null, sizeCategoryId: null }
+          : item,
+      ),
+    );
+  }
+
+  applyPlan(lines: PlanLine[]): void {
+    this.replace(
+      this.items().map((item) => {
+        const offer = lines.find((line) => line.itemId === item.id)?.offer;
+        return offer
+          ? {
+              ...item,
+              price: offer.price,
+              storeId: offer.store_id,
+              storeName: offer.store_name,
+            }
+          : item;
+      }),
     );
   }
 

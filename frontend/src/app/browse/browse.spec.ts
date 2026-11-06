@@ -181,6 +181,14 @@ describe('Browse', () => {
     expect(page.querySelector('.product .add')?.textContent).toContain(ro.browse.added);
   });
 
+  it('remembers the size category, so stores can be compared later', async () => {
+    await openProducts();
+
+    page.querySelector<HTMLButtonElement>('.product .add')!.click();
+
+    expect(TestBed.inject(CartService).items()[0].sizeCategoryId).toBe(100);
+  });
+
   it('adds the cheapest generic option to the cart', async () => {
     await openProducts();
 

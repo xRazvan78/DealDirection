@@ -37,6 +37,10 @@ const categories: Category[] = [
   { id: 100, parent_id: 10, name: '1 l', level: 'size' },
   { id: 110, parent_id: 11, name: '1 l', level: 'size' },
   { id: 200, parent_id: 20, name: '500 g', level: 'size' },
+  { id: 40, parent_id: 4, name: 'Telemea', level: 'type' },
+  { id: 400, parent_id: 40, name: '500 g', level: 'size' },
+  { id: 70, parent_id: 7, name: 'Pui', level: 'type' },
+  { id: 700, parent_id: 70, name: '1 kg', level: 'size' },
 ];
 
 function mockProduct(id: number, storeId: number, name: string, price: string): Product {
@@ -55,7 +59,9 @@ function mockProduct(id: number, storeId: number, name: string, price: string): 
 const productsBySize: Record<number, Product[]> = {
   100: [mockProduct(1, 1, 'Lapte 3.5% 1 l', '8.50'), mockProduct(2, 2, 'Lapte 3.5% 1 l', '8.90')],
   110: [mockProduct(3, 1, 'Lapte de ovăz 1 l', '12.90')],
-  200: [mockProduct(4, 2, 'Pâine albă 500 g', '4.50')],
+  200: [mockProduct(4, 2, 'Pâine albă 500 g', '4.50'), mockProduct(5, 1, 'Pâine albă 500 g', '5.20')],
+  400: [mockProduct(6, 1, 'Telemea 500 g', '17.90'), mockProduct(7, 2, 'Telemea 500 g', '28.90')],
+  700: [mockProduct(8, 2, 'Piept de pui 1 kg', '23.90'), mockProduct(9, 1, 'Piept de pui 1 kg', '34.90')],
 };
 
 function productsFor(sizeId: number): CategoryProducts {

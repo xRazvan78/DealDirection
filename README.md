@@ -345,7 +345,7 @@ All routes are under `/api`.
 | Receipts   | `POST /lists/{id}/receipts?store_id=`                                                                                  |
 | Import     | `POST /imports`, `POST /imports/confirm`                                                                               |
 | Wallet     | `GET /wallet`, `GET /rewards`, `POST /rewards/{id}/redeem`                                                             |
-| Cards      | `GET /cards`, `POST /cards`, `GET /cards/{id}/image`, `DELETE /cards/{id}`                                             |
+| Cards          | Saved cards with a typed label, added from a photo or the camera, and a large code view |
 
 ### Configuration
 
@@ -377,13 +377,13 @@ All screens are in Romanian.
 | Login          | Simple login with minimal details, and a demo user entry                     |
 | Browse         | Category → type → size, generic price, brand search                          |
 | Deals          | Seasonal offers and large discounts, opened from the Home screen             |
-| Cart           | Items added by hand, from Home or by import, total, points, shops, directions, receipt scan |
+| Cart           | Items added by hand, from Home or by import, store comparison, total, points, shops, directions, receipt scan |
 | Plan           | Chosen plan by store, with directions and a receipt button per store         |
 | Import         | One button for a PDF, picture or text, the number of days, the review screen |
 | Lists          | Saved lists: view, edit, delete                                              |
 | Receipt result | Matched and unmatched items, estimate, paid, modifier, points                |
 | Wallet         | Points balance, history, simulated rewards                                   |
-| Cards          | Card wallet and large code view                                              |
+| Cards          | Saved cards with a typed label, added from a photo or the camera, and a large code view |
 | Settings       | Store selection, logout                                                      |
 
 ### Error handling
