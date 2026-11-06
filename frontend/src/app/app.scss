@@ -8,11 +8,22 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
   padding: 12px 16px;
 }
 
 .brand {
   font-weight: 700;
+}
+
+.top-links {
+  display: flex;
+  gap: 12px;
+  font-size: 14px;
+
+  a {
+    color: inherit;
+  }
 }
 
 .content {
@@ -24,19 +35,34 @@
   position: sticky;
   bottom: 0;
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(3, 1fr);
+  padding-bottom: env(safe-area-inset-bottom);
   background: #fff;
   border-top: 1px solid #ddd;
 
   a {
-    padding: 14px 4px;
-    color: inherit;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 8px 4px;
+    color: #666;
     font-size: 13px;
-    text-align: center;
     text-decoration: none;
   }
 
   a.active {
+    color: #000;
     font-weight: 700;
+  }
+
+  svg {
+    width: 24px;
+    height: 24px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
   }
 }

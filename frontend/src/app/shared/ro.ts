@@ -1,12 +1,36 @@
 // All Romanian UI text lives here. Group new strings by screen.
 export const ro = {
   appName: 'DealDirection',
+  loading: 'Se încarcă...',
   nav: {
-    browse: 'Produse',
+    deals: 'Oferte',
     cart: 'Coș',
+    cards: 'Carduri',
     lists: 'Liste',
     wallet: 'Puncte',
-    cards: 'Carduri',
     settings: 'Setări',
+  },
+  login: {
+    title: 'Intră în cont',
+    registerTitle: 'Creează un cont',
+    email: 'Email',
+    password: 'Parolă',
+    submit: 'Intră',
+    registerSubmit: 'Creează contul',
+    demo: 'Continuă cu contul demo',
+    toRegister: 'Nu ai cont? Creează unul',
+    toLogin: 'Ai deja cont? Intră',
+    invalid: 'Introdu un email valid și o parolă de cel puțin 8 caractere.',
+    wrongDetails: 'Emailul sau parola nu sunt corecte.',
+    emailTaken: 'Există deja un cont cu acest email.',
+    failed: 'Nu ne-am putut conecta. Încearcă din nou.',
+  },
+  settings: {
+    title: 'Setări',
+    stores: 'Magazinele tale',
+    storesHint: 'Doar aceste magazine sunt folosite la calcule.',
+    loadFailed: 'Nu am putut încărca magazinele. Încearcă din nou.',
+    saveFailed: 'Nu am putut salva modificarea. Încearcă din nou.',
+    logout: 'Ieși din cont',
   },
 } as const;
