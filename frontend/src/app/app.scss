@@ -1,44 +1,57 @@
 :host {
   display: flex;
   flex-direction: column;
-  min-height: 100dvh;
+  height: 100dvh;
+}
+
+svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .top-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  padding: 12px 16px;
+  padding: 6px 8px;
+  background: var(--navy);
+  color: var(--on-navy);
 }
 
-.brand {
-  font-weight: 700;
-}
+.menu-button,
+.account {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
 
-.top-links {
-  display: flex;
-  gap: 12px;
-  font-size: 14px;
-
-  a {
-    color: inherit;
+  svg {
+    width: 30px;
+    height: 30px;
   }
 }
 
 .content {
+  display: flex;
   flex: 1;
+  flex-direction: column;
+  min-height: 0;
   padding: 16px;
+  overflow-y: auto;
 }
 
 .bottom-nav {
-  position: sticky;
-  bottom: 0;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   padding-bottom: env(safe-area-inset-bottom);
-  background: #fff;
-  border-top: 1px solid #ddd;
+  background: var(--navy);
 
   a {
     display: flex;
@@ -46,23 +59,75 @@
     align-items: center;
     gap: 2px;
     padding: 8px 4px;
-    color: #666;
+    color: var(--on-navy);
     font-size: 13px;
     text-decoration: none;
   }
 
+  a + a {
+    border-left: 1px solid var(--navy-soft);
+  }
+
   a.active {
-    color: #000;
+    color: var(--accent);
     font-weight: 700;
   }
 
   svg {
+    width: 26px;
+    height: 26px;
+  }
+}
+
+.scroll-top {
+  position: fixed;
+  right: 16px;
+  bottom: calc(72px + env(safe-area-inset-bottom));
+  z-index: 5;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--navy);
+  box-shadow: 0 2px 8px rgb(11 37 69 / 40%);
+  color: var(--on-navy);
+
+  svg {
     width: 24px;
     height: 24px;
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 1.8;
-    stroke-linecap: round;
-    stroke-linejoin: round;
+  }
+}
+
+.menu-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  border: 0;
+  background: rgb(11 37 69 / 50%);
+}
+
+.side-menu {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 11;
+  display: flex;
+  flex-direction: column;
+  width: min(75vw, 300px);
+  padding-top: 16px;
+  background: var(--navy);
+
+  a {
+    padding: 16px 24px;
+    color: var(--on-navy);
+    text-decoration: none;
+  }
+
+  a + a {
+    border-top: 1px solid var(--navy-soft);
   }
 }
