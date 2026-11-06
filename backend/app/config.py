@@ -25,6 +25,7 @@ class Settings(BaseSettings):
     MAX_MODIFIER: Decimal = Decimal("1.25")
     POINTS_PER_LEI: int = 10
     MIN_SPLIT_SAVING_LEI: Decimal = Decimal("10")
+    TRASH_RETENTION_DAYS: int = 14
 
     # Scanning and uploads
     OCR_ENGINE: str = "rapidocr"  # or "tesseract"; RapidOCR read real receipt photos far better
