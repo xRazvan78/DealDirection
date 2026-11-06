@@ -98,6 +98,8 @@ npx ng test --watch=false
 python -m dealdata.load
 ```
 
+This also creates two test users, `ana@dealdirection.ro` and `mihai@dealdirection.ro`. Both log in with `SEED_PASSWORD`, which is in `.env.example`.
+
 [requirements.txt](requirements.txt) also lists the tools pip can't install.
 
 ## Demo goal

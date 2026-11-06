@@ -264,7 +264,7 @@ Each task lists its files, what other tasks rely on, the decisions already made,
   - Register then log in.
   - New users have all stores selected.
   - A duplicate email gives 409.
-  - A password under 8 characters gives 422.
+  - A password under 6 characters, or without a digit and a special character, gives 422.
   - A wrong password gives 401.
   - Demo login needs no details.
   - A bad token gives 401.

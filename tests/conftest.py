@@ -1,4 +1,4 @@
-"""Shared fixtures. Task 6 adds the auth clients.
+"""Shared fixtures, including the auth clients from Task 6.
 
 Tests use the one `dealdirection` database. Each test runs inside a transaction
 that is rolled back, so it leaves no data behind and never drops anything.
@@ -10,12 +10,14 @@ from decimal import Decimal
 
 import pytest
 from fastapi.testclient import TestClient
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.db import get_db, get_engine
+from app.deps import create_token
 from app.init_db import init_db
 from app.main import app
-from app.models import Category, Store, StoreProduct
+from app.models import Category, Store, StoreProduct, User
 
 
 @dataclass(frozen=True)
@@ -57,6 +59,37 @@ def client(db: Session) -> Iterator[TestClient]:
         yield TestClient(app)
     finally:
         app.dependency_overrides.pop(get_db, None)
+
+
+def _user(db: Session, email: str, is_demo: bool = False) -> User:
+    user = User(email=email, password_hash="not-a-real-hash", is_demo=is_demo)
+    db.add(user)
+    db.flush()
+    return user
+
+
+def _client_for(user: User) -> TestClient:
+    return TestClient(app, headers={"Authorization": f"Bearer {create_token(user)}"})
+
+
+@pytest.fixture
+def auth_client(client: TestClient, db: Session) -> TestClient:
+    """A client logged in as one user."""
+    return _client_for(_user(db, "auth-client@example.com"))
+
+
+@pytest.fixture
+def other_client(client: TestClient, db: Session) -> TestClient:
+    """A client logged in as a different user, for ownership tests."""
+    return _client_for(_user(db, "other-client@example.com"))
+
+
+@pytest.fixture
+def demo_user(db: Session) -> User:
+    """The demo user, created when the database has none loaded."""
+    return db.scalars(select(User).where(User.is_demo)).first() or _user(
+        db, "demo-test@example.com", is_demo=True
+    )
 
 
 @pytest.fixture

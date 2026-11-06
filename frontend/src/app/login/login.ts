@@ -7,6 +7,9 @@ import { AuthService } from '../core/auth';
 import { AuthResponse } from '../core/models';
 import { ro } from '../shared/ro';
 
+// Only for new accounts: older passwords must still be able to log in.
+const PASSWORD_RULE = /^(?=.*[0-9])(?=.*[^\p{L}\p{N}\s]).{6,}$/su;
+
 @Component({
   imports: [ReactiveFormsModule],
   selector: 'app-login',
@@ -23,15 +26,15 @@ export class Login {
   protected readonly error = signal<string | null>(null);
   protected readonly form = inject(FormBuilder).nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(8)]],
+    password: ['', Validators.required],
   });
 
   protected submit(): void {
-    if (this.form.invalid) {
+    const details = this.form.getRawValue();
+    if (this.form.invalid || (this.registering() && !PASSWORD_RULE.test(details.password))) {
       this.error.set(ro.login.invalid);
       return;
     }
-    const details = this.form.getRawValue();
     this.enter(this.registering() ? this.auth.register(details) : this.auth.login(details));
   }
 
