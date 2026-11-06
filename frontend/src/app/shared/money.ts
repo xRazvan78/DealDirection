@@ -25,8 +25,16 @@ export function totalOf(lines: { price: string; quantity: string }[]): string {
       sum + scaled(line.price, PRICE_DECIMALS) * scaled(line.quantity, QUANTITY_DECIMALS),
     0n,
   );
-  const bani = (exact + 500n) / 1000n;
-  return `${bani / 100n}.${String(bani % 100n).padStart(2, '0')}`;
+  return formatBani((exact + 500n) / 1000n);
+}
+
+export function compareAmounts(first: string, second: string): number {
+  const difference = scaled(first, PRICE_DECIMALS) - scaled(second, PRICE_DECIMALS);
+  return difference === 0n ? 0 : difference < 0n ? -1 : 1;
+}
+
+export function subtractAmounts(first: string, second: string): string {
+  return formatBani(scaled(first, PRICE_DECIMALS) - scaled(second, PRICE_DECIMALS));
 }
 
 export function pointsFor(total: string): number {
@@ -40,6 +48,10 @@ export function addQuantities(first: string, second: string): string {
     .padStart(QUANTITY_DECIMALS, '0')
     .replace(/0+$/, '');
   return decimals ? `${whole}.${decimals}` : `${whole}`;
+}
+
+function formatBani(bani: bigint): string {
+  return `${bani / 100n}.${String(bani % 100n).padStart(2, '0')}`;
 }
 
 function scaled(value: string, decimals: number): bigint {

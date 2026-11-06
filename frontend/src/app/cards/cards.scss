@@ -1,0 +1,219 @@
+:host {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+}
+
+h1 {
+  margin: 0;
+  color: var(--navy);
+  font-size: 20px;
+}
+
+button {
+  font: inherit;
+}
+
+img {
+  display: block;
+  object-fit: contain;
+}
+
+.list {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.card {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 72px;
+  padding: 10px 14px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--navy);
+  color: var(--on-navy);
+  font-weight: 700;
+  text-align: left;
+
+  .name {
+    overflow-wrap: anywhere;
+  }
+
+  img {
+    flex-shrink: 0;
+    width: 64px;
+    height: 52px;
+    border-radius: 6px;
+    background: #fff;
+  }
+}
+
+.add-card {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin: 4px auto;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--navy);
+
+  svg {
+    width: 24px;
+    height: 24px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 3;
+    stroke-linecap: round;
+  }
+}
+
+.add-options {
+  display: grid;
+  flex-shrink: 0;
+  gap: 8px;
+
+  button {
+    min-height: 44px;
+    border: 1.5px solid var(--navy);
+    border-radius: 8px;
+    background: none;
+    color: var(--navy);
+    font-weight: 700;
+  }
+
+  .pick-photo {
+    background: var(--navy);
+    color: var(--on-navy);
+  }
+
+  .scan-card {
+    border-color: var(--accent);
+    background: var(--accent);
+  }
+
+  .close-options {
+    border: 0;
+    font-weight: 400;
+    text-decoration: underline;
+  }
+}
+
+.new-card {
+  display: flex;
+  flex-shrink: 0;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  border: 1.5px solid var(--navy);
+  border-radius: 12px;
+
+  img {
+    width: 100%;
+    max-height: 200px;
+  }
+
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 14px;
+  }
+
+  input {
+    height: 42px;
+    padding: 0 10px;
+    border: 1px solid var(--navy);
+    border-radius: 6px;
+    box-sizing: border-box;
+    font: inherit;
+  }
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  button {
+    flex: 1;
+    min-height: 44px;
+    border: 1px solid var(--navy);
+    border-radius: 8px;
+    background: none;
+    color: var(--navy);
+    font-weight: 700;
+  }
+
+  .save-card,
+  .close-view {
+    background: var(--navy);
+    color: var(--on-navy);
+  }
+
+  .delete-card,
+  .confirm-delete {
+    border-color: #b00020;
+    color: #b00020;
+  }
+
+  .confirm-delete {
+    background: #b00020;
+    color: #fff;
+  }
+}
+
+.question {
+  flex-basis: 100%;
+  margin: 0;
+  text-align: center;
+}
+
+.note {
+  margin: 8px 0;
+  color: var(--muted);
+}
+
+.error {
+  flex-shrink: 0;
+  margin: 0;
+  color: #b00020;
+  font-size: 14px;
+}
+
+/* White, so a till scanner can read the code. */
+.card-view {
+  position: fixed;
+  inset: 0;
+  z-index: 8;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px 16px calc(24px + env(safe-area-inset-bottom));
+  background: #fff;
+
+  h2 {
+    margin: 0;
+    color: var(--navy);
+    text-align: center;
+  }
+
+  img {
+    flex: 1;
+    width: 100%;
+    min-height: 0;
+  }
+}

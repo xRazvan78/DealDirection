@@ -50,7 +50,7 @@ Stop for 10 minutes at each one, and make a cut if you're behind.
 - [ ] Run a small test scrape of both stores.
 
 **During the event**
-- [ ] Task 4: write `data/tree.yaml` with about 30 categories, and the size parser and classifier.
+- [ ] Task 4: write `data/tree.yaml` with about 65 categories, and the size parser and classifier.
 - [ ] Task 5: build the scrapers, save the snapshot, and load it with store locations and the demo user.
 - [ ] Task 16: build the lists and import screens, using mock data until the API is ready.
 - [ ] Help Member 3 with `data/abbreviations.yaml` and the tree's food aliases.
@@ -233,7 +233,7 @@ Each task lists its files, what other tasks rely on, the decisions already made,
   - `Paine alba` has no size.
   - `Lapte de curatare Pouce, 300ml` isn't classified.
   - `Lapte integral Albalact, 3.5% grasime, 1 l` becomes `("Lapte", "3.5%", "1 l")`.
-  - The real tree has 25–35 categories.
+  - The real tree has about 65 categories.
 
 ### Task 5: Scrapers and data load (Member 1)
 
@@ -252,7 +252,7 @@ Each task lists its files, what other tasks rely on, the decisions already made,
   - Both parsers read the real fixtures, with expected values taken from them.
   - Out-of-stock Auchan products are skipped.
   - Running the load twice doesn't duplicate rows, and the demo user exists.
-- **Done when:** the snapshot has 150–300 products across both stores, and at least 30 leaves have products at both. If a site blocks the scrape, stop and tell the team.
+- **Done when:** the snapshot has about 2,700 products across both stores, and at least 30 leaves have products at both. If a site blocks the scrape, stop and tell the team.
 
 ### Task 6: Login (Member 2)
 
@@ -264,7 +264,7 @@ Each task lists its files, what other tasks rely on, the decisions already made,
   - Register then log in.
   - New users have all stores selected.
   - A duplicate email gives 409.
-  - A password under 8 characters gives 422.
+  - A password under 6 characters, or without a digit and a special character, gives 422.
   - A wrong password gives 401.
   - Demo login needs no details.
   - A bad token gives 401.
@@ -288,7 +288,7 @@ Each task lists its files, what other tasks rely on, the decisions already made,
 
 - **Files:** `backend/app/lists/router.py`, `tests/backend/test_lists.py`
 - **Produces:** the Lists and List items routes. Items are added with `{size_category_id, quantity, chosen_product_id?}`.
-- **Rules:** `DELETE /lists/{id}` sets `deleted_at` and never removes the row. Normal list routes skip lists with `deleted_at` set. The trash shows lists deleted within `TRASH_RETENTION_DAYS`, and can restore them by clearing `deleted_at`. The trash routes aren't in the API table yet, so agree them with the frontend members.
+- **Rules:** `DELETE /lists/{id}` sets `deleted_at` and never removes the row. Normal list routes skip lists with `deleted_at` set. The trash shows lists deleted within `TRASH_RETENTION_DAYS`, and can restore them by clearing `deleted_at`. The trash routes are `GET /lists/trash` and `POST /lists/{id}/restore`.
 - **Tests:**
   - Create, read, update and delete work.
   - Generic and brand items can be added, with the brand copied from the chosen product.
@@ -432,7 +432,7 @@ Each task lists its files, what other tasks rely on, the decisions already made,
 ### Task 13: Wallet, rewards and cards (Member 2)
 
 - **Files:** `backend/app/wallet/router.py`, `backend/app/wallet/rewards.py`, `backend/app/cards/router.py`, `tests/backend/test_wallet.py`, `tests/backend/test_cards.py`
-- **Produces:** the Wallet and Cards routes. `GET /wallet` returns `{balance, history: [{amount, reason, created_at}]}`. `GET /rewards` returns `[{id, name, cost}]` from a static list labelled as sample data.
+- **Produces:** the Wallet and Cards routes. `GET /wallet` returns `{balance, history: [{amount, reason, created_at}]}`. `GET /rewards` returns `[{id, name, cost, store_name}]` from a static list labelled as sample data. `POST /rewards/{id}/redeem` returns the new voucher, `{id, code, reward_name, store_name, expires_at}`, and `GET /vouchers` returns the unused, unexpired ones.
 - **Rules:** `redeem` locks the user row with `SELECT ... FOR UPDATE` before checking the balance, so two taps can't overspend. Card images use the same size limit as receipts.
 - **Tests:**
   - The balance is the ledger's sum.
@@ -523,5 +523,5 @@ Each task lists its files, what other tasks rely on, the decisions already made,
   3. Build the frontend, load the data, and run `uv run uvicorn app.main:app --app-dir backend --port 8000`.
   4. Run `cloudflared tunnel --url http://localhost:8000`. The phone should open the HTTPS address, install the PWA and open the camera.
   5. Do the real-world checks in the README, and record the results in this file.
-  6. Write the demo script, prepare the demo user's data, and record a backup video.
+  6. Write the demo script, prepare the demo user's data from `data/demo_list.yaml`, and record a backup video.
 - **Done when:** the full loop works on the phone with the real receipt.

@@ -20,6 +20,7 @@ import {
   SearchResult,
   ShoppingList,
   Store,
+  Voucher,
   Wallet,
 } from './models';
 
@@ -170,8 +171,12 @@ export class ApiService {
     return this.http.get<Reward[]>('/api/rewards');
   }
 
-  redeemReward(rewardId: number): Observable<void> {
-    return this.http.post<void>(`/api/rewards/${rewardId}/redeem`, null);
+  getVouchers(): Observable<Voucher[]> {
+    return this.http.get<Voucher[]>('/api/vouchers');
+  }
+
+  redeemReward(rewardId: number): Observable<Voucher> {
+    return this.http.post<Voucher>(`/api/rewards/${rewardId}/redeem`, null);
   }
 
   // Cards

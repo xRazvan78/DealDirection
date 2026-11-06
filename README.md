@@ -37,6 +37,10 @@ py -3.12 -m venv .venv
 On macOS or Linux, use `python3.12 -m venv .venv`. Activate it with the command for your terminal, then install everything:
 
 ```bash
+source .venv/Scripts/activate
+```
+
+```bash
 python -m pip install -r requirements.txt
 ```
 
@@ -93,6 +97,8 @@ npx ng test --watch=false
 ```bash
 python -m dealdata.load
 ```
+
+This also creates two test users, `ana@dealdirection.ro` and `mihai@dealdirection.ro`. Both log in with `SEED_PASSWORD`, which is in `.env.example`.
 
 [requirements.txt](requirements.txt) also lists the tools pip can't install.
 
@@ -218,7 +224,7 @@ Receipt photos are read and discarded, and only the extracted data is kept.
 | Lidl       | Website pages                | Optional third source                          |
 | Mega Image | Not tested                   | Backup source                                  |
 
-The team scrapes once, slowly, and demos from a saved snapshot of 150–300 products in about 30 categories. A block during the pitch can't affect it.
+The team scrapes once, slowly, and demos from a saved snapshot of about 2,700 products in about 65 categories. A block during the pitch can't affect it.
 
 ### Data import steps
 
@@ -321,6 +327,7 @@ Each unit has one job, and can be tested without the others.
 | `receipts`        | list, store, fingerprint (unique), purchased_at, total, estimate, paid, modifier, points; unique on list and store                         |
 | `receipt_lines`   | receipt, raw text, quantity, line total, matched list item                                                                                 |
 | `points_ledger`   | user, amount, reason, receipt, created_at                                                                                                  |
+| `vouchers`        | user, reward, store, code (unique), expires_at, used_at |
 | `loyalty_cards`   | user, store, code image; unique on user and store                                                                                          |
 
 Create tables with `Base.metadata.create_all`, since a hackathon doesn't need migrations.
@@ -336,12 +343,13 @@ All routes are under `/api`.
 | Stores     | `GET /stores`, `PUT /me/stores`, `GET /stores/{id}/directions?lat=&lng=`                                               |
 | Catalog    | `GET /categories?parent_id=`, `GET /categories/{id}/products?brand_q=`, `GET /search?q=`                               |
 | Lists      | `POST /lists`, `GET /lists`, `GET /lists/{id}`, `PATCH /lists/{id}`, `DELETE /lists/{id}`, `POST /lists/{id}/complete` |
+| Trash      | `GET /lists/trash`, `POST /lists/{id}/restore`                                                                         |
 | List items | `POST /lists/{id}/items`, `PATCH /lists/{id}/items/{item_id}`, `DELETE /lists/{id}/items/{item_id}`                    |
 | Plans      | `POST /lists/{id}/plans`, `POST /lists/{id}/suggestion/accept`, `POST /lists/{id}/activate`, `GET /lists/{id}/parts`   |
 | Receipts   | `POST /lists/{id}/receipts?store_id=`                                                                                  |
 | Import     | `POST /imports`, `POST /imports/confirm`                                                                               |
-| Wallet     | `GET /wallet`, `GET /rewards`, `POST /rewards/{id}/redeem`                                                             |
-| Cards      | `GET /cards`, `POST /cards`, `GET /cards/{id}/image`, `DELETE /cards/{id}`                                             |
+| Wallet     | `GET /wallet`, `GET /rewards`, `POST /rewards/{id}/redeem`, `GET /vouchers` |
+| Cards          | Saved cards with a typed label, added from a photo or the camera, and a large code view |
 
 ### Configuration
 
@@ -373,13 +381,13 @@ All screens are in Romanian.
 | Login          | Simple login with minimal details, and a demo user entry                     |
 | Browse         | Category → type → size, generic price, brand search                          |
 | Deals          | Seasonal offers and large discounts, opened from the Home screen             |
-| Cart           | Items added by hand, from Home or by import, total, points, shops, directions, receipt scan |
+| Cart           | Items added by hand, from Home or by import, store comparison, total, points, shops, directions, receipt scan |
 | Plan           | Chosen plan by store, with directions and a receipt button per store         |
 | Import         | One button for a PDF, picture or text, the number of days, the review screen |
 | Lists          | Saved lists: view, edit, delete                                              |
 | Receipt result | Matched and unmatched items, estimate, paid, modifier, points                |
-| Wallet         | Points balance, history, simulated rewards                                   |
-| Cards          | Card wallet and large code view                                              |
+| Point Shop     | Points balance, simulated rewards, point history, at `/wallet`                 |
+| Cards          | Saved cards with a typed label, added from a photo or the camera, and a large code view |
 | Settings       | Store selection, logout                                                      |
 
 ### Error handling

@@ -1,6 +1,6 @@
 import { HttpInterceptorFn, HttpRequest, HttpResponse } from '@angular/common/http';
 import { delay, of } from 'rxjs';
-import { Category, CategoryProducts, Product, ShoppingList, Store } from './models';
+import { Category, CategoryProducts, Product, Reward, Store, Voucher, Wallet } from './models';
 
 // Fake API for `ng serve`, active only in development builds. Delete a route's
 // handler as soon as the real one exists: unmatched calls go to the backend.
@@ -37,6 +37,10 @@ const categories: Category[] = [
   { id: 100, parent_id: 10, name: '1 l', level: 'size' },
   { id: 110, parent_id: 11, name: '1 l', level: 'size' },
   { id: 200, parent_id: 20, name: '500 g', level: 'size' },
+  { id: 40, parent_id: 4, name: 'Telemea', level: 'type' },
+  { id: 400, parent_id: 40, name: '500 g', level: 'size' },
+  { id: 70, parent_id: 7, name: 'Pui', level: 'type' },
+  { id: 700, parent_id: 70, name: '1 kg', level: 'size' },
 ];
 
 function mockProduct(id: number, storeId: number, name: string, price: string): Product {
@@ -55,7 +59,9 @@ function mockProduct(id: number, storeId: number, name: string, price: string): 
 const productsBySize: Record<number, Product[]> = {
   100: [mockProduct(1, 1, 'Lapte 3.5% 1 l', '8.50'), mockProduct(2, 2, 'Lapte 3.5% 1 l', '8.90')],
   110: [mockProduct(3, 1, 'Lapte de ovăz 1 l', '12.90')],
-  200: [mockProduct(4, 2, 'Pâine albă 500 g', '4.50')],
+  200: [mockProduct(4, 2, 'Pâine albă 500 g', '4.50'), mockProduct(5, 1, 'Pâine albă 500 g', '5.20')],
+  400: [mockProduct(6, 1, 'Telemea 500 g', '17.90'), mockProduct(7, 2, 'Telemea 500 g', '28.90')],
+  700: [mockProduct(8, 2, 'Piept de pui 1 kg', '23.90'), mockProduct(9, 1, 'Piept de pui 1 kg', '34.90')],
 };
 
 function productsFor(sizeId: number): CategoryProducts {
@@ -73,38 +79,49 @@ function pathOf(sizeId: number): string {
   return names.join(' > ');
 }
 
-const emptyList = (id: number, name: string, state: ShoppingList['state']): ShoppingList => ({
-  id,
-  name,
-  state,
-  items: [],
-});
+// Kept in memory, so a page reload resets the points.
+const wallet: Wallet = {
+  balance: 1250,
+  history: [{ amount: 1250, reason: 'Puncte de test', created_at: '2026-11-02T09:00:00Z' }],
+};
 
-let lists: ShoppingList[] = [
-  emptyList(1, 'Cumpărături săptămânale', 'draft'),
-  emptyList(2, 'Plan alimentar', 'active'),
-  emptyList(3, 'Lista de luna trecută', 'completed'),
+const rewards: Reward[] = [
+  { id: 1, name: 'Cafea gratuită', cost: 500, store_name: 'Auchan' },
+  { id: 2, name: 'Reducere de 10 lei', cost: 1000, store_name: 'Carrefour' },
+  { id: 3, name: 'Reducere de 50 lei', cost: 5000, store_name: 'Auchan' },
 ];
 
-function createList(name: string): ShoppingList {
-  const list = emptyList(Math.max(0, ...lists.map(({ id }) => id)) + 1, name, 'draft');
-  lists = [list, ...lists];
-  return list;
+const vouchers: Voucher[] = [];
+
+function createVoucher(reward: Reward): Voucher {
+  const expires = new Date();
+  expires.setDate(expires.getDate() + 30);
+  return {
+    id: vouchers.length + 1,
+    code: `DEMO-${String(100000 + vouchers.length * 7919)}`,
+    reward_name: reward.name,
+    store_name: reward.store_name,
+    expires_at: expires.toISOString(),
+  };
+}
+
+function recordPoints(amount: number, reason: string): void {
+  wallet.balance += amount;
+  wallet.history.unshift({ amount, reason, created_at: new Date().toISOString() });
 }
 
 type Handler = (request: HttpRequest<unknown>) => unknown;
 
 const handlers: Record<string, Handler> = {
-  'POST /api/auth/register': () => ({ token: 'mock-token' }),
-  'POST /api/auth/login': () => ({ token: 'mock-token' }),
-  'POST /api/auth/demo': () => ({ token: 'mock-token' }),
   'GET /api/stores': () => stores,
   'PUT /api/me/stores': (request) => {
     const { store_ids } = request.body as { store_ids: number[] };
     stores.forEach((store) => (store.selected = store_ids.includes(store.id)));
     return null;
   },
-  'GET /api/wallet': () => ({ balance: 1250, history: [] }),
+  'GET /api/wallet': () => ({ ...wallet, history: [...wallet.history] }),
+  'GET /api/rewards': () => rewards,
+  'GET /api/vouchers': () => [...vouchers],
   'GET /api/categories': (request) => {
     const parentId = request.params.get('parent_id');
     return categories.filter(
@@ -122,7 +139,6 @@ const handlers: Record<string, Handler> = {
         generic: productsFor(sizeId).generic,
       }));
   },
-  'GET /api/lists': () => lists,
   'POST /api/imports': () => ({
     items: [
       { food: 'lapte', size_category_id: 100, path: pathOf(100), packs: 2 },
@@ -130,9 +146,7 @@ const handlers: Record<string, Handler> = {
     ],
     unmapped: ['ghimbir'],
   }),
-  'POST /api/imports/confirm': (request) => ({
-    list_id: createList((request.body as { name: string }).name).id,
-  }),
+  'POST /api/imports/confirm': () => ({ list_id: 1 }),
 };
 
 const routesWithIds: [RegExp, string, Handler][] = [
@@ -148,30 +162,30 @@ const routesWithIds: [RegExp, string, Handler][] = [
   [
     /^\/api\/lists\/\d+\/receipts$/,
     'POST',
-    () => ({
-      matched: [{ name: 'Lapte 3.5% 1 l', line_total: '8.50' }],
-      unmatched_items: [],
-      estimate: '8.50',
-      paid: '8.50',
-      modifier: '1.00',
-      points: 85,
-    }),
-  ],
-  [
-    /^\/api\/lists\/\d+$/,
-    'PATCH',
-    ({ url, body }) => {
-      const { name } = body as { name: string };
-      lists = lists.map((list) => (list.id === idIn(url) ? { ...list, name } : list));
-      return lists.find((list) => list.id === idIn(url));
+    () => {
+      recordPoints(85, 'Bon validat');
+      return {
+        matched: [{ name: 'Lapte 3.5% 1 l', line_total: '8.50' }],
+        unmatched_items: [],
+        estimate: '8.50',
+        paid: '8.50',
+        modifier: '1.00',
+        points: 85,
+      };
     },
   ],
   [
-    /^\/api\/lists\/\d+$/,
-    'DELETE',
+    /^\/api\/rewards\/\d+\/redeem$/,
+    'POST',
     ({ url }) => {
-      lists = lists.filter((list) => list.id !== idIn(url));
-      return null;
+      const reward = rewards.find(({ id }) => id === idIn(url));
+      if (!reward) {
+        return null;
+      }
+      recordPoints(-reward.cost, reward.name);
+      const voucher = createVoucher(reward);
+      vouchers.unshift(voucher);
+      return voucher;
     },
   ],
 ];

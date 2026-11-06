@@ -1,7 +1,7 @@
 """Entry point: uv run python -m dealdata.load. Re-runnable. Owner: Member 1, Task 5.
 
 Loads data/snapshot/products.json, the categories it uses, the stores and the demo
-user into Postgres. Running it again updates rows, never adds duplicates, and removes
+and test users into Postgres. Running it again updates rows, never adds duplicates, and removes
 products and categories gone from the snapshot, unless a shopping list uses them.
 """
 
@@ -33,6 +33,7 @@ from dealdata.tree import LeafRule, category_nodes, load_tree
 
 DATA_DIR = Path(__file__).parents[1]
 DEMO_EMAIL = "demo@dealdirection.ro"
+SEED_EMAILS = ("ana@dealdirection.ro", "mihai@dealdirection.ro")
 
 
 def load_snapshot(
@@ -43,6 +44,7 @@ def load_snapshot(
     category_ids = _load_categories(db, products, rules)
     _load_products(db, products, store_ids, category_ids)
     _load_demo_user(db, store_ids)
+    _load_seed_users(db, store_ids)
     db.flush()
     _remove_stale_products(db, products, store_ids)
     _remove_unused_categories(db)
@@ -175,6 +177,20 @@ def _load_demo_user(db: Session, store_ids: dict[str, int]) -> None:
     for store_id in store_ids.values():
         if store_id not in selected:
             db.add(UserStore(user_id=user.id, store_id=store_id))
+
+
+def _load_seed_users(db: Session, store_ids: dict[str, int]) -> None:
+    """Add the test users who log in with SEED_PASSWORD. Existing ones stay as they are."""
+    existing = set(db.scalars(select(User.email).where(User.email.in_(SEED_EMAILS))))
+    for email in SEED_EMAILS:
+        if email in existing:
+            continue
+        password = get_settings().SEED_PASSWORD
+        hashed = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
+        user = User(email=email, password_hash=hashed)
+        db.add(user)
+        db.flush()
+        db.add_all(UserStore(user_id=user.id, store_id=store_id) for store_id in store_ids.values())
 
 
 def main() -> None:

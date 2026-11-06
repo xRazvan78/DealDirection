@@ -19,6 +19,7 @@ class Settings(BaseSettings):
     DEFAULT_LAT: float = 0.0
     DEFAULT_LNG: float = 0.0
     DEMO_PASSWORD: str = ""
+    SEED_PASSWORD: str = "Parola123!"  # the seeded test users; development only
 
     # Business rules
     MARGIN: Decimal = Decimal("0.05")

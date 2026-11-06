@@ -1,0 +1,213 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+h1 {
+  margin: 0;
+  color: var(--navy);
+  font-size: 20px;
+}
+
+h2 {
+  margin: 0 0 8px;
+  color: var(--navy);
+  font-size: 16px;
+}
+
+.balance {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: var(--navy);
+  color: var(--on-navy);
+
+  strong {
+    color: var(--accent);
+    font-size: 28px;
+  }
+}
+
+.voucher {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  margin-bottom: 8px;
+  padding: 10px 14px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--navy);
+  color: var(--on-navy);
+  font: inherit;
+  text-align: left;
+
+  .name {
+    font-weight: 700;
+  }
+
+  small {
+    color: var(--accent);
+  }
+}
+
+/* White, so a scanner can read the code. */
+.voucher-view {
+  position: fixed;
+  inset: 0;
+  z-index: 8;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 24px 16px calc(24px + env(safe-area-inset-bottom));
+  overflow-y: auto;
+  background: #fff;
+  text-align: center;
+
+  h2 {
+    margin: 0;
+    font-size: 20px;
+  }
+
+  p {
+    margin: 0;
+  }
+
+  svg {
+    flex-shrink: 0;
+    width: min(70vw, 300px);
+    height: min(70vw, 300px);
+  }
+
+  button {
+    flex-shrink: 0;
+    width: 100%;
+    min-height: 44px;
+    margin-top: auto;
+    border: 0;
+    border-radius: 8px;
+    background: var(--navy);
+    color: var(--on-navy);
+    font: inherit;
+    font-weight: 700;
+  }
+}
+
+.code {
+  color: var(--navy);
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.where,
+.how {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.demo {
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: #fdf1d3;
+  color: var(--navy);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.reward {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 2px 12px;
+  align-items: center;
+  margin-bottom: 8px;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+
+  .name {
+    font-weight: 700;
+    overflow-wrap: anywhere;
+  }
+
+  .shop {
+    grid-row: 2;
+    color: var(--navy);
+    font-size: 13px;
+  }
+
+  .cost {
+    grid-row: 3;
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  button {
+    grid-row: 1 / span 3;
+    grid-column: 2;
+    min-height: 40px;
+    padding: 0 14px;
+    border: 0;
+    border-radius: 8px;
+    background: var(--accent);
+    color: var(--navy);
+    font: inherit;
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  button:disabled {
+    background: var(--border);
+    color: var(--muted);
+  }
+}
+
+.entry {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+
+  strong {
+    color: #b00020;
+  }
+
+  &.earned strong {
+    color: #0b6b3a;
+  }
+}
+
+.reason {
+  overflow-wrap: anywhere;
+
+  small {
+    display: block;
+    color: var(--muted);
+  }
+}
+
+.note {
+  margin: 0 0 8px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.error {
+  margin: 0 0 8px;
+  color: #b00020;
+  font-size: 14px;
+}
+
+.success {
+  margin: 0 0 8px;
+  color: #0b6b3a;
+  font-size: 14px;
+  font-weight: 700;
+}
