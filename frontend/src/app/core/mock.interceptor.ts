@@ -76,9 +76,6 @@ function pathOf(sizeId: number): string {
 type Handler = (request: HttpRequest<unknown>) => unknown;
 
 const handlers: Record<string, Handler> = {
-  'POST /api/auth/register': () => ({ token: 'mock-token' }),
-  'POST /api/auth/login': () => ({ token: 'mock-token' }),
-  'POST /api/auth/demo': () => ({ token: 'mock-token' }),
   'GET /api/stores': () => stores,
   'PUT /api/me/stores': (request) => {
     const { store_ids } = request.body as { store_ids: number[] };

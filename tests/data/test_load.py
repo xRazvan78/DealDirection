@@ -4,11 +4,13 @@ from decimal import Decimal
 from pathlib import Path
 from typing import Any
 
+import bcrypt
 import pytest
 import yaml
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
+from app.config import get_settings
 from app.models import (
     Category,
     ListItem,
@@ -19,7 +21,7 @@ from app.models import (
     User,
     UserStore,
 )
-from dealdata.load import load_snapshot
+from dealdata.load import SEED_EMAILS, load_snapshot
 from dealdata.normalize import Size
 from dealdata.tree import LeafRule, load_tree
 
@@ -200,6 +202,16 @@ def test_loading_again_keeps_the_demo_users_password(db: Session) -> None:
     load_snapshot(db, [snapshot_item()], STORES, RULES)
 
     assert db.scalars(select(User.password_hash).where(User.is_demo)).one() == first_hash
+
+
+def test_load_snapshot_creates_two_test_users_who_can_log_in(db: Session) -> None:
+    load_snapshot(db, [snapshot_item()], STORES, RULES)
+
+    users = db.scalars(select(User).where(User.email.in_(SEED_EMAILS))).all()
+
+    assert len(users) == 2
+    password = get_settings().SEED_PASSWORD.encode()
+    assert all(bcrypt.checkpw(password, user.password_hash.encode()) for user in users)
 
 
 SECOND_MILK = snapshot_item(
