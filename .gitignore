@@ -1,0 +1,21 @@
+# Secrets
+.env
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Raw scrape output stays local (data/snapshot/ is committed)
+data/raw/
+
+# Frontend
+node_modules/
+frontend/dist/
+frontend/.angular/
+
+# Local editor and machine files
+.idea/
+.DS_Store
+Thumbs.db

@@ -1,0 +1,14 @@
+<header class="top-bar">
+  <span class="brand">{{ ro.appName }}</span>
+  <a routerLink="/settings">{{ ro.nav.settings }}</a>
+</header>
+
+<main class="content">
+  <router-outlet />
+</main>
+
+<nav class="bottom-nav">
+  @for (tab of tabs; track tab.path) {
+    <a [routerLink]="tab.path" routerLinkActive="active">{{ tab.label }}</a>
+  }
+</nav>
