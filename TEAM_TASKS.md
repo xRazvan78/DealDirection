@@ -155,7 +155,7 @@ Each task lists its files, what other tasks rely on, the decisions already made,
 - **Files:** `pyproject.toml`, `.python-version`, `.gitignore`, `.env.example`, `backend/app/{__init__,config,db,models,textutil,main}.py`, `tests/conftest.py`
 - **Setup:** require Python `>=3.12,<3.13`, and make both `app` and `dealdata` importable under `uv run` and pytest. `.gitignore` covers `.env`, `.venv`, `data/raw/`, `node_modules` and `frontend/dist`.
 - **Produces:** `get_settings() -> Settings`, `get_db()`, all models in `app.models`, `fold(text: str) -> str`, `app.main.app`
-- **Test fixtures:** `db`, `client`, and `sample` (2 stores, `Lapte → 3.5% → 1 l`, 3 products)
+- **Test fixtures:** `db` (connects to the one `dealdirection` database through `DATABASE_URL` and rolls back a transaction after each test), `client`, and `sample` (2 stores, `Lapte → 3.5% → 1 l`, 3 products)
 - **Tests:**
   - Settings match the README's configuration table.
   - `fold("Brânză de Țară") == "branza de tara"`.
