@@ -1,1 +1,329 @@
 # Hand-checked category -> type -> size tree. Owner: Member 1, Task 4.
+#
+# Draft: retune after the first real scrape, because each leaf needs products at 2+ stores.
+#
+# Each entry in `sizes` becomes one size-level leaf.
+# `name` and `sizes` are shown to the client, so they keep their Romanian spelling.
+# `include`, `exclude` and `aliases` are compared with folded text, so write them
+# in lowercase with no diacritics. Every `include` word must appear in a product
+# name, and no `exclude` word may. `aliases` map imported foods to this leaf.
+
+categories:
+  - name: Lapte
+    types:
+      - name: "3.5%"
+        include: [lapte, "3.5%"]
+        exclude: [curatare, demachiant, corp, bebe, praf, condensat, ciocolata, cacao, soia, ovaz, migdale, capra]
+        sizes: ["1 l"]
+        aliases: [lapte, lapte integral]
+      - name: "1.5%"
+        include: [lapte, "1.5%"]
+        exclude: [curatare, demachiant, corp, bebe, praf, condensat, ciocolata, cacao, soia, ovaz, migdale, capra]
+        sizes: ["1 l"]
+        aliases: [lapte degresat]
+      - name: Ovăz
+        include: [bautura, ovaz]
+        exclude: [ciocolata, cacao]
+        sizes: ["1 l"]
+        aliases: [lapte de ovaz, bautura de ovaz]
+
+  - name: Iaurt
+    types:
+      - name: Natural
+        include: [iaurt, natural]
+        exclude: [baut, fructe, capsuni, piersici, vanilie, biscuiti]
+        sizes: ["140 g", "400 g"]
+        aliases: [iaurt, iaurt natural]
+      - name: Grecesc
+        include: [iaurt, grecesc]
+        exclude: [fructe, capsuni, piersici, vanilie, miere]
+        sizes: ["150 g", "400 g"]
+        aliases: [iaurt grecesc]
+
+  - name: Brânză
+    types:
+      - name: Telemea
+        include: [telemea]
+        exclude: [topita, felii]
+        sizes: ["400 g", "1 kg"]
+        aliases: [telemea, branza telemea]
+      - name: Cașcaval
+        include: [cascaval]
+        exclude: [pane, topit]
+        sizes: ["400 g", "500 g"]
+        aliases: [cascaval]
+      - name: Cremă de brânză
+        include: [crema, branza]
+        exclude: [desert, vanilie]
+        sizes: ["200 g"]
+        aliases: [crema de branza]
+
+  - name: Unt
+    types:
+      - name: Unt
+        include: [unt]
+        exclude: [arahide, cacao, corp, planta, ras]
+        sizes: ["200 g"]
+        aliases: [unt]
+
+  - name: Smântână
+    types:
+      - name: Smântână
+        include: [smantana]
+        exclude: [frisca, vegetala]
+        sizes: ["200 g", "400 g"]
+        aliases: [smantana]
+
+  - name: Ouă
+    types:
+      - name: Găini
+        include: [oua]
+        exclude: [ciocolata, prepelita]
+        sizes: ["6 buc", "10 buc"]
+        aliases: [oua, ou]
+
+  - name: Pâine
+    types:
+      - name: Albă
+        include: [paine, alba]
+        exclude: [pesmet]
+        sizes: ["500 g"]
+        aliases: [paine, paine alba]
+      - name: Integrală
+        include: [paine, integrala]
+        exclude: [pesmet]
+        sizes: ["500 g"]
+        aliases: [paine integrala]
+
+  - name: Făină
+    types:
+      - name: Albă
+        include: [faina, alba]
+        exclude: [migdale, cocos, orez, porumb]
+        sizes: ["1 kg"]
+        aliases: [faina]
+
+  - name: Mălai
+    types:
+      - name: Mălai
+        include: [malai]
+        sizes: ["1 kg"]
+        aliases: [malai]
+
+  - name: Zahăr
+    types:
+      - name: Tos
+        include: [zahar]
+        exclude: [pudra, vanilat, brun, candel]
+        sizes: ["1 kg"]
+        aliases: [zahar]
+
+  - name: Sare
+    types:
+      - name: Sare de masă
+        include: [sare]
+        exclude: [baie, migdale, alune, chips, biscuiti, pufuleti]
+        sizes: ["1 kg"]
+        aliases: [sare]
+
+  - name: Orez
+    types:
+      - name: Bob lung
+        include: [orez, lung]
+        exclude: [faina, lapte, galete, fulgi]
+        sizes: ["1 kg"]
+        aliases: [orez]
+      - name: Basmati
+        include: [orez, basmati]
+        exclude: [faina, lapte, galete, fulgi]
+        sizes: ["500 g", "1 kg"]
+        aliases: [orez basmati]
+
+  - name: Paste
+    types:
+      - name: Spaghete
+        include: [spaghete]
+        exclude: [sos, conserva]
+        sizes: ["500 g"]
+        aliases: [spaghete, paste]
+      - name: Penne
+        include: [penne]
+        exclude: [sos, conserva]
+        sizes: ["500 g"]
+        aliases: [penne]
+
+  - name: Ulei
+    types:
+      - name: Floarea-soarelui
+        include: [ulei, floarea]
+        exclude: [corp, masaj, ten, par]
+        sizes: ["1 l"]
+        aliases: [ulei, ulei de floarea soarelui]
+      - name: Măsline
+        include: [ulei, masline]
+        exclude: [corp, masaj, ten, par]
+        sizes: ["500 ml", "750 ml"]
+        aliases: [ulei de masline]
+
+  - name: Oțet
+    types:
+      - name: Oțet
+        include: [otet]
+        exclude: [curatare]
+        sizes: ["500 ml", "1 l"]
+        aliases: [otet]
+
+  - name: Ton
+    types:
+      - name: Conservă
+        include: [ton]
+        exclude: [hrana, pisici, caini, pate]
+        sizes: ["80 g", "160 g"]
+        aliases: [ton, conserva de ton]
+
+  - name: Roșii conservate
+    types:
+      - name: Pasată
+        include: [rosii, pasate]
+        exclude: [supa, sos]
+        sizes: ["500 g", "680 g"]
+        aliases: [rosii pasate, suc de rosii]
+      - name: Pastă
+        include: [pasta, tomate]
+        exclude: [dinti, sos]
+        sizes: ["140 g", "400 g"]
+        aliases: [pasta de tomate, bulion]
+
+  - name: Carne de pui
+    types:
+      - name: Piept
+        include: [piept, pui]
+        exclude: [hrana, pisici, caini, afumat, pate, sunca]
+        sizes: ["500 g", "1 kg"]
+        aliases: [piept de pui, carne de pui]
+      - name: Pulpe
+        include: [pulpe, pui]
+        exclude: [hrana, pisici, caini, afumat, pate]
+        sizes: ["1 kg"]
+        aliases: [pulpe de pui]
+
+  - name: Cartofi
+    types:
+      - name: Cartofi
+        include: [cartofi]
+        exclude: [chips, congelati, prajiti, pai, piure, pufuleti]
+        sizes: ["1 kg", "2 kg"]
+        aliases: [cartofi]
+
+  - name: Ceapă
+    types:
+      - name: Galbenă
+        include: [ceapa]
+        exclude: [rosie, verde, pudra, praf, chips]
+        sizes: ["1 kg"]
+        aliases: [ceapa]
+
+  - name: Banane
+    types:
+      - name: Banane
+        include: [banane]
+        exclude: [chips, iaurt, piure, suc, biscuiti]
+        sizes: ["1 kg"]
+        aliases: [banane, banana]
+
+  - name: Mere
+    types:
+      - name: Mere
+        include: [mere]
+        exclude: [suc, piure, otet, iaurt, chips, biscuiti, compot]
+        sizes: ["1 kg"]
+        aliases: [mere, mar]
+
+  - name: Cafea
+    types:
+      - name: Măcinată
+        include: [cafea, macinata]
+        exclude: [capsule, boabe, instant]
+        sizes: ["250 g", "500 g"]
+        aliases: [cafea, cafea macinata]
+      - name: Boabe
+        include: [cafea, boabe]
+        exclude: [capsule, ciocolata]
+        sizes: ["1 kg"]
+        aliases: [cafea boabe]
+
+  - name: Ceai
+    types:
+      - name: Negru
+        include: [ceai, negru]
+        exclude: [gheata, rece]
+        sizes: ["20 buc", "25 buc"]
+        aliases: [ceai, ceai negru]
+
+  - name: Apă
+    types:
+      - name: Plată
+        include: [apa, plata]
+        exclude: [micelara, gura, parfumata]
+        sizes: ["2 l", "6x2 l"]
+        aliases: [apa, apa plata]
+      - name: Minerală
+        include: [apa, minerala]
+        exclude: [micelara, gura, parfumata]
+        sizes: ["2 l", "6x2 l"]
+        aliases: [apa minerala]
+
+  - name: Suc
+    types:
+      - name: Portocale
+        include: [suc, portocale]
+        exclude: [detergent, concentrat]
+        sizes: ["1 l"]
+        aliases: [suc, suc de portocale]
+      - name: Mere
+        include: [suc, mere]
+        exclude: [detergent, concentrat]
+        sizes: ["1 l"]
+        aliases: [suc de mere]
+
+  - name: Bere
+    types:
+      - name: Blondă
+        include: [bere, blonda]
+        exclude: [fara, pahar, sampon]
+        sizes: ["500 ml"]
+        aliases: [bere]
+
+  - name: Ciocolată
+    types:
+      - name: Cu lapte
+        include: [ciocolata, lapte]
+        exclude: [napolitana, biscuiti, bautura, inghetata, praf]
+        sizes: ["100 g"]
+        aliases: [ciocolata, ciocolata cu lapte]
+      - name: Neagră
+        include: [ciocolata, neagra]
+        exclude: [napolitana, biscuiti, bautura, inghetata, praf]
+        sizes: ["100 g"]
+        aliases: [ciocolata neagra]
+
+  - name: Detergent
+    types:
+      - name: Rufe lichid
+        include: [detergent, lichid, rufe]
+        exclude: [vase, capsule]
+        sizes: ["2 l", "3 l"]
+        aliases: [detergent, detergent de rufe]
+      - name: Vase
+        include: [detergent, vase]
+        exclude: [rufe, capsule, tablete, masina]
+        sizes: ["500 ml", "1 l"]
+        aliases: [detergent de vase]
+
+  - name: Hârtie igienică
+    types:
+      - name: Role
+        include: [hartie, igienica]
+        exclude: [umeda, servetele]
+        sizes: ["8 buc", "10 buc"]
+        aliases: [hartie igienica]
