@@ -29,9 +29,9 @@ categories:
         sizes: ["90 g", "100 g", "120 g", "125 g", "160 g", "180 g", "190 g", "200 g", "400 g", "500 g", "600 g"]
       - name: Cereale și gustări
         any_of: [hipp, nutrino, baby, bebelusi, luni, mousse, an]
-        exclude: [lapte, sampon, servetele, pulpe, piept, pui, apa, lotiune, balsam, crema]
+        exclude: [lapte, sampon, servetele, pulpe, piept, pui, apa, lotiune, balsam, crema, detergent, rufe]
         aliases: [hrana bebelusi cereale si gustari]
-        sizes: ["22 buc", "60 buc", "23 g", "28 g", "35 g", "100 g", "102 g", "120 g", "190 g", "200 g", "250 g", "400 g", "120 ml", "1.5 l", "1.8 l"]
+        sizes: ["23 g", "28 g", "35 g", "100 g", "102 g", "120 g", "190 g", "200 g", "250 g", "400 g", "120 ml"]
 
   - name: Înghețată
     group: Congelate
@@ -75,9 +75,9 @@ categories:
     types:
       - name: Cu lapte
         include: [ciocolata, lapte]
-        exclude: [napolitana, biscuiti, bautura, inghetata, praf, prajitura, porumb]
+        exclude: [napolitana, biscuiti, bautura, inghetata, praf, prajitura, porumb, uht]
         aliases: [ciocolata, ciocolata cu lapte]
-        sizes: ["8 buc", "20 g", "25 g", "35 g", "40 g", "42 g", "70 g", "80 g", "85 g", "90 g", "95 g", "100 g", "120 g", "145 g", "148 g", "150 g", "160 g", "190 g", "196 g", "200 g", "240 g", "250 g", "300 g", "337 g", "500 ml"]
+        sizes: ["8 buc", "20 g", "25 g", "35 g", "40 g", "42 g", "70 g", "80 g", "85 g", "90 g", "95 g", "100 g", "120 g", "145 g", "148 g", "150 g", "160 g", "190 g", "196 g", "200 g", "240 g", "250 g", "300 g", "337 g"]
       - name: Neagră
         include: [ciocolata, neagra]
         exclude: [napolitana, biscuiti, bautura, inghetata, praf, prajitura, porumb, invelite, glazura]
@@ -90,22 +90,23 @@ categories:
         sizes: ["80 g", "90 g", "145 g", "150 g"]
       - name: Praline
         any_of: [praline, trufe]
-        exclude: [biscuiti, ulei, branza, feliate, paine]
+        exclude: [biscuiti, ulei, branza, feliate, paine, risotto, paste, otet]
         aliases: [ciocolata praline]
-        sizes: ["135 g", "168 g", "193 g", "200 g", "210 g", "250 g", "250 ml"]
+        sizes: ["135 g", "168 g", "193 g", "200 g"]
       - name: Alte sortimente
         any_of: [ciocolata, milka]
-        exclude: [napolitana, biscuiti, bautura, inghetata, praf, batoane, baton, fulgi, crema, tartinabila]
+        exclude: [napolitana, biscuiti, bautura, inghetata, praf, batoane, baton, fulgi, crema, tartinabila, tassimo]
         aliases: [ciocolata]
-        sizes: ["8 buc", "30 g", "40 g", "45 g", "75 g", "80 g", "90 g", "97 g", "100 g", "120 g", "121 g", "125 g", "140 g", "145 g", "150 g", "153 g", "155 g", "162 g", "200 g", "210 g", "250 g", "300 g", "500 g", "1 kg", "125 ml"]
+        sizes: ["30 g", "40 g", "45 g", "75 g", "80 g", "90 g", "97 g", "100 g", "120 g", "121 g", "125 g", "140 g", "145 g", "150 g", "153 g", "155 g", "162 g", "200 g", "210 g", "250 g", "300 g", "500 g", "1 kg", "125 ml"]
 
   - name: Biscuiți
     group: Dulciuri și snacks
     types:
       - name: Biscuiți
         any_of: [biscuiti, biscuit, cookies, crackers]
+        exclude: [ceai]
         aliases: [biscuiti]
-        sizes: ["40 buc", "70 g", "72 g", "100 g", "120 g", "150 g", "160 g", "173 g", "180 g", "186 g", "200 g", "250 g", "300 g", "320 g", "350 g", "400 g", "800 g"]
+        sizes: ["70 g", "72 g", "100 g", "120 g", "150 g", "160 g", "173 g", "180 g", "186 g", "200 g", "250 g", "300 g", "320 g", "350 g", "400 g", "800 g"]
 
   - name: Napolitane
     group: Dulciuri și snacks
@@ -194,9 +195,9 @@ categories:
         sizes: ["10 buc", "16 buc", "52 g", "144 g", "520 g", "624 g", "660 g"]
       - name: Capsule (alte branduri)
         any_of: [capsule]
-        exclude: [detergent, rufe, spalari, vase, ceai, pods, dishwasher]
+        exclude: [detergent, rufe, spalari, vase, ceai, pods, dishwasher, gel]
         aliases: [cafea capsule]
-        sizes: ["10 buc", "16 buc", "40 buc", "52 g", "99 g"]
+        sizes: ["10 buc", "16 buc", "52 g", "99 g"]
       - name: Instant
         include: [cafea]
         any_of: [instant, solubila, cappuccino, plicuri]
@@ -351,9 +352,9 @@ categories:
         sizes: ["200 ml", "250 ml", "300 ml", "1 l", "2 l", "3 l"]
       - name: Alte arome
         any_of: [suc, sucuri, nectar, juice, pfanner, tymbark, smoothie, agros]
-        exclude: [detergent, concentrat, rosii, mousse]
+        exclude: [detergent, concentrat, rosii, mousse, ton]
         aliases: [suc]
-        sizes: ["160 g", "240 g", "320 g", "150 ml", "200 ml", "250 ml", "1 l", "2 l"]
+        sizes: ["150 ml", "200 ml", "250 ml", "1 l", "2 l"]
       - name: Sirop și concentrat
         starts_with: [sirop, concentrat]
         any_of: [sirop, concentrat]
@@ -439,7 +440,7 @@ categories:
     types:
       - name: Telemea
         include: [telemea]
-        exclude: [topita, felii]
+        exclude: [topita, felii, foietaj, minipateuri]
         aliases: [telemea, branza telemea]
         sizes: ["150 g", "200 g", "300 g", "350 g", "400 g", "500 g", "800 g", "1 kg"]
       - name: Cașcaval
@@ -630,7 +631,7 @@ categories:
     group: Conserve și mâncare gata
     types:
       - name: Conservă
-        starts_with: [ton, mareblu, salata de ton, salata texana]
+        starts_with: [ton, mareblu, salata de ton, salata texana, bucati de ton, conserva de ton]
         include: [ton]
         exclude: [hrana, pisici, caini, pate]
         aliases: [ton, conserva de ton]
@@ -706,9 +707,9 @@ categories:
       - name: Condimente
         starts_with: [condimente, condiment, piper, boia, oregano, cimbru, curry, curcuma, scortisoara, rozmarin, vegeta, delikat, busuioc, chimen, nucsoara, usturoi, kotanyi, amestec, galeo, kamis, ceapa, cuisoare, cardamon, ghimbir, marar, patrunjel, dafin, ienibahar, rasnita, pirifan, salvie, sofran, paprika, pronat, pane crocant, ceapa granulata]
         any_of: [condimente, condiment, piper, boia, oregano, cimbru, curry, curcuma, scortisoara, rozmarin, vegeta, delikat, busuioc, chimen, nucsoara, usturoi, kotanyi, amestec, salvie, sofran, paprika, cardamon, ghimbir, cuisoare, marar, patrunjel, dafin, ienibahar, mix, crocant]
-        exclude: [sare, chips, ulei, biscuiti, ceai, ciocolata]
+        exclude: [sare, chips, ulei, biscuiti, ceai, ciocolata, tigaie]
         aliases: [condimente]
-        sizes: ["0 g", "8 g", "9 g", "10 g", "12 g", "14 g", "15 g", "16 g", "18 g", "20 g", "24 g", "25 g", "30 g", "32 g", "35 g", "36 g", "37 g", "38 g", "40 g", "42 g", "45 g", "50 g", "55 g", "65 g", "70 g", "75 g", "80 g", "100 g", "120 g", "150 g", "350 g", "400 g"]
+        sizes: ["0 g", "8 g", "9 g", "10 g", "12 g", "14 g", "15 g", "16 g", "18 g", "20 g", "24 g", "25 g", "30 g", "32 g", "35 g", "36 g", "37 g", "38 g", "40 g", "42 g", "45 g", "50 g", "55 g", "65 g", "70 g", "75 g", "80 g", "100 g", "120 g", "150 g", "350 g"]
 
   - name: Sare
     group: Sosuri și condimente
@@ -730,9 +731,9 @@ categories:
         sizes: ["200 ml", "250 ml", "500 ml", "750 ml", "1 l", "1.8 l", "2 l", "3 l"]
       - name: Măsline
         include: [ulei, masline]
-        exclude: [corp, masaj, ten, par]
+        exclude: [corp, masaj, ten, par, lotiune, lipie, solutie, carpaccio, cous, balsam, gel]
         aliases: [ulei de masline]
-        sizes: ["80 g", "130 g", "360 g", "100 ml", "200 ml", "250 ml", "400 ml", "500 ml", "750 ml", "1 l", "2 l", "3 l", "5 l"]
+        sizes: ["100 ml", "200 ml", "250 ml", "500 ml", "750 ml", "1 l", "2 l", "3 l", "5 l"]
       - name: Alte uleiuri
         starts_with: [ulei]
         any_of: [ulei]
@@ -807,8 +808,9 @@ categories:
     types:
       - name: Mălai
         include: [malai]
+        exclude: [paine, gnocchi]
         aliases: [malai]
-        sizes: ["250 g", "375 g", "400 g", "500 g", "1 kg"]
+        sizes: ["250 g", "375 g", "500 g", "1 kg"]
 
   - name: Orez
     group: Băcănie

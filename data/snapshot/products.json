@@ -2941,21 +2941,6 @@
   },
   {
     "store": "Auchan",
-    "name": "Mini foietaj cu telemea Grane Aurii, 500 g",
-    "brand": "Grane Aurii",
-    "price": "13.89",
-    "unit": "kg",
-    "source_url": "https://www.auchan.ro/mini-foietaj-cu-telemea-grane-aurii-500-g/p",
-    "path": [
-      "Lactate și ouă",
-      "Brânză",
-      "Telemea",
-      "500 g"
-    ],
-    "updated_at": "2026-11-06"
-  },
-  {
-    "store": "Auchan",
     "name": "Telemea de vaca in saramura Five Continents, 400 g",
     "brand": "Five Continents",
     "price": "22.19",
@@ -2981,21 +2966,6 @@
       "Brânză",
       "Telemea",
       "350 g"
-    ],
-    "updated_at": "2026-11-06"
-  },
-  {
-    "store": "Auchan",
-    "name": "Minipateuri cu umplutura din branza telemea, crud congelat, 500 g",
-    "brand": "Patis Baked Goods",
-    "price": "18.69",
-    "unit": "kg",
-    "source_url": "https://www.auchan.ro/minipateuri-cu-umplutura-din-branza-telemea-crud-congelat-500-g/p",
-    "path": [
-      "Lactate și ouă",
-      "Brânză",
-      "Telemea",
-      "500 g"
     ],
     "updated_at": "2026-11-06"
   },
@@ -7402,9 +7372,9 @@
     "unit": "kg",
     "source_url": "https://www.auchan.ro/paine-cu-malai-si-maia-auchan-500-g/p",
     "path": [
-      "Băcănie",
-      "Mălai",
-      "Mălai",
+      "Brutărie",
+      "Pâine",
+      "Alte sortimente",
       "500 g"
     ],
     "updated_at": "2026-11-06"
@@ -9961,21 +9931,6 @@
   },
   {
     "store": "Auchan",
-    "name": "Lotiune hidratanta Auchan Baby Bio, cu ulei de masline, 200 ml",
-    "brand": "Auchan Baby",
-    "price": "14.99",
-    "unit": "l",
-    "source_url": "https://www.auchan.ro/lotiune-hidratanta-eco-pentru-copii-cosmia-baby-200ml/p",
-    "path": [
-      "Băcănie",
-      "Ulei",
-      "Măsline",
-      "200 ml"
-    ],
-    "updated_at": "2026-11-06"
-  },
-  {
-    "store": "Auchan",
     "name": "Ton in ulei de masline cu ardei iute Rio Mare, 120 g",
     "brand": "Rio Mare",
     "price": "22.69",
@@ -10447,25 +10402,10 @@
     "unit": "kg",
     "source_url": "https://www.auchan.ro/lipie-piadina-cu-ulei-de-masline-acqua-farina-360-g/p",
     "path": [
-      "Băcănie",
-      "Ulei",
-      "Măsline",
+      "Brutărie",
+      "Pâine",
+      "Lipie și tortilla",
       "360 g"
-    ],
-    "updated_at": "2026-11-06"
-  },
-  {
-    "store": "Auchan",
-    "name": "Solutie pentru lemn Rivex, cu ulei de masline, 750 ml",
-    "brand": "Rivex",
-    "price": "16.19",
-    "unit": "l",
-    "source_url": "https://www.auchan.ro/solutie-pentru-lemn-rivex-cu-ulei-de-masline-750-ml/p",
-    "path": [
-      "Băcănie",
-      "Ulei",
-      "Măsline",
-      "750 ml"
     ],
     "updated_at": "2026-11-06"
   },
@@ -10606,60 +10546,15 @@
   },
   {
     "store": "Auchan",
-    "name": "Trufe feliate Carpaccio in ulei de masline extra virgin Geofoods, 80 g",
-    "brand": "Geofoods",
-    "price": "64.99",
-    "unit": "kg",
-    "source_url": "https://www.auchan.ro/trufe-feliate-carpaccio-in-ulei-de-masline-extra-virgin-geofoods-80-g/p",
-    "path": [
-      "Băcănie",
-      "Ulei",
-      "Măsline",
-      "80 g"
-    ],
-    "updated_at": "2026-11-06"
-  },
-  {
-    "store": "Auchan",
-    "name": "Cous cous mediteranean cu legume si ulei de masline Baneasa, 130 g",
-    "brand": "Baneasa",
-    "price": "9.69",
-    "unit": "kg",
-    "source_url": "https://www.auchan.ro/cous-cous-mediteranean-cu-legume-si-ulei-de-masline-baneasa-130-g/p",
-    "path": [
-      "Băcănie",
-      "Ulei",
-      "Măsline",
-      "130 g"
-    ],
-    "updated_at": "2026-11-06"
-  },
-  {
-    "store": "Auchan",
     "name": "Balsam corporal cu ulei de masline Natigo The Ritual Of Melasti, 400 ml",
     "brand": "Natigo",
     "price": "29.79",
     "unit": "l",
     "source_url": "https://www.auchan.ro/balsam-corporal-cu-ulei-de-masline-natigo-the-ritual-of-melasti-400-ml/p",
     "path": [
-      "Băcănie",
-      "Ulei",
-      "Măsline",
-      "400 ml"
-    ],
-    "updated_at": "2026-11-06"
-  },
-  {
-    "store": "Auchan",
-    "name": "Gel de dus cu ulei de masline Natigo The Ritual Of Melasti, 400 ml",
-    "brand": "Natigo",
-    "price": "20.79",
-    "unit": "l",
-    "source_url": "https://www.auchan.ro/gel-de-dus-cu-ulei-de-masline-natigo-the-ritual-of-melasti-400-ml/p",
-    "path": [
-      "Băcănie",
-      "Ulei",
-      "Măsline",
+      "Îngrijire personală",
+      "Îngrijire corporală",
+      "Păr și corp",
       "400 ml"
     ],
     "updated_at": "2026-11-06"
@@ -11332,9 +11227,9 @@
     "unit": "kg",
     "source_url": "https://www.auchan.ro/ton-in-suc-propriu-rio-mare-160-g/p",
     "path": [
-      "Băuturi",
-      "Suc",
-      "Alte arome",
+      "Conserve și mâncare gata",
+      "Ton",
+      "Conservă",
       "160 g"
     ],
     "updated_at": "2026-11-06"
@@ -11347,9 +11242,9 @@
     "unit": "kg",
     "source_url": "https://www.auchan.ro/ton-in-suc-propriu-rio-mare-80-g-3-1-gratis/p",
     "path": [
-      "Băuturi",
-      "Suc",
-      "Alte arome",
+      "Conserve și mâncare gata",
+      "Ton",
+      "Conservă",
       "320 g"
     ],
     "updated_at": "2026-11-06"
@@ -11482,9 +11377,9 @@
     "unit": "kg",
     "source_url": "https://www.auchan.ro/bucati-de-ton-in-suc-natur-rio-mare-160-g/p",
     "path": [
-      "Băuturi",
-      "Suc",
-      "Alte arome",
+      "Conserve și mâncare gata",
+      "Ton",
+      "Conservă",
       "160 g"
     ],
     "updated_at": "2026-11-06"
@@ -11527,9 +11422,9 @@
     "unit": "kg",
     "source_url": "https://www.auchan.ro/conserva-de-ton-rio-mare-in-suc-natural-80-g-x-3/p",
     "path": [
-      "Băuturi",
-      "Suc",
-      "Alte arome",
+      "Conserve și mâncare gata",
+      "Ton",
+      "Conservă",
       "240 g"
     ],
     "updated_at": "2026-11-06"
@@ -13736,21 +13631,6 @@
       "Carne de pui",
       "Alte bucăți",
       "1.6 kg"
-    ],
-    "updated_at": "2026-11-06"
-  },
-  {
-    "store": "Auchan",
-    "name": "Amestec de legume pentru prajit in tigaie, cartofi si ciuperci, 400g",
-    "brand": "Iglotex",
-    "price": "10.19",
-    "unit": "kg",
-    "source_url": "https://www.auchan.ro/amestec-de-legume-pentru-prajit-in-tigaie-cartofi-si-ciuperci-400g/p",
-    "path": [
-      "Sosuri și condimente",
-      "Condimente",
-      "Condimente",
-      "400 g"
     ],
     "updated_at": "2026-11-06"
   },
@@ -18052,9 +17932,9 @@
     "unit": "buc",
     "source_url": "https://www.auchan.ro/ceai-negru-cu-aroma-de-biscuit-taylors-of-harrogate-40-plicuri/p",
     "path": [
-      "Dulciuri și snacks",
-      "Biscuiți",
-      "Biscuiți",
+      "Cafea, ceai și cacao",
+      "Ceai",
+      "Negru",
       "40 buc"
     ],
     "updated_at": "2026-11-06"
@@ -22582,9 +22462,9 @@
     "unit": "buc",
     "source_url": "https://www.auchan.ro/detergent-lichid-de-rufe-froch-sensitive-baby-1-5-l/p",
     "path": [
-      "Bebeluși",
-      "Hrană bebeluși",
-      "Cereale și gustări",
+      "Curățenie și casă",
+      "Detergent",
+      "Rufe lichid",
       "22 buc"
     ],
     "updated_at": "2026-11-06"
@@ -23092,9 +22972,9 @@
     "unit": "buc",
     "source_url": "https://www.auchan.ro/detergent-lichid-de-rufe-sano-maxima-power-gel-baby-3l-60-spalari/p",
     "path": [
-      "Bebeluși",
-      "Hrană bebeluși",
-      "Cereale și gustări",
+      "Curățenie și casă",
+      "Detergent",
+      "Rufe lichid",
       "60 buc"
     ],
     "updated_at": "2026-11-06"
@@ -25661,21 +25541,6 @@
       "Lapte",
       "Soia",
       "250 ml"
-    ],
-    "updated_at": "2026-11-06"
-  },
-  {
-    "store": "Carrefour",
-    "name": "Lapte UHT Meggle cu ciocolata 500ml",
-    "brand": null,
-    "price": "6.89",
-    "unit": "l",
-    "source_url": "https://carrefour.ro/produse/lapte-uht-meggle-cu-ciocolata-500ml-19-15512311",
-    "path": [
-      "Dulciuri și snacks",
-      "Ciocolată",
-      "Cu lapte",
-      "500 ml"
     ],
     "updated_at": "2026-11-06"
   },
@@ -29797,9 +29662,9 @@
     "unit": "kg",
     "source_url": "https://carrefour.ro/produse/risotto-cu-trufe-riso-scotti-210g-19-14513697",
     "path": [
-      "Dulciuri și snacks",
-      "Ciocolată",
-      "Praline",
+      "Băcănie",
+      "Orez",
+      "Alte tipuri",
       "210 g"
     ],
     "updated_at": "2026-11-06"
@@ -30247,9 +30112,9 @@
     "unit": "kg",
     "source_url": "https://carrefour.ro/produse/paste-tagliatelle-carrefour-extra-cu-aroma-de-trufe-250g-19-14530010",
     "path": [
-      "Dulciuri și snacks",
-      "Ciocolată",
-      "Praline",
+      "Băcănie",
+      "Paste",
+      "Tagliatelle",
       "250 g"
     ],
     "updated_at": "2026-11-06"
@@ -30278,8 +30143,8 @@
     "source_url": "https://carrefour.ro/produse/gnocchi-din-cartofi-cu-orez-si-malai-400g-felicia-19-14529314",
     "path": [
       "Băcănie",
-      "Mălai",
-      "Mălai",
+      "Paste",
+      "Alte formate",
       "400 g"
     ],
     "updated_at": "2026-11-06"
@@ -32152,9 +32017,9 @@
     "unit": "l",
     "source_url": "https://carrefour.ro/produse/otet-crema-balsamica-greek-land-cu-trufe-250ml-19-14523200",
     "path": [
-      "Dulciuri și snacks",
-      "Ciocolată",
-      "Praline",
+      "Băcănie",
+      "Oțet",
+      "Oțet",
       "250 ml"
     ],
     "updated_at": "2026-11-06"
@@ -33941,21 +33806,6 @@
       "Cafea",
       "Capsule",
       "144 g"
-    ],
-    "updated_at": "2026-11-06"
-  },
-  {
-    "store": "Carrefour",
-    "name": "Tassimo Milka 8 buc",
-    "brand": null,
-    "price": "40.35",
-    "unit": "buc",
-    "source_url": "https://carrefour.ro/produse/tassimo-milka-8-buc-19-14528471",
-    "path": [
-      "Dulciuri și snacks",
-      "Ciocolată",
-      "Alte sortimente",
-      "8 buc"
     ],
     "updated_at": "2026-11-06"
   },
@@ -38086,21 +37936,6 @@
   },
   {
     "store": "Carrefour",
-    "name": "Igienol Detergent Lichid Dezinfectant Baby 1.8L",
-    "brand": null,
-    "price": "56.49",
-    "unit": "l",
-    "source_url": "https://carrefour.ro/produse/igienol-detergent-lichid-dezinfectant-baby-1-8l-19-11509055",
-    "path": [
-      "Bebeluși",
-      "Hrană bebeluși",
-      "Cereale și gustări",
-      "1.8 l"
-    ],
-    "updated_at": "2026-11-06"
-  },
-  {
-    "store": "Carrefour",
     "name": "Igienol Detergent De Haine Vanila Pouch 1L",
     "brand": null,
     "price": "25.99",
@@ -38686,30 +38521,15 @@
   },
   {
     "store": "Carrefour",
-    "name": "Sano Maxima gel capsule soft silk (40 capsule)",
-    "brand": null,
-    "price": "66.49",
-    "unit": "buc",
-    "source_url": "https://carrefour.ro/produse/sano-maxima-gel-capsule-soft-silk-40-capsule-19-11508352",
-    "path": [
-      "Cafea, ceai și cacao",
-      "Cafea",
-      "Capsule (alte branduri)",
-      "40 buc"
-    ],
-    "updated_at": "2026-11-06"
-  },
-  {
-    "store": "Carrefour",
     "name": "Detergent Gel concentrat pentru rufe Maxima Baby Oat, 1500 ml, Sano",
     "brand": null,
     "price": "47.49",
     "unit": "l",
     "source_url": "https://carrefour.ro/produse/detergent-gel-concentrat-pentru-rufe-maxima-baby-oat-1500-ml-sano-19-11508660",
     "path": [
-      "Bebeluși",
-      "Hrană bebeluși",
-      "Cereale și gustări",
+      "Curățenie și casă",
+      "Detergent",
+      "Rufe alte tipuri",
       "1.5 l"
     ],
     "updated_at": "2026-11-06"

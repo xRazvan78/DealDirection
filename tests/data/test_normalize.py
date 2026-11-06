@@ -1,9 +1,12 @@
+import json
+import re
 from dataclasses import FrozenInstanceError
 from decimal import Decimal
 from pathlib import Path
 
 import pytest
 
+from app.textutil import fold
 from dealdata.normalize import RawProduct, Size, parse_size
 from dealdata.tree import CategoryNode, LeafRule, category_nodes, classify, load_tree
 
@@ -530,3 +533,111 @@ def test_real_tree_words_are_already_folded() -> None:
         assert rule.include or rule.any_of, rule.path
         for word in (*rule.include, *rule.any_of, *rule.starts_with, *rule.exclude, *rule.aliases):
             assert word == word.lower() and word.isascii(), (rule.path, word)
+
+
+def real_leaf(name: str) -> LeafRule | None:
+    size = parse_size(name)
+    assert size is not None
+    return classify(product_named(name), size, load_tree(REAL_TREE))
+
+
+@pytest.mark.parametrize(
+    ("name", "wrong"),
+    [
+        ("Lotiune hidratanta Auchan Baby Bio, cu ulei de masline, 200 ml", ("Ulei", "Măsline")),
+        ("Lipie piadina cu ulei de masline Acqua Farina, 360 g", ("Ulei", "Măsline")),
+        ("Solutie pentru lemn Rivex, cu ulei de masline, 750 ml", ("Ulei", "Măsline")),
+        (
+            "Trufe feliate Carpaccio in ulei de masline extra virgin Geofoods, 80 g",
+            ("Ulei", "Măsline"),
+        ),
+        (
+            "Cous cous mediteranean cu legume si ulei de masline Baneasa, 130 g",
+            ("Ulei", "Măsline"),
+        ),
+        ("Balsam corporal cu ulei de masline Natigo The Ritual Of Melasti, 400 ml", ("Ulei", "Măsline")),
+        ("Gel de dus cu ulei de masline Natigo The Ritual Of Melasti, 400 ml", ("Ulei", "Măsline")),
+        ("Sano Maxima gel capsule soft silk (40 capsule)", ("Cafea", "Capsule (alte branduri)")),
+        ("Ceai negru cu aroma de biscuit Taylors of Harrogate, 40 plicuri", ("Biscuiți", "Biscuiți")),
+        ("Risotto cu trufe Riso Scotti 210g", ("Ciocolată", "Praline")),
+        ("Paste tagliatelle Carrefour Extra cu aroma de trufe, 250g", ("Ciocolată", "Praline")),
+        ("Otet crema balsamica Greek Land cu trufe 250ml", ("Ciocolată", "Praline")),
+        ("Paine cu malai si maia Auchan, 500 g", ("Mălai", "Mălai")),
+        ("Gnocchi din cartofi cu orez si malai, 400g Felicia", ("Mălai", "Mălai")),
+        ("Lapte UHT Meggle cu ciocolata 500ml", ("Ciocolată", "Cu lapte")),
+        ("Tassimo Milka 8 buc", ("Ciocolată", "Alte sortimente")),
+        ("Mini foietaj cu telemea Grane Aurii, 500 g", ("Brânză", "Telemea")),
+        ("Minipateuri cu umplutura din branza telemea, crud congelat, 500 g", ("Brânză", "Telemea")),
+        (
+            "Amestec de legume pentru prajit in tigaie, cartofi si ciuperci, 400g",
+            ("Condimente", "Condimente"),
+        ),
+    ],
+)
+def test_classify_keeps_products_out_of_leaves_that_only_share_a_word(
+    name: str, wrong: tuple[str, str]
+) -> None:
+    leaf = real_leaf(name)
+
+    assert leaf is None or leaf.path[:2] != wrong
+
+
+@pytest.mark.parametrize(
+    "name",
+    [
+        "Bucati de ton in suc natur Rio Mare 160 g",
+        "Conserva de ton Rio Mare in suc natural, 3 x 80 g",
+    ],
+)
+def test_classify_puts_tuna_in_its_own_juice_with_tuna(name: str) -> None:
+    leaf = real_leaf(name)
+
+    assert leaf is not None
+    assert leaf.path[:2] == ("Ton", "Conservă")
+
+
+@pytest.mark.parametrize(
+    "name",
+    [
+        "Detergent lichid de rufe Froch Sensitive Baby, 22 spalari, 1.5 l",
+        "Detergent lichid de rufe Sano Maxima Power Gel Baby, 60 spalari, 3 l",
+        "Igienol Detergent Lichid Dezinfectant Baby 1.8L",
+        "Detergent Gel concentrat pentru rufe Maxima Baby Oat, 1500 ml, Sano",
+    ],
+)
+def test_classify_keeps_baby_detergent_out_of_baby_food(name: str) -> None:
+    leaf = real_leaf(name)
+
+    assert leaf is None or leaf.path[0] != "Hrană bebeluși"
+
+
+@pytest.mark.parametrize(
+    "name",
+    [
+        "Ulei de masline cu trufe Monini, 250 ml",
+        "Spray ulei de masline extravirgin Monini, 200 ml",
+    ],
+)
+def test_classify_still_accepts_flavoured_olive_oil(name: str) -> None:
+    leaf = real_leaf(name)
+
+    assert leaf is not None
+    assert leaf.path[:2] == ("Ulei", "Măsline")
+
+
+def test_food_in_the_snapshot_has_no_household_products() -> None:
+    """A word search over everything, because these slipped past checks by sample."""
+    snapshot = json.loads((REAL_TREE.parent / "snapshot" / "products.json").read_text("utf-8"))
+    non_food_groups = {"Curățenie și casă", "Îngrijire personală", "Animale de companie"}
+    non_food_words = re.compile(
+        r"\b(detergent|sampon|lotiune|gel de dus|balsam corporal|solutie|spalari)\b"
+    )
+
+    found = [
+        product["name"]
+        for product in snapshot
+        if product["path"][0] not in non_food_groups
+        and non_food_words.search(fold(product["name"]))
+    ]
+
+    assert found == []
