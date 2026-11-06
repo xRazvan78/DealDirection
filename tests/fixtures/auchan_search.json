@@ -1,0 +1,56 @@
+[
+  {
+    "productName": "Lapte integral Albalact, 3.5% grasime, 1 l",
+    "brand": "Albalact",
+    "link": "https://www.auchan.ro/lapte-de-vaca-albalact-3-5-grasime-1-l/p",
+    "items": [
+      {
+        "sellers": [
+          {
+            "commertialOffer": {
+              "Price": 8.5,
+              "AvailableQuantity": 100,
+              "IsAvailable": true
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "productName": "Lapte semidegresat Pouce, 1.5% grasime, 1 l",
+    "brand": "Pouce",
+    "link": "https://www.auchan.ro/lapte-semidegresat-pouce-1-5-grasime-1-l/p",
+    "items": [
+      {
+        "sellers": [
+          {
+            "commertialOffer": {
+              "Price": 4.59,
+              "AvailableQuantity": 99999,
+              "IsAvailable": true
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "productName": "Lapte de consum integral Auchan, 3.5% grasime, 1 l",
+    "brand": "Auchan",
+    "link": "https://www.auchan.ro/lapte-de-consum-auchan-3-5-grasime-1-l/p",
+    "items": [
+      {
+        "sellers": [
+          {
+            "commertialOffer": {
+              "Price": 6.39,
+              "AvailableQuantity": 99999,
+              "IsAvailable": true
+            }
+          }
+        ]
+      }
+    ]
+  }
+]
