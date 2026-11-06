@@ -1,11 +1,23 @@
 @if (showNavigation()) {
   <header class="top-bar">
-    <span class="brand">{{ ro.appName }}</span>
-    <nav class="top-links">
-      <a routerLink="/lists">{{ ro.nav.lists }}</a>
-      <a routerLink="/wallet">{{ ro.nav.wallet }}</a>
-      <a routerLink="/settings">{{ ro.nav.settings }}</a>
-    </nav>
+    <button
+      type="button"
+      class="menu-button"
+      [attr.aria-label]="ro.nav.menu"
+      [attr.aria-expanded]="menuOpen()"
+      (click)="menuOpen.set(true)"
+    >
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M4 6h16M4 12h16M4 18h16" />
+      </svg>
+    </button>
+    <a class="account" routerLink="/settings" [attr.aria-label]="ro.nav.account">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="12" cy="12" r="10" />
+        <circle cx="12" cy="9.5" r="3.5" />
+        <path d="M5.5 19c1.2-3 3.6-4.5 6.5-4.5s5.3 1.5 6.5 4.5" />
+      </svg>
+    </a>
   </header>
 }
 
@@ -17,13 +29,12 @@
   <nav class="bottom-nav">
     @for (tab of tabs; track tab.path) {
       <a [routerLink]="tab.path" routerLinkActive="active">
-        <!-- Placeholder icons, until the final design arrives. -->
         <svg viewBox="0 0 24 24" aria-hidden="true">
           @switch (tab.icon) {
-            @case ('deals') {
-              <path d="M6 18 18 6" />
-              <circle cx="7.5" cy="7.5" r="2.5" />
-              <circle cx="16.5" cy="16.5" r="2.5" />
+            @case ('home') {
+              <path d="m3 11 9-8 9 8" />
+              <path d="M5.5 9.5V21h13V9.5" />
+              <path d="M10 21v-6h4v6" />
             }
             @case ('cart') {
               <path d="M3 4h2.5l2.2 11h10.1l2-8H6.3" />
@@ -39,6 +50,31 @@
         </svg>
         {{ tab.label }}
       </a>
+    }
+  </nav>
+}
+
+@if (showNavigation() && showScrollTop()) {
+  <button
+    type="button"
+    class="scroll-top"
+    [attr.aria-label]="ro.nav.scrollTop"
+    (click)="scrollToTop()"
+  >
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M5.5 11.5 12 5l6.5 6.5" /></svg>
+  </button>
+}
+
+@if (menuOpen()) {
+  <button
+    type="button"
+    class="menu-backdrop"
+    [attr.aria-label]="ro.nav.closeMenu"
+    (click)="menuOpen.set(false)"
+  ></button>
+  <nav class="side-menu" [attr.aria-label]="ro.nav.menu">
+    @for (link of menuLinks; track link.path) {
+      <a [routerLink]="link.path" (click)="menuOpen.set(false)">{{ link.label }}</a>
     }
   </nav>
 }

@@ -406,6 +406,21 @@
   },
   {
     "store": "Auchan",
+    "name": "Prajitura Casei cu crema de lapte Alka, 35 g",
+    "brand": "Alka",
+    "price": "1.95",
+    "unit": "kg",
+    "source_url": "https://www.auchan.ro/prajitura-casei-cu-crema-de-lapte-alka-35g/p",
+    "path": [
+      "Dulciuri și snacks",
+      "Prăjituri",
+      "Prăjituri și deserturi",
+      "35 g"
+    ],
+    "updated_at": "2026-11-06"
+  },
+  {
+    "store": "Auchan",
     "name": "Lapte UHT Barista Meggle, 3.5% grasime, 1 l",
     "brand": "Meggle",
     "price": "13.49",
@@ -416,6 +431,21 @@
       "Lapte",
       "3.5%",
       "1 l"
+    ],
+    "updated_at": "2026-11-06"
+  },
+  {
+    "store": "Auchan",
+    "name": "Prajitura cu cacao si umplutura cu crema cu lapte Magura, 35 g",
+    "brand": "Magura",
+    "price": "1.61",
+    "unit": "kg",
+    "source_url": "https://www.auchan.ro/prajitura-magura-cu-lapte-si-cacao-35g/p",
+    "path": [
+      "Dulciuri și snacks",
+      "Prăjituri",
+      "Prăjituri și deserturi",
+      "35 g"
     ],
     "updated_at": "2026-11-06"
   },
@@ -931,21 +961,6 @@
   },
   {
     "store": "Auchan",
-    "name": "Lapte cu cacao UHT Fulga, 1.5% grasime, 200 ml",
-    "brand": "Fulga",
-    "price": "4.29",
-    "unit": "l",
-    "source_url": "https://www.auchan.ro/lapte-cu-cacao-uht-fulga-1-5-grasime-200-ml/p",
-    "path": [
-      "Cafea, ceai și cacao",
-      "Cacao",
-      "Cacao",
-      "200 ml"
-    ],
-    "updated_at": "2026-11-06"
-  },
-  {
-    "store": "Auchan",
     "name": "Lapte UHT cu gust de vanilie Fulga, 1.5% grasime, 200 ml",
     "brand": "Fulga",
     "price": "4.29",
@@ -982,9 +997,9 @@
     "unit": "l",
     "source_url": "https://www.auchan.ro/bautura-din-ovaz-alpro-1-l/p",
     "path": [
-      "Băuturi",
-      "Băuturi răcoritoare",
-      "Alte răcoritoare",
+      "Lactate și ouă",
+      "Lapte",
+      "Ovăz",
       "1 l"
     ],
     "updated_at": "2026-11-06"
@@ -997,9 +1012,9 @@
     "unit": "l",
     "source_url": "https://www.auchan.ro/bautura-din-ovaz-neindulcita-alpro-1-l/p",
     "path": [
-      "Băuturi",
-      "Băuturi răcoritoare",
-      "Alte răcoritoare",
+      "Lactate și ouă",
+      "Lapte",
+      "Ovăz",
       "1 l"
     ],
     "updated_at": "2026-11-06"
@@ -1012,9 +1027,9 @@
     "unit": "l",
     "source_url": "https://www.auchan.ro/bautura-din-ovaz-alpro-barista-1-l/p",
     "path": [
-      "Băuturi",
-      "Băuturi răcoritoare",
-      "Alte răcoritoare",
+      "Lactate și ouă",
+      "Lapte",
+      "Ovăz",
       "1 l"
     ],
     "updated_at": "2026-11-06"
@@ -1027,9 +1042,9 @@
     "unit": "l",
     "source_url": "https://www.auchan.ro/bautura-din-ovaz-si-migdale-alpro1l/p",
     "path": [
-      "Băuturi",
-      "Băuturi răcoritoare",
-      "Alte răcoritoare",
+      "Lactate și ouă",
+      "Lapte",
+      "Ovăz",
       "1 l"
     ],
     "updated_at": "2026-11-06"
@@ -1042,9 +1057,9 @@
     "unit": "l",
     "source_url": "https://www.auchan.ro/bautura-din-ovaz-oatly-the-original-bio-1-l/p",
     "path": [
-      "Băuturi",
-      "Băuturi răcoritoare",
-      "Alte răcoritoare",
+      "Lactate și ouă",
+      "Lapte",
+      "Ovăz",
       "1 l"
     ],
     "updated_at": "2026-11-06"
@@ -1057,9 +1072,9 @@
     "unit": "l",
     "source_url": "https://www.auchan.ro/bautura-din-ovaz-oatly-the-original-barista-1-l/p",
     "path": [
-      "Băuturi",
-      "Băuturi răcoritoare",
-      "Alte răcoritoare",
+      "Lactate și ouă",
+      "Lapte",
+      "Ovăz",
       "1 l"
     ],
     "updated_at": "2026-11-06"
@@ -1072,9 +1087,9 @@
     "unit": "l",
     "source_url": "https://www.auchan.ro/bautura-din-ovaz-cu-aroma-de-ciocolata-alpro-uht-200-ml/p",
     "path": [
-      "Cafea, ceai și cacao",
-      "Cacao",
-      "Ciocolată caldă",
+      "Lactate și ouă",
+      "Lapte",
+      "Ovăz (alte arome)",
       "200 ml"
     ],
     "updated_at": "2026-11-06"
@@ -1087,9 +1102,9 @@
     "unit": "l",
     "source_url": "https://www.auchan.ro/bautura-din-ovaz-oatly-the-original-15-grasime-1-l/p",
     "path": [
-      "Băuturi",
-      "Băuturi răcoritoare",
-      "Alte răcoritoare",
+      "Lactate și ouă",
+      "Lapte",
+      "Ovăz",
       "1 l"
     ],
     "updated_at": "2026-11-06"
@@ -1102,9 +1117,9 @@
     "unit": "l",
     "source_url": "https://www.auchan.ro/bautura-din-ovaz-cu-matcha-si-aroma-de-capsuni-oatly-1-l/p",
     "path": [
-      "Băuturi",
-      "Băuturi răcoritoare",
-      "Alte răcoritoare",
+      "Lactate și ouă",
+      "Lapte",
+      "Ovăz",
       "1 l"
     ],
     "updated_at": "2026-11-06"
@@ -1117,9 +1132,9 @@
     "unit": "l",
     "source_url": "https://www.auchan.ro/bautura-din-ovaz-si-soia-cu-aroma-de-vanilie-alpro-vanilla--1-l/p",
     "path": [
-      "Băuturi",
-      "Băuturi răcoritoare",
-      "Alte răcoritoare",
+      "Lactate și ouă",
+      "Lapte",
+      "Ovăz",
       "1 l"
     ],
     "updated_at": "2026-11-06"
@@ -1132,9 +1147,9 @@
     "unit": "l",
     "source_url": "https://www.auchan.ro/bautura-din-ovaz-si-soia-cu-aroma-de-caramel-alpro-barista--1-l/p",
     "path": [
-      "Băuturi",
-      "Băuturi răcoritoare",
-      "Alte răcoritoare",
+      "Lactate și ouă",
+      "Lapte",
+      "Ovăz",
       "1 l"
     ],
     "updated_at": "2026-11-06"
@@ -1147,9 +1162,9 @@
     "unit": "l",
     "source_url": "https://www.auchan.ro/bautura-vegetala-cu-ovaz-auchan-1-l/p",
     "path": [
-      "Băuturi",
-      "Băuturi răcoritoare",
-      "Alte răcoritoare",
+      "Lactate și ouă",
+      "Lapte",
+      "Ovăz",
       "1 l"
     ],
     "updated_at": "2026-11-06"
@@ -1162,9 +1177,9 @@
     "unit": "l",
     "source_url": "https://www.auchan.ro/bautura-vegetala-pe-baza-de-ovaz-muller-1-l/p",
     "path": [
-      "Băuturi",
-      "Băuturi răcoritoare",
-      "Alte răcoritoare",
+      "Lactate și ouă",
+      "Lapte",
+      "Ovăz",
       "1 l"
     ],
     "updated_at": "2026-11-06"
@@ -1177,9 +1192,9 @@
     "unit": "l",
     "source_url": "https://www.auchan.ro/bautura-vegetala-din-ovaz-riso-scotti-barista-1-l/p",
     "path": [
-      "Băuturi",
-      "Băuturi răcoritoare",
-      "Alte răcoritoare",
+      "Lactate și ouă",
+      "Lapte",
+      "Ovăz",
       "1 l"
     ],
     "updated_at": "2026-11-06"
@@ -1192,9 +1207,9 @@
     "unit": "l",
     "source_url": "https://www.auchan.ro/bautura-vegetala-pe-baza-de-ovaz-neindulcit-carpos-1-l/p",
     "path": [
-      "Băuturi",
-      "Băuturi răcoritoare",
-      "Alte răcoritoare",
+      "Lactate și ouă",
+      "Lapte",
+      "Ovăz",
       "1 l"
     ],
     "updated_at": "2026-11-06"
@@ -1207,9 +1222,9 @@
     "unit": "l",
     "source_url": "https://www.auchan.ro/bautura-vegetala-pe-baza-de-ovaz-olympus-high-protein-1-l/p",
     "path": [
-      "Băuturi",
-      "Băuturi răcoritoare",
-      "Alte răcoritoare",
+      "Lactate și ouă",
+      "Lapte",
+      "Ovăz",
       "1 l"
     ],
     "updated_at": "2026-11-06"
@@ -1222,9 +1237,9 @@
     "unit": "l",
     "source_url": "https://www.auchan.ro/bautura-vegetala-pe-baza-de-ovaz-muller-fara-zaharuri-1-l/p",
     "path": [
-      "Băuturi",
-      "Băuturi răcoritoare",
-      "Alte răcoritoare",
+      "Lactate și ouă",
+      "Lapte",
+      "Ovăz",
       "1 l"
     ],
     "updated_at": "2026-11-06"
@@ -1237,9 +1252,9 @@
     "unit": "l",
     "source_url": "https://www.auchan.ro/bautura-fara-zahar-din-ovaz-alpro-plant-based-whole-1-l/p",
     "path": [
-      "Băuturi",
-      "Băuturi răcoritoare",
-      "Alte răcoritoare",
+      "Lactate și ouă",
+      "Lapte",
+      "Ovăz",
       "1 l"
     ],
     "updated_at": "2026-11-06"
@@ -1252,9 +1267,9 @@
     "unit": "l",
     "source_url": "https://www.auchan.ro/bautura-fara-zahar-din-ovaz-alpro-plant-based-semi-1-l/p",
     "path": [
-      "Băuturi",
-      "Băuturi răcoritoare",
-      "Alte răcoritoare",
+      "Lactate și ouă",
+      "Lapte",
+      "Ovăz",
       "1 l"
     ],
     "updated_at": "2026-11-06"
@@ -2122,9 +2137,9 @@
     "unit": "kg",
     "source_url": "https://www.auchan.ro/iaurt-gresesc-cu-mango-si-seminte-olympus-125-g/p",
     "path": [
-      "Dulciuri și snacks",
-      "Alune și semințe",
-      "Semințe",
+      "Lactate și ouă",
+      "Iaurt",
+      "Grecesc",
       "125 g"
     ],
     "updated_at": "2026-11-06"
@@ -2932,9 +2947,9 @@
     "unit": "kg",
     "source_url": "https://www.auchan.ro/mini-foietaj-cu-telemea-grane-aurii-500-g/p",
     "path": [
-      "Congelate",
-      "Semipreparate congelate",
-      "Patiserie",
+      "Lactate și ouă",
+      "Brânză",
+      "Telemea",
       "500 g"
     ],
     "updated_at": "2026-11-06"
@@ -2977,9 +2992,9 @@
     "unit": "kg",
     "source_url": "https://www.auchan.ro/minipateuri-cu-umplutura-din-branza-telemea-crud-congelat-500-g/p",
     "path": [
-      "Congelate",
-      "Legume congelate",
-      "Legume",
+      "Lactate și ouă",
+      "Brânză",
+      "Telemea",
       "500 g"
     ],
     "updated_at": "2026-11-06"
@@ -4402,9 +4417,9 @@
     "unit": "kg",
     "source_url": "https://www.auchan.ro/prajitura-cu-crema-de-branza-si-piersici-lorenz-240-g/p",
     "path": [
-      "Lactate și ouă",
-      "Brânză",
-      "Cremă de brânză",
+      "Dulciuri și snacks",
+      "Prăjituri",
+      "Prăjituri și deserturi",
       "240 g"
     ],
     "updated_at": "2026-11-06"
@@ -4417,9 +4432,9 @@
     "unit": "kg",
     "source_url": "https://www.auchan.ro/ardei-kardola-umpluti-cu-crema-de-branza-pepe-rosso-1-kg/p",
     "path": [
-      "Lactate și ouă",
-      "Brânză",
-      "Cremă de brânză",
+      "Conserve și mâncare gata",
+      "Conserve de legume",
+      "Porumb și mazăre",
       "1 kg"
     ],
     "updated_at": "2026-11-06"
@@ -4432,9 +4447,9 @@
     "unit": "kg",
     "source_url": "https://www.auchan.ro/crema-de-branza-cu-rosii-uscate-usturoi-si-busuioc-artesana-200-g/p",
     "path": [
-      "Dulciuri și snacks",
-      "Fructe uscate",
-      "Uscate",
+      "Lactate și ouă",
+      "Brânză",
+      "Cremă de brânză",
       "200 g"
     ],
     "updated_at": "2026-11-06"
@@ -4447,9 +4462,9 @@
     "unit": "kg",
     "source_url": "https://www.auchan.ro/ardei-iuti-rosii-umpluti-cu-crema-de-branza-pepe-rosso-150-g/p",
     "path": [
-      "Lactate și ouă",
-      "Brânză",
-      "Cremă de brânză",
+      "Conserve și mâncare gata",
+      "Conserve de legume",
+      "Porumb și mazăre",
       "150 g"
     ],
     "updated_at": "2026-11-06"
@@ -4462,9 +4477,9 @@
     "unit": "kg",
     "source_url": "https://www.auchan.ro/ardei-macedoneni-verzi-umpluti-cu-crema-de-branza-pepe-rosso-150-g/p",
     "path": [
-      "Lactate și ouă",
-      "Brânză",
-      "Cremă de brânză",
+      "Conserve și mâncare gata",
+      "Conserve de legume",
+      "Porumb și mazăre",
       "150 g"
     ],
     "updated_at": "2026-11-06"
@@ -4477,9 +4492,9 @@
     "unit": "kg",
     "source_url": "https://www.auchan.ro/mix-ardei-verzi-galbeni-si-rosii-umpluti-cu-crema-de-branza-pepe-rosso-1-kg/p",
     "path": [
-      "Lactate și ouă",
-      "Brânză",
-      "Cremă de brânză",
+      "Băcănie",
+      "Ingrediente prăjituri",
+      "Drojdie și praf de copt",
       "1 kg"
     ],
     "updated_at": "2026-11-06"
@@ -4494,7 +4509,7 @@
     "path": [
       "Lactate și ouă",
       "Brânză",
-      "Cremă de brânză",
+      "Proaspătă",
       "200 g"
     ],
     "updated_at": "2026-11-06"
@@ -6742,8 +6757,8 @@
     "unit": "kg",
     "source_url": "https://www.auchan.ro/paine-feliata-din-faina-alba-de-grau-vel-pitar-400-g/p",
     "path": [
-      "Băcănie",
-      "Făină",
+      "Brutărie",
+      "Pâine",
       "Albă",
       "400 g"
     ],
@@ -6757,8 +6772,8 @@
     "unit": "kg",
     "source_url": "https://www.auchan.ro/paine-din-faina-alba-de-grau-vel-pitar-feliata-600-g/p",
     "path": [
-      "Băcănie",
-      "Făină",
+      "Brutărie",
+      "Pâine",
       "Albă",
       "600 g"
     ],
@@ -6772,8 +6787,8 @@
     "unit": "kg",
     "source_url": "https://www.auchan.ro/paine-din-faina-alba-de-grau-vel-pitar-feliata-700-g/p",
     "path": [
-      "Băcănie",
-      "Făină",
+      "Brutărie",
+      "Pâine",
       "Albă",
       "700 g"
     ],
@@ -6787,8 +6802,8 @@
     "unit": "kg",
     "source_url": "https://www.auchan.ro/paine-ardeleneasca-din-faina-alba-vel-pitar-postavaru-feliata-1-kg/p",
     "path": [
-      "Băcănie",
-      "Făină",
+      "Brutărie",
+      "Pâine",
       "Albă",
       "1 kg"
     ],
@@ -6802,8 +6817,8 @@
     "unit": "kg",
     "source_url": "https://www.auchan.ro/paine-din-faina-alba-de-grau-vel-pitar-cu-cartofi-feliata-800-g/p",
     "path": [
-      "Băcănie",
-      "Făină",
+      "Brutărie",
+      "Pâine",
       "Albă",
       "800 g"
     ],
@@ -6832,9 +6847,9 @@
     "unit": "kg",
     "source_url": "https://www.auchan.ro/paine-integrala-prajita-mulino-bianco-granetti-integrali-280-g/p",
     "path": [
-      "Brutărie",
-      "Pâine",
-      "Integrală",
+      "Dulciuri și snacks",
+      "Snacks",
+      "Sărate",
       "280 g"
     ],
     "updated_at": "2026-11-06"
@@ -6907,9 +6922,9 @@
     "unit": "kg",
     "source_url": "https://www.auchan.ro/paine-cu-faina-integrala-karamolegos-bakery-500-g/p",
     "path": [
-      "Băcănie",
-      "Făină",
-      "Alte tipuri",
+      "Brutărie",
+      "Pâine",
+      "Integrală",
       "500 g"
     ],
     "updated_at": "2026-11-06"
@@ -6922,9 +6937,9 @@
     "unit": "kg",
     "source_url": "https://www.auchan.ro/paine-cu-faina-integrala-deplina-vel-pitar-500g/p",
     "path": [
-      "Băcănie",
-      "Făină",
-      "Alte tipuri",
+      "Brutărie",
+      "Pâine",
+      "Integrală",
       "500 g"
     ],
     "updated_at": "2026-11-06"
@@ -6937,9 +6952,9 @@
     "unit": "kg",
     "source_url": "https://www.auchan.ro/paine-din-faina-dietetica-integrala-de-grau-vel-pitar-feliata-500-g/p",
     "path": [
-      "Băcănie",
-      "Făină",
-      "Alte tipuri",
+      "Brutărie",
+      "Pâine",
+      "Integrală",
       "500 g"
     ],
     "updated_at": "2026-11-06"
@@ -6952,9 +6967,9 @@
     "unit": "kg",
     "source_url": "https://www.auchan.ro/paine-prajita-din-faina-integrala-cu-sare-eti-biscotte-toast-classic-143-g/p",
     "path": [
-      "Băcănie",
-      "Făină",
-      "Alte tipuri",
+      "Brutărie",
+      "Pâine",
+      "Integrală",
       "143 g"
     ],
     "updated_at": "2026-11-06"
@@ -6967,9 +6982,9 @@
     "unit": "kg",
     "source_url": "https://www.auchan.ro/mini-bucati-de-paine-prajita-cu-22-faina-integrala-de-grau-cu-susan-diatosta-90-g/p",
     "path": [
-      "Băcănie",
-      "Făină",
-      "Alte tipuri",
+      "Brutărie",
+      "Pâine",
+      "Integrală",
       "90 g"
     ],
     "updated_at": "2026-11-06"
@@ -7042,9 +7057,9 @@
     "unit": "kg",
     "source_url": "https://www.auchan.ro/faina-alba-de-grau-pentru-cozonac-baneasa-1-kg/p",
     "path": [
-      "Dulciuri și snacks",
-      "Prăjituri",
-      "Prăjituri și deserturi",
+      "Băcănie",
+      "Făină",
+      "Albă",
       "1 kg"
     ],
     "updated_at": "2026-11-06"
@@ -7058,8 +7073,8 @@
     "source_url": "https://www.auchan.ro/faina-alba-schar-mix-it-universal-1-kg/p",
     "path": [
       "Băcănie",
-      "Ingrediente prăjituri",
-      "Drojdie și praf de copt",
+      "Făină",
+      "Albă",
       "1 kg"
     ],
     "updated_at": "2026-11-06"
@@ -7117,9 +7132,9 @@
     "unit": "kg",
     "source_url": "https://www.auchan.ro/faina-alba-de-grau-pentru-cozonac-000-dobrogea-1-kg/p",
     "path": [
-      "Dulciuri și snacks",
-      "Prăjituri",
-      "Prăjituri și deserturi",
+      "Băcănie",
+      "Făină",
+      "Albă",
       "1 kg"
     ],
     "updated_at": "2026-11-06"
@@ -7132,9 +7147,9 @@
     "unit": "kg",
     "source_url": "https://www.auchan.ro/faina-alba-000-pentru-cozonac-sapte-spice-1-kg/p",
     "path": [
-      "Dulciuri și snacks",
-      "Prăjituri",
-      "Prăjituri și deserturi",
+      "Băcănie",
+      "Făină",
+      "Albă",
       "1 kg"
     ],
     "updated_at": "2026-11-06"
@@ -7147,9 +7162,9 @@
     "unit": "kg",
     "source_url": "https://www.auchan.ro/faina-alba-pentru-cozonac-auchan-tip-000-1-kg/p",
     "path": [
-      "Dulciuri și snacks",
-      "Prăjituri",
-      "Prăjituri și deserturi",
+      "Băcănie",
+      "Făină",
+      "Albă",
       "1 kg"
     ],
     "updated_at": "2026-11-06"
@@ -7162,9 +7177,9 @@
     "unit": "kg",
     "source_url": "https://www.auchan.ro/faina-alba-pentru-prajituri-auchan-tip-000-1-kg/p",
     "path": [
-      "Dulciuri și snacks",
-      "Prăjituri",
-      "Prăjituri și deserturi",
+      "Băcănie",
+      "Făină",
+      "Albă",
       "1 kg"
     ],
     "updated_at": "2026-11-06"
@@ -7208,8 +7223,8 @@
     "source_url": "https://www.auchan.ro/faina-alba-de-grau-550-cu-praf-copt-baneasa-1-kg/p",
     "path": [
       "Băcănie",
-      "Ingrediente prăjituri",
-      "Drojdie și praf de copt",
+      "Făină",
+      "Albă",
       "1 kg"
     ],
     "updated_at": "2026-11-06"
@@ -7222,9 +7237,9 @@
     "unit": "kg",
     "source_url": "https://www.auchan.ro/faina-alba-de-grau-000-grania-pambac-1-kg/p",
     "path": [
-      "Dulciuri și snacks",
-      "Prăjituri",
-      "Prăjituri și deserturi",
+      "Băcănie",
+      "Făină",
+      "Albă",
       "1 kg"
     ],
     "updated_at": "2026-11-06"
@@ -7252,9 +7267,9 @@
     "unit": "kg",
     "source_url": "https://www.auchan.ro/faina-de-grau-alba-superioara-000-titan-pentru-cozonac-1-kg/p",
     "path": [
-      "Dulciuri și snacks",
-      "Prăjituri",
-      "Prăjituri și deserturi",
+      "Băcănie",
+      "Făină",
+      "Albă",
       "1 kg"
     ],
     "updated_at": "2026-11-06"
@@ -8026,21 +8041,6 @@
   },
   {
     "store": "Auchan",
-    "name": "Dropsuri fara zahar cu aroma de capsuni si frisca Silvana, 60 g",
-    "brand": "Silvana",
-    "price": "10.49",
-    "unit": "kg",
-    "source_url": "https://www.auchan.ro/dropsuri-fara-zahar-cu-aroma-de-capsuni-si-frisca-silvana-60-g/p",
-    "path": [
-      "Lactate și ouă",
-      "Frișcă",
-      "Frișcă",
-      "60 g"
-    ],
-    "updated_at": "2026-11-06"
-  },
-  {
-    "store": "Auchan",
     "name": "Inghetata proteica cu cafea Tonitto High Protein, fara zahar, 470 ml",
     "brand": "Tonitto",
     "price": "29.19",
@@ -8467,9 +8467,9 @@
     "unit": "kg",
     "source_url": "https://www.auchan.ro/tortillas-cu-sare-chio-75-g/p",
     "path": [
-      "Brutărie",
-      "Pâine",
-      "Lipie și tortilla",
+      "Dulciuri și snacks",
+      "Snacks",
+      "Sărate",
       "75 g"
     ],
     "updated_at": "2026-11-06"
@@ -9397,9 +9397,9 @@
     "unit": "kg",
     "source_url": "https://www.auchan.ro/paste-penne-cu-proteina-de-mazare-gallo-400-g/p",
     "path": [
-      "Conserve și mâncare gata",
-      "Conserve de legume",
-      "Porumb și mazăre",
+      "Băcănie",
+      "Paste",
+      "Penne",
       "400 g"
     ],
     "updated_at": "2026-11-06"
@@ -9443,8 +9443,8 @@
     "source_url": "https://www.auchan.ro/paste-penne-din-orez-integral-eco-dalla-costa-fara-gluten-250-g/p",
     "path": [
       "Băcănie",
-      "Orez",
-      "Alte tipuri",
+      "Paste",
+      "Penne",
       "250 g"
     ],
     "updated_at": "2026-11-06"
@@ -9967,9 +9967,9 @@
     "unit": "l",
     "source_url": "https://www.auchan.ro/lotiune-hidratanta-eco-pentru-copii-cosmia-baby-200ml/p",
     "path": [
-      "Bebeluși",
-      "Hrană bebeluși",
-      "Cereale și gustări",
+      "Băcănie",
+      "Ulei",
+      "Măsline",
       "200 ml"
     ],
     "updated_at": "2026-11-06"
@@ -10357,9 +10357,9 @@
     "unit": "l",
     "source_url": "https://www.auchan.ro/ulei-de-masline-extravirgin-kaiser-franz-josef-greece-500-ml/p",
     "path": [
-      "Carne și pește",
-      "Mezeluri",
-      "Șuncă și salam",
+      "Băcănie",
+      "Ulei",
+      "Măsline",
       "500 ml"
     ],
     "updated_at": "2026-11-06"
@@ -10387,9 +10387,9 @@
     "unit": "l",
     "source_url": "https://www.auchan.ro/ulei-de-masline-extravirgin-exclusiv-kaiser-franz-josef-500-ml/p",
     "path": [
-      "Carne și pește",
-      "Mezeluri",
-      "Șuncă și salam",
+      "Băcănie",
+      "Ulei",
+      "Măsline",
       "500 ml"
     ],
     "updated_at": "2026-11-06"
@@ -10687,9 +10687,9 @@
     "unit": "l",
     "source_url": "https://www.auchan.ro/sampon-anti-matreata-head-shoulders-clarify-shine-cu-otet-de-mere-400-ml/p",
     "path": [
-      "Băcănie",
-      "Oțet",
-      "Oțet",
+      "Îngrijire personală",
+      "Îngrijire corporală",
+      "Păr și corp",
       "400 ml"
     ],
     "updated_at": "2026-11-06"
@@ -10831,21 +10831,6 @@
   },
   {
     "store": "Auchan",
-    "name": "Degresant cu otet Triumf, 500 ml",
-    "brand": "Triumf",
-    "price": "19.59",
-    "unit": "l",
-    "source_url": "https://www.auchan.ro/degresant-cu-otet-triumf-500-ml/p",
-    "path": [
-      "Băcănie",
-      "Oțet",
-      "Oțet",
-      "500 ml"
-    ],
-    "updated_at": "2026-11-06"
-  },
-  {
-    "store": "Auchan",
     "name": "Castraveti in otet Raureni, 680 g",
     "brand": "Raureni",
     "price": "12.49",
@@ -10855,21 +10840,6 @@
       "Conserve și mâncare gata",
       "Murături și măsline",
       "Murături",
-      "680 g"
-    ],
-    "updated_at": "2026-11-06"
-  },
-  {
-    "store": "Auchan",
-    "name": "Gogonele in otet Auchan, 680 g",
-    "brand": "Auchan",
-    "price": "6.29",
-    "unit": "kg",
-    "source_url": "https://www.auchan.ro/gogonele-in-otet-auchan-680-g/p",
-    "path": [
-      "Băcănie",
-      "Oțet",
-      "Oțet",
       "680 g"
     ],
     "updated_at": "2026-11-06"
@@ -10951,61 +10921,16 @@
   },
   {
     "store": "Auchan",
-    "name": "Catraveti rondele in otet Auchan, 680 g",
-    "brand": "Auchan",
-    "price": "5.09",
-    "unit": "kg",
-    "source_url": "https://www.auchan.ro/catraveti-rondele-in-otet-auchan-680-g/p",
-    "path": [
-      "Dulciuri și snacks",
-      "Snacks",
-      "Galete",
-      "680 g"
-    ],
-    "updated_at": "2026-11-06"
-  },
-  {
-    "store": "Auchan",
-    "name": "Sfecla rosie in otet Auchan, 700 g",
-    "brand": "Auchan",
-    "price": "6.99",
-    "unit": "kg",
-    "source_url": "https://www.auchan.ro/sfecla-rosie-in-otet-auchan-700-g/p",
-    "path": [
-      "Băcănie",
-      "Oțet",
-      "Oțet",
-      "700 g"
-    ],
-    "updated_at": "2026-11-06"
-  },
-  {
-    "store": "Auchan",
     "name": "Otet balsamic Kaiser Franz Josef,  250 ml",
     "brand": "Kaiser Franz Josef",
     "price": "9.29",
     "unit": "l",
     "source_url": "https://www.auchan.ro/otet-balsamic-kaiser-franz-josef--250-ml/p",
     "path": [
-      "Carne și pește",
-      "Mezeluri",
-      "Șuncă și salam",
-      "250 ml"
-    ],
-    "updated_at": "2026-11-06"
-  },
-  {
-    "store": "Auchan",
-    "name": "Spray anticalcar cu otet Cif, 750 ml",
-    "brand": "Cif",
-    "price": "23.49",
-    "unit": "l",
-    "source_url": "https://www.auchan.ro/spray-anticalcar-cu-otet-cif-750-ml/p",
-    "path": [
       "Băcănie",
       "Oțet",
       "Oțet",
-      "750 ml"
+      "250 ml"
     ],
     "updated_at": "2026-11-06"
   },
@@ -11047,9 +10972,9 @@
     "unit": "l",
     "source_url": "https://www.auchan.ro/detergent-de-vase-cu-otet-svelto-930-ml/p",
     "path": [
-      "Băcănie",
-      "Oțet",
-      "Oțet",
+      "Curățenie și casă",
+      "Detergent",
+      "Vase",
       "930 ml"
     ],
     "updated_at": "2026-11-06"
@@ -11092,25 +11017,10 @@
     "unit": "l",
     "source_url": "https://www.auchan.ro/otet-de-orez-alb-asian-flavours-150-ml/p",
     "path": [
-      "Băuturi",
-      "Băuturi răcoritoare",
-      "Alte răcoritoare",
-      "150 ml"
-    ],
-    "updated_at": "2026-11-06"
-  },
-  {
-    "store": "Auchan",
-    "name": "Spray anticalcar cu otet Cif, 500 ml",
-    "brand": "Cif",
-    "price": "16.89",
-    "unit": "l",
-    "source_url": "https://www.auchan.ro/spray-anticalcar-cu-otet-cif-500-ml/p",
-    "path": [
       "Băcănie",
       "Oțet",
       "Oțet",
-      "500 ml"
+      "150 ml"
     ],
     "updated_at": "2026-11-06"
   },
@@ -11161,30 +11071,15 @@
   },
   {
     "store": "Auchan",
-    "name": "Spray anticalcar cu otet de zmeura Frosch, 500 ml",
-    "brand": "Frosch",
-    "price": "16.69",
-    "unit": "l",
-    "source_url": "https://www.auchan.ro/spray-anticalcar-cu-otet-de-zmeura-frosch-500-ml/p",
-    "path": [
-      "Băcănie",
-      "Oțet",
-      "Oțet",
-      "500 ml"
-    ],
-    "updated_at": "2026-11-06"
-  },
-  {
-    "store": "Auchan",
     "name": "Rezerva detergent de vase cu otet Svelto, 1.7 l",
     "brand": "Svelto",
     "price": "25.19",
     "unit": "l",
     "source_url": "https://www.auchan.ro/rezerva-detergent-de-vase-cu-otet-svelto-1-7-l/p",
     "path": [
-      "Băcănie",
-      "Oțet",
-      "Oțet",
+      "Curățenie și casă",
+      "Detergent",
+      "Vase",
       "1.7 l"
     ],
     "updated_at": "2026-11-06"
@@ -11227,9 +11122,9 @@
     "unit": "l",
     "source_url": "https://www.auchan.ro/solutie-pentru-geamuri-numar-cu-otet-500-ml/p",
     "path": [
-      "Băcănie",
-      "Oțet",
-      "Oțet",
+      "Curățenie și casă",
+      "Soluții de curățenie",
+      "Soluții",
       "500 ml"
     ],
     "updated_at": "2026-11-06"
@@ -11257,9 +11152,9 @@
     "unit": "l",
     "source_url": "https://www.auchan.ro/otet-din-cidru-de-mere-bragg-eco-473-ml/p",
     "path": [
-      "Băuturi",
-      "Cidru",
-      "Cidru",
+      "Băcănie",
+      "Oțet",
+      "Oțet",
       "473 ml"
     ],
     "updated_at": "2026-11-06"
@@ -11287,9 +11182,9 @@
     "unit": "buc",
     "source_url": "https://www.auchan.ro/servetele-umede-cu-otet-si-bicarbonat-100-bucati/p",
     "path": [
-      "Băcănie",
-      "Oțet",
-      "Oțet",
+      "Curățenie și casă",
+      "Șervețele și role",
+      "Prosoape de hârtie",
       "100 buc"
     ],
     "updated_at": "2026-11-06"
@@ -11392,9 +11287,9 @@
     "unit": "l",
     "source_url": "https://www.auchan.ro/detergent-lichid-universal-cu-otet-sano-clear-1-l/p",
     "path": [
-      "Băcănie",
-      "Oțet",
-      "Oțet",
+      "Curățenie și casă",
+      "Detergent",
+      "Rufe alte tipuri",
       "1 l"
     ],
     "updated_at": "2026-11-06"
@@ -11921,21 +11816,6 @@
       "Înghețată",
       "Înghețată",
       "470 ml"
-    ],
-    "updated_at": "2026-11-06"
-  },
-  {
-    "store": "Auchan",
-    "name": "Lotiune tonica Garnier Vitamin C cu efect de iluminare, 120 ml",
-    "brand": "Garnier",
-    "price": "40.49",
-    "unit": "l",
-    "source_url": "https://www.auchan.ro/lotiune-tonica-garnier-vitamin-c-cu-efect-de-iluminare-120-ml/p",
-    "path": [
-      "Băuturi",
-      "Băuturi răcoritoare",
-      "Tonic și sifon",
-      "120 ml"
     ],
     "updated_at": "2026-11-06"
   },
@@ -13501,21 +13381,6 @@
   },
   {
     "store": "Auchan",
-    "name": "Rondele de cartofi Edenia, 600 g",
-    "brand": "Edenia",
-    "price": "11.79",
-    "unit": "kg",
-    "source_url": "https://www.auchan.ro/rondele-de-cartofi-edenia-600-g/p",
-    "path": [
-      "Dulciuri și snacks",
-      "Snacks",
-      "Galete",
-      "600 g"
-    ],
-    "updated_at": "2026-11-06"
-  },
-  {
-    "store": "Auchan",
     "name": "Cartofi pai congelati 10mm Fantasy , 2.5Kg",
     "brand": "Fantasy",
     "price": "25.99",
@@ -13762,9 +13627,9 @@
     "unit": "kg",
     "source_url": "https://www.auchan.ro/cartofi-copti-cu-cotlet-de-porc-la-cuptor-moldova-in-bucate-high-protein-250-g/p",
     "path": [
-      "Carne și pește",
-      "Carne proaspătă",
-      "Porc și vită",
+      "Conserve și mâncare gata",
+      "Mâncare gata",
+      "Cu carne",
       "250 g"
     ],
     "updated_at": "2026-11-06"
@@ -13867,9 +13732,9 @@
     "unit": "kg",
     "source_url": "https://www.auchan.ro/pui-intreg-cu-cartofi-wedges-1-6-kg-2-portii/p",
     "path": [
-      "Congelate",
-      "Cartofi congelați",
-      "Cartofi prăjiți",
+      "Carne și pește",
+      "Carne de pui",
+      "Alte bucăți",
       "1.6 kg"
     ],
     "updated_at": "2026-11-06"
@@ -13882,9 +13747,9 @@
     "unit": "kg",
     "source_url": "https://www.auchan.ro/amestec-de-legume-pentru-prajit-in-tigaie-cartofi-si-ciuperci-400g/p",
     "path": [
-      "Conserve și mâncare gata",
-      "Conserve de legume",
-      "Porumb și mazăre",
+      "Sosuri și condimente",
+      "Condimente",
+      "Condimente",
       "400 g"
     ],
     "updated_at": "2026-11-06"
@@ -13946,21 +13811,6 @@
       "Hrană bebeluși",
       "Cereale și gustări",
       "190 g"
-    ],
-    "updated_at": "2026-11-06"
-  },
-  {
-    "store": "Auchan",
-    "name": "Meniu Hipp Rosii si Cartofi cu carne de pui, de la 8 luni, 220 g",
-    "brand": "Hipp",
-    "price": "10.99",
-    "unit": "kg",
-    "source_url": "https://www.auchan.ro/meniu-eco-hipp-pui-rosii-si-cartofi-220-g/p",
-    "path": [
-      "Carne și pește",
-      "Carne proaspătă",
-      "Porc și vită",
-      "220 g"
     ],
     "updated_at": "2026-11-06"
   },
@@ -14051,21 +13901,6 @@
       "Cartofi",
       "Cartofi",
       "5 kg"
-    ],
-    "updated_at": "2026-11-06"
-  },
-  {
-    "store": "Auchan",
-    "name": "Fulgi de cartofi Auchan, 100 g",
-    "brand": "Auchan",
-    "price": "2.69",
-    "unit": "kg",
-    "source_url": "https://www.auchan.ro/fulgi-de-cartofi-auchan-100-g/p",
-    "path": [
-      "Băcănie",
-      "Cereale",
-      "Fulgi și musli",
-      "100 g"
     ],
     "updated_at": "2026-11-06"
   },
@@ -14351,21 +14186,6 @@
       "Pește",
       "Pește",
       "135 g"
-    ],
-    "updated_at": "2026-11-06"
-  },
-  {
-    "store": "Auchan",
-    "name": "Salata icre de stiuca cu ceapa Deltaica, 100 g",
-    "brand": "Deltaica",
-    "price": "15.35",
-    "unit": "kg",
-    "source_url": "https://www.auchan.ro/salata-icre-de-stiuca-cu-ceapa-deltaica-100-g/p",
-    "path": [
-      "Fructe și legume",
-      "Legume proaspete",
-      "Legume",
-      "100 g"
     ],
     "updated_at": "2026-11-06"
   },
@@ -16001,21 +15821,6 @@
       "Suc",
       "Mere",
       "3 l"
-    ],
-    "updated_at": "2026-11-06"
-  },
-  {
-    "store": "Auchan",
-    "name": "Minirulouri congelate cu umplutura din mere, 500 g",
-    "brand": "Patis Baked Goods",
-    "price": "14.99",
-    "unit": "kg",
-    "source_url": "https://www.auchan.ro/minirulouri-congelate-cu-umplutura-din-mere-500-g/p",
-    "path": [
-      "Congelate",
-      "Legume congelate",
-      "Legume",
-      "500 g"
     ],
     "updated_at": "2026-11-06"
   },
@@ -17709,7 +17514,7 @@
     "path": [
       "Cafea, ceai și cacao",
       "Ceai",
-      "Negru",
+      "Rece",
       "1.5 l"
     ],
     "updated_at": "2026-11-06"
@@ -17724,7 +17529,7 @@
     "path": [
       "Cafea, ceai și cacao",
       "Ceai",
-      "Negru",
+      "Rece",
       "500 ml"
     ],
     "updated_at": "2026-11-06"
@@ -17739,7 +17544,7 @@
     "path": [
       "Cafea, ceai și cacao",
       "Ceai",
-      "Negru",
+      "Rece",
       "500 ml"
     ],
     "updated_at": "2026-11-06"
@@ -17754,7 +17559,7 @@
     "path": [
       "Cafea, ceai și cacao",
       "Ceai",
-      "Negru",
+      "Rece",
       "1.5 l"
     ],
     "updated_at": "2026-11-06"
@@ -17769,7 +17574,7 @@
     "path": [
       "Cafea, ceai și cacao",
       "Ceai",
-      "Negru",
+      "Rece",
       "500 ml"
     ],
     "updated_at": "2026-11-06"
@@ -17784,7 +17589,7 @@
     "path": [
       "Cafea, ceai și cacao",
       "Ceai",
-      "Negru",
+      "Rece",
       "1.5 l"
     ],
     "updated_at": "2026-11-06"
@@ -17799,7 +17604,7 @@
     "path": [
       "Cafea, ceai și cacao",
       "Ceai",
-      "Negru",
+      "Rece",
       "500 ml"
     ],
     "updated_at": "2026-11-06"
@@ -17814,7 +17619,7 @@
     "path": [
       "Cafea, ceai și cacao",
       "Ceai",
-      "Negru",
+      "Rece",
       "1.5 l"
     ],
     "updated_at": "2026-11-06"
@@ -17829,7 +17634,7 @@
     "path": [
       "Cafea, ceai și cacao",
       "Ceai",
-      "Negru",
+      "Rece",
       "1.5 l"
     ],
     "updated_at": "2026-11-06"
@@ -17844,7 +17649,7 @@
     "path": [
       "Cafea, ceai și cacao",
       "Ceai",
-      "Negru",
+      "Rece",
       "1.5 l"
     ],
     "updated_at": "2026-11-06"
@@ -17859,7 +17664,7 @@
     "path": [
       "Cafea, ceai și cacao",
       "Ceai",
-      "Negru",
+      "Rece",
       "500 ml"
     ],
     "updated_at": "2026-11-06"
@@ -17874,7 +17679,7 @@
     "path": [
       "Cafea, ceai și cacao",
       "Ceai",
-      "Negru",
+      "Rece",
       "500 ml"
     ],
     "updated_at": "2026-11-06"
@@ -17889,7 +17694,7 @@
     "path": [
       "Cafea, ceai și cacao",
       "Ceai",
-      "Negru",
+      "Rece",
       "250 ml"
     ],
     "updated_at": "2026-11-06"
@@ -17904,7 +17709,7 @@
     "path": [
       "Cafea, ceai și cacao",
       "Ceai",
-      "Negru",
+      "Rece",
       "500 ml"
     ],
     "updated_at": "2026-11-06"
@@ -17919,7 +17724,7 @@
     "path": [
       "Cafea, ceai și cacao",
       "Ceai",
-      "Negru",
+      "Rece",
       "1.5 l"
     ],
     "updated_at": "2026-11-06"
@@ -17934,7 +17739,7 @@
     "path": [
       "Cafea, ceai și cacao",
       "Ceai",
-      "Negru",
+      "Rece",
       "500 ml"
     ],
     "updated_at": "2026-11-06"
@@ -17949,7 +17754,7 @@
     "path": [
       "Cafea, ceai și cacao",
       "Ceai",
-      "Negru",
+      "Rece",
       "250 ml"
     ],
     "updated_at": "2026-11-06"
@@ -17964,7 +17769,7 @@
     "path": [
       "Cafea, ceai și cacao",
       "Ceai",
-      "Negru",
+      "Rece",
       "500 ml"
     ],
     "updated_at": "2026-11-06"
@@ -17979,7 +17784,7 @@
     "path": [
       "Cafea, ceai și cacao",
       "Ceai",
-      "Negru",
+      "Rece",
       "500 ml"
     ],
     "updated_at": "2026-11-06"
@@ -18367,9 +18172,9 @@
     "unit": "l",
     "source_url": "https://www.auchan.ro/apa-plata-vedda-baby-3-1-l/p",
     "path": [
-      "Bebeluși",
-      "Hrană bebeluși",
-      "Cereale și gustări",
+      "Băuturi",
+      "Apă",
+      "Plată",
       "3.1 l"
     ],
     "updated_at": "2026-11-06"
@@ -18382,9 +18187,9 @@
     "unit": "l",
     "source_url": "https://www.auchan.ro/apa-plata-vedda-baby-1-l/p",
     "path": [
-      "Bebeluși",
-      "Hrană bebeluși",
-      "Cereale și gustări",
+      "Băuturi",
+      "Apă",
+      "Plată",
       "1 l"
     ],
     "updated_at": "2026-11-06"
@@ -18397,9 +18202,9 @@
     "unit": "l",
     "source_url": "https://www.auchan.ro/apa-plata-vedda-baby-500-ml/p",
     "path": [
-      "Bebeluși",
-      "Hrană bebeluși",
-      "Cereale și gustări",
+      "Băuturi",
+      "Apă",
+      "Plată",
       "500 ml"
     ],
     "updated_at": "2026-11-06"
@@ -18412,9 +18217,9 @@
     "unit": "l",
     "source_url": "https://www.auchan.ro/apa-plata-vedda-baby-pentru-fete-250/p",
     "path": [
-      "Bebeluși",
-      "Hrană bebeluși",
-      "Cereale și gustări",
+      "Băuturi",
+      "Apă",
+      "Plată",
       "250 ml"
     ],
     "updated_at": "2026-11-06"
@@ -18427,9 +18232,9 @@
     "unit": "l",
     "source_url": "https://www.auchan.ro/apa-plata-vedda-baby-pentru-baieti-250/p",
     "path": [
-      "Bebeluși",
-      "Hrană bebeluși",
-      "Cereale și gustări",
+      "Băuturi",
+      "Apă",
+      "Plată",
       "250 ml"
     ],
     "updated_at": "2026-11-06"
@@ -20197,9 +20002,9 @@
     "unit": "l",
     "source_url": "https://www.auchan.ro/cocktail-cu-suc-de-portocale-piersici-si-merisoare-zarea-to-go-sex-on-the-beach-0-75-l-sgr/p",
     "path": [
-      "Dulciuri și snacks",
-      "Fructe uscate",
-      "Uscate",
+      "Băuturi",
+      "Suc",
+      "Portocale",
       "750 ml"
     ],
     "updated_at": "2026-11-06"
@@ -20212,9 +20017,9 @@
     "unit": "l",
     "source_url": "https://www.auchan.ro/cocktail-cu-suc-de-portocale-piersici-si-merisoare-zarea-to-go-sex-on-the-beach-0-275-l-sgr/p",
     "path": [
-      "Dulciuri și snacks",
-      "Fructe uscate",
-      "Uscate",
+      "Băuturi",
+      "Suc",
+      "Portocale",
       "275 ml"
     ],
     "updated_at": "2026-11-06"
@@ -20227,9 +20032,9 @@
     "unit": "l",
     "source_url": "https://www.auchan.ro/cocktail-fara-alcool-cu-suc-de-portocale-piersici-si-merisoare-zarea-to-go-sex-on-the-beach-0-275-l-sgr/p",
     "path": [
-      "Dulciuri și snacks",
-      "Fructe uscate",
-      "Uscate",
+      "Băuturi",
+      "Suc",
+      "Portocale",
       "275 ml"
     ],
     "updated_at": "2026-11-06"
@@ -20242,9 +20047,9 @@
     "unit": "l",
     "source_url": "https://www.auchan.ro/cocktail-fara-alcool-cu-suc-de-portocale-piersici-si-merisoare-zarea-to-go-sex-on-the-beach-0-75-l-sgr/p",
     "path": [
-      "Dulciuri și snacks",
-      "Fructe uscate",
-      "Uscate",
+      "Băuturi",
+      "Suc",
+      "Portocale",
       "750 ml"
     ],
     "updated_at": "2026-11-06"
@@ -21984,7 +21789,7 @@
     "path": [
       "Dulciuri și snacks",
       "Ciocolată",
-      "Neagră",
+      "Alte sortimente",
       "80 g"
     ],
     "updated_at": "2026-11-06"
@@ -22149,7 +21954,7 @@
     "path": [
       "Dulciuri și snacks",
       "Ciocolată",
-      "Neagră",
+      "Alte sortimente",
       "45 g"
     ],
     "updated_at": "2026-11-06"
@@ -22404,7 +22209,7 @@
     "path": [
       "Dulciuri și snacks",
       "Ciocolată",
-      "Neagră",
+      "Alte sortimente",
       "100 g"
     ],
     "updated_at": "2026-11-06"
@@ -22419,7 +22224,7 @@
     "path": [
       "Dulciuri și snacks",
       "Ciocolată",
-      "Neagră",
+      "Alte sortimente",
       "100 g"
     ],
     "updated_at": "2026-11-06"
@@ -22434,7 +22239,7 @@
     "path": [
       "Dulciuri și snacks",
       "Ciocolată",
-      "Neagră",
+      "Alte sortimente",
       "1 kg"
     ],
     "updated_at": "2026-11-06"
@@ -22673,8 +22478,8 @@
     "source_url": "https://www.auchan.ro/prajitura-cu-ciocolata-neagra-si-crema-cu-visine-dare-45-g/p",
     "path": [
       "Dulciuri și snacks",
-      "Ciocolată",
-      "Neagră",
+      "Prăjituri",
+      "Prăjituri și deserturi",
       "45 g"
     ],
     "updated_at": "2026-11-06"
@@ -23062,9 +22867,9 @@
     "unit": "buc",
     "source_url": "https://www.auchan.ro/detergent-lichid-de-rufe-igienol-perfect-clean-vanilie-2-7-l/p",
     "path": [
-      "Băcănie",
-      "Ingrediente prăjituri",
-      "Drojdie și praf de copt",
+      "Curățenie și casă",
+      "Detergent",
+      "Rufe lichid",
       "67 buc"
     ],
     "updated_at": "2026-11-06"
@@ -23107,9 +22912,9 @@
     "unit": "buc",
     "source_url": "https://www.auchan.ro/detergent-lichid-de-rufe-igienol-perfect-clean-vanilie-1-6-l/p",
     "path": [
-      "Băcănie",
-      "Ingrediente prăjituri",
-      "Drojdie și praf de copt",
+      "Curățenie și casă",
+      "Detergent",
+      "Rufe lichid",
       "40 buc"
     ],
     "updated_at": "2026-11-06"
@@ -23542,9 +23347,9 @@
     "unit": "l",
     "source_url": "https://www.auchan.ro/detergent-de-vase-sano-spark-migdale-1l/p",
     "path": [
-      "Dulciuri și snacks",
-      "Alune și semințe",
-      "Alune și arahide",
+      "Curățenie și casă",
+      "Detergent",
+      "Vase",
       "1 l"
     ],
     "updated_at": "2026-11-06"
@@ -23767,9 +23572,9 @@
     "unit": "l",
     "source_url": "https://www.auchan.ro/detergent-de-vase-cu-bicarbonat-triumf-500-ml/p",
     "path": [
-      "Băcănie",
-      "Ingrediente prăjituri",
-      "Drojdie și praf de copt",
+      "Curățenie și casă",
+      "Detergent",
+      "Vase",
       "500 ml"
     ],
     "updated_at": "2026-11-06"
@@ -24637,9 +24442,9 @@
     "unit": "buc",
     "source_url": "https://www.auchan.ro/hartie-igienica-umeda-cu-parfum-de-migdale-zewa-42-de-bucati/p",
     "path": [
-      "Dulciuri și snacks",
-      "Alune și semințe",
-      "Alune și arahide",
+      "Curățenie și casă",
+      "Hârtie igienică",
+      "Umedă",
       "42 buc"
     ],
     "updated_at": "2026-11-06"
@@ -24907,9 +24712,9 @@
     "unit": "l",
     "source_url": "https://carrefour.ro/produse/bautura-din-ovaz-1-5-grasimi-vegan-oatly-1l-19-15516282",
     "path": [
-      "Băuturi",
-      "Băuturi răcoritoare",
-      "Alte răcoritoare",
+      "Lactate și ouă",
+      "Lapte",
+      "Ovăz",
       "1 l"
     ],
     "updated_at": "2026-11-06"
@@ -24937,9 +24742,9 @@
     "unit": "l",
     "source_url": "https://carrefour.ro/produse/bautura-din-ovaz-barista-vegan-oatly-1l-19-15516283",
     "path": [
-      "Băuturi",
-      "Băuturi răcoritoare",
-      "Alte răcoritoare",
+      "Lactate și ouă",
+      "Lapte",
+      "Ovăz",
       "1 l"
     ],
     "updated_at": "2026-11-06"
@@ -24967,9 +24772,9 @@
     "unit": "l",
     "source_url": "https://carrefour.ro/produse/bautura-bio-migdale-1l-the-bridge-19-15514559",
     "path": [
-      "Băuturi",
-      "Băuturi răcoritoare",
-      "Alte răcoritoare",
+      "Lactate și ouă",
+      "Lapte",
+      "Migdale",
       "1 l"
     ],
     "updated_at": "2026-11-06"
@@ -24982,9 +24787,9 @@
     "unit": "l",
     "source_url": "https://carrefour.ro/produse/bautura-bio-migdale-barista-1l-bridge-19-15514557",
     "path": [
-      "Băuturi",
-      "Băuturi răcoritoare",
-      "Alte răcoritoare",
+      "Lactate și ouă",
+      "Lapte",
+      "Migdale",
       "1 l"
     ],
     "updated_at": "2026-11-06"
@@ -25012,9 +24817,9 @@
     "unit": "l",
     "source_url": "https://carrefour.ro/produse/bautura-cocos-fara-zahar-carpos-1l-19-15514551",
     "path": [
-      "Băuturi",
-      "Băuturi răcoritoare",
-      "Alte răcoritoare",
+      "Lactate și ouă",
+      "Lapte",
+      "Cocos",
       "1 l"
     ],
     "updated_at": "2026-11-06"
@@ -25042,9 +24847,9 @@
     "unit": "l",
     "source_url": "https://carrefour.ro/produse/bautura-ovaz-fara-gluten-barista-1l-19-15515154",
     "path": [
-      "Băuturi",
-      "Băuturi răcoritoare",
-      "Alte răcoritoare",
+      "Lactate și ouă",
+      "Lapte",
+      "Ovăz",
       "1 l"
     ],
     "updated_at": "2026-11-06"
@@ -25072,9 +24877,9 @@
     "unit": "kg",
     "source_url": "https://carrefour.ro/produse/lapte-praf-integral-dr-oetker-250g-19-14002233",
     "path": [
-      "Bebeluși",
-      "Hrană bebeluși",
-      "Lapte de creștere",
+      "Lactate și ouă",
+      "Lapte",
+      "Praf",
       "250 g"
     ],
     "updated_at": "2026-11-06"
@@ -25087,9 +24892,9 @@
     "unit": "l",
     "source_url": "https://carrefour.ro/produse/bautura-ecologica-din-cocos-the-bridge-1l-19-15514556",
     "path": [
-      "Băuturi",
-      "Băuturi răcoritoare",
-      "Alte răcoritoare",
+      "Lactate și ouă",
+      "Lapte",
+      "Cocos",
       "1 l"
     ],
     "updated_at": "2026-11-06"
@@ -25102,9 +24907,9 @@
     "unit": "l",
     "source_url": "https://carrefour.ro/produse/bautura-ecologica-din-ovaz-cu-vanilie-the-bridge-1l-19-15514032",
     "path": [
-      "Băuturi",
-      "Băuturi răcoritoare",
-      "Alte răcoritoare",
+      "Lactate și ouă",
+      "Lapte",
+      "Ovăz",
       "1 l"
     ],
     "updated_at": "2026-11-06"
@@ -25162,9 +24967,9 @@
     "unit": "l",
     "source_url": "https://carrefour.ro/produse/bautura-vegetala-carpos-ovaz-cu-proteine-1l-19-15513136",
     "path": [
-      "Băuturi",
-      "Băuturi răcoritoare",
-      "Alte răcoritoare",
+      "Lactate și ouă",
+      "Lapte",
+      "Ovăz",
       "1 l"
     ],
     "updated_at": "2026-11-06"
@@ -25192,9 +24997,9 @@
     "unit": "l",
     "source_url": "https://carrefour.ro/produse/bautura-de-ovaz-olympus-carpos-cu-alune-de-padure-fara-zahar-1-l-19-15513138",
     "path": [
-      "Băuturi",
-      "Băuturi răcoritoare",
-      "Alte răcoritoare",
+      "Lactate și ouă",
+      "Lapte",
+      "Ovăz",
       "1 l"
     ],
     "updated_at": "2026-11-06"
@@ -25207,9 +25012,9 @@
     "unit": "l",
     "source_url": "https://carrefour.ro/produse/bautura-de-fistic-carpos-1l-19-15507910",
     "path": [
-      "Băuturi",
-      "Băuturi răcoritoare",
-      "Alte răcoritoare",
+      "Lactate și ouă",
+      "Lapte",
+      "Alte băuturi vegetale",
       "1 l"
     ],
     "updated_at": "2026-11-06"
@@ -25237,9 +25042,9 @@
     "unit": "l",
     "source_url": "https://carrefour.ro/produse/bautura-din-quinoa-si-orez-the-bridge-bio-1l-19-15504374",
     "path": [
-      "Băuturi",
-      "Băuturi răcoritoare",
-      "Alte răcoritoare",
+      "Lactate și ouă",
+      "Lapte",
+      "Alte băuturi vegetale",
       "1 l"
     ],
     "updated_at": "2026-11-06"
@@ -25267,9 +25072,9 @@
     "unit": "l",
     "source_url": "https://carrefour.ro/produse/bautura-bio-din-orez-the-bridge-1-l-19-15504365",
     "path": [
-      "Băuturi",
-      "Băuturi răcoritoare",
-      "Alte răcoritoare",
+      "Lactate și ouă",
+      "Lapte",
+      "Alte băuturi vegetale",
       "1 l"
     ],
     "updated_at": "2026-11-06"
@@ -25282,9 +25087,9 @@
     "unit": "l",
     "source_url": "https://carrefour.ro/produse/bautura-migdale-proteine-carpos-1l-19-15513137",
     "path": [
-      "Băuturi",
-      "Băuturi răcoritoare",
-      "Alte răcoritoare",
+      "Lactate și ouă",
+      "Lapte",
+      "Migdale",
       "1 l"
     ],
     "updated_at": "2026-11-06"
@@ -25312,9 +25117,9 @@
     "unit": "l",
     "source_url": "https://carrefour.ro/produse/bautura-bio-din-ovaz-the-bridge-1l-19-15504367",
     "path": [
-      "Băuturi",
-      "Băuturi răcoritoare",
-      "Alte răcoritoare",
+      "Lactate și ouă",
+      "Lapte",
+      "Ovăz",
       "1 l"
     ],
     "updated_at": "2026-11-06"
@@ -25327,9 +25132,9 @@
     "unit": "l",
     "source_url": "https://carrefour.ro/produse/bautura-de-migdale-cu-cacao-fara-gluten-si-fara-lactoza-corpos-original-1-l-19-15507909",
     "path": [
-      "Cafea, ceai și cacao",
-      "Cacao",
-      "Cacao",
+      "Lactate și ouă",
+      "Lapte",
+      "Migdale",
       "1 l"
     ],
     "updated_at": "2026-11-06"
@@ -25342,9 +25147,9 @@
     "unit": "l",
     "source_url": "https://carrefour.ro/produse/bautura-de-migdale-carpos-1-l-19-15507907",
     "path": [
-      "Băuturi",
-      "Băuturi răcoritoare",
-      "Alte răcoritoare",
+      "Lactate și ouă",
+      "Lapte",
+      "Migdale",
       "1 l"
     ],
     "updated_at": "2026-11-06"
@@ -25372,9 +25177,9 @@
     "unit": "l",
     "source_url": "https://carrefour.ro/produse/bautura-cu-migdale-carpos-fara-zahar-1-l-19-15507908",
     "path": [
-      "Băuturi",
-      "Băuturi răcoritoare",
-      "Alte răcoritoare",
+      "Lactate și ouă",
+      "Lapte",
+      "Migdale",
       "1 l"
     ],
     "updated_at": "2026-11-06"
@@ -25402,9 +25207,24 @@
     "unit": "l",
     "source_url": "https://carrefour.ro/produse/bautura-din-orez-cu-migdale-fara-gluten-the-bridge-1-l-19-15504366",
     "path": [
-      "Băuturi",
-      "Băuturi răcoritoare",
-      "Alte răcoritoare",
+      "Lactate și ouă",
+      "Lapte",
+      "Migdale",
+      "1 l"
+    ],
+    "updated_at": "2026-11-06"
+  },
+  {
+    "store": "Carrefour",
+    "name": "Smantana vegetala Gran Cucina, 1l",
+    "brand": null,
+    "price": "19.45",
+    "unit": "l",
+    "source_url": "https://carrefour.ro/produse/smantana-vegetala-gran-cucina-1l-19-15001835",
+    "path": [
+      "Lactate și ouă",
+      "Smântână",
+      "Pentru gătit",
       "1 l"
     ],
     "updated_at": "2026-11-06"
@@ -25417,9 +25237,9 @@
     "unit": "l",
     "source_url": "https://carrefour.ro/produse/bautura-ecologica-din-orez-cu-cocos-the-bridge-1l-19-15507279",
     "path": [
-      "Băuturi",
-      "Băuturi răcoritoare",
-      "Alte răcoritoare",
+      "Lactate și ouă",
+      "Lapte",
+      "Cocos",
       "1 l"
     ],
     "updated_at": "2026-11-06"
@@ -25522,9 +25342,9 @@
     "unit": "l",
     "source_url": "https://carrefour.ro/produse/bautura-din-alune-alpro-1l-19-15500954",
     "path": [
-      "Băuturi",
-      "Băuturi răcoritoare",
-      "Alte răcoritoare",
+      "Lactate și ouă",
+      "Lapte",
+      "Alte băuturi vegetale",
       "1 l"
     ],
     "updated_at": "2026-11-06"
@@ -25537,9 +25357,9 @@
     "unit": "l",
     "source_url": "https://carrefour.ro/produse/bautura-muller-vegan-cocos-1l-19-15514505",
     "path": [
-      "Băuturi",
-      "Băuturi răcoritoare",
-      "Alte răcoritoare",
+      "Lactate și ouă",
+      "Lapte",
+      "Cocos",
       "1 l"
     ],
     "updated_at": "2026-11-06"
@@ -25597,9 +25417,9 @@
     "unit": "kg",
     "source_url": "https://carrefour.ro/produse/lapte-concentrat-maresi-pentru-cafea-700g-19-15513597",
     "path": [
-      "Băuturi",
-      "Suc",
-      "Sirop și concentrat",
+      "Lactate și ouă",
+      "Lapte",
+      "Alte tipuri",
       "700 g"
     ],
     "updated_at": "2026-11-06"
@@ -25642,9 +25462,9 @@
     "unit": "l",
     "source_url": "https://carrefour.ro/produse/bautura-muller-vegan-barista-soia-1l-19-15514513",
     "path": [
-      "Băuturi",
-      "Băuturi răcoritoare",
-      "Alte răcoritoare",
+      "Lactate și ouă",
+      "Lapte",
+      "Soia",
       "1 l"
     ],
     "updated_at": "2026-11-06"
@@ -25672,9 +25492,9 @@
     "unit": "l",
     "source_url": "https://carrefour.ro/produse/bautura-muller-vegan-migdale-1l-19-15514509",
     "path": [
-      "Băuturi",
-      "Băuturi răcoritoare",
-      "Alte răcoritoare",
+      "Lactate și ouă",
+      "Lapte",
+      "Migdale",
       "1 l"
     ],
     "updated_at": "2026-11-06"
@@ -25702,9 +25522,9 @@
     "unit": "l",
     "source_url": "https://carrefour.ro/produse/bautura-din-soia-cu-proteina-alpro-1-l-19-15512098",
     "path": [
-      "Băuturi",
-      "Băuturi răcoritoare",
-      "Alte răcoritoare",
+      "Lactate și ouă",
+      "Lapte",
+      "Soia",
       "1 l"
     ],
     "updated_at": "2026-11-06"
@@ -25717,9 +25537,9 @@
     "unit": "l",
     "source_url": "https://carrefour.ro/produse/bautura-muller-vegan-soia-fara-zaharuri-1l-19-15514512",
     "path": [
-      "Băuturi",
-      "Băuturi răcoritoare",
-      "Alte răcoritoare",
+      "Lactate și ouă",
+      "Lapte",
+      "Soia",
       "1 l"
     ],
     "updated_at": "2026-11-06"
@@ -25732,9 +25552,9 @@
     "unit": "l",
     "source_url": "https://carrefour.ro/produse/bautura-muller-vegan-ovaz-1l-19-15514507",
     "path": [
-      "Băuturi",
-      "Băuturi răcoritoare",
-      "Alte răcoritoare",
+      "Lactate și ouă",
+      "Lapte",
+      "Ovăz",
       "1 l"
     ],
     "updated_at": "2026-11-06"
@@ -25747,9 +25567,9 @@
     "unit": "l",
     "source_url": "https://carrefour.ro/produse/bautura-din-nuca-de-cocos-si-migdale-alpro-1-l-19-15503974",
     "path": [
-      "Băuturi",
-      "Băuturi răcoritoare",
-      "Alte răcoritoare",
+      "Lactate și ouă",
+      "Lapte",
+      "Migdale",
       "1 l"
     ],
     "updated_at": "2026-11-06"
@@ -25792,9 +25612,9 @@
     "unit": "l",
     "source_url": "https://carrefour.ro/produse/bautura-din-ovaz-si-migdale-alpro-1-l-19-15509843",
     "path": [
-      "Băuturi",
-      "Băuturi răcoritoare",
-      "Alte răcoritoare",
+      "Lactate și ouă",
+      "Lapte",
+      "Ovăz",
       "1 l"
     ],
     "updated_at": "2026-11-06"
@@ -25837,9 +25657,9 @@
     "unit": "l",
     "source_url": "https://carrefour.ro/produse/bautura-din-soia-cu-caramel-si-proteina-alpro-250-ml-19-15512097",
     "path": [
-      "Băuturi",
-      "Băuturi răcoritoare",
-      "Alte răcoritoare",
+      "Lactate și ouă",
+      "Lapte",
+      "Soia",
       "250 ml"
     ],
     "updated_at": "2026-11-06"
@@ -25867,9 +25687,9 @@
     "unit": "l",
     "source_url": "https://carrefour.ro/produse/bautura-din-soia-cu-ciocolata-si-proteina-alpro-1-l-19-15512099",
     "path": [
-      "Cafea, ceai și cacao",
-      "Cacao",
-      "Ciocolată caldă",
+      "Lactate și ouă",
+      "Lapte",
+      "Soia",
       "1 l"
     ],
     "updated_at": "2026-11-06"
@@ -25882,25 +25702,10 @@
     "unit": "kg",
     "source_url": "https://carrefour.ro/produse/galicia-paine-crocanta-eco-cu-faina-integrala-de-grau-cu-3-tipuri-de-seminte-110g-19-14529887",
     "path": [
-      "Băcănie",
-      "Făină",
-      "Alte tipuri",
+      "Brutărie",
+      "Pâine",
+      "Integrală",
       "110 g"
-    ],
-    "updated_at": "2026-11-06"
-  },
-  {
-    "store": "Carrefour",
-    "name": "8 Lipii Din Faina De Porumb, Fara Gluten 208G",
-    "brand": null,
-    "price": "20.99",
-    "unit": "kg",
-    "source_url": "https://carrefour.ro/produse/8-lipii-din-faina-de-porumb-fara-gluten-208g-19-14529289",
-    "path": [
-      "Băcănie",
-      "Făină",
-      "Alte tipuri",
-      "208 g"
     ],
     "updated_at": "2026-11-06"
   },
@@ -25927,9 +25732,9 @@
     "unit": "kg",
     "source_url": "https://carrefour.ro/produse/finn-crisp-paine-crocanta-subtire-chia-sare-de-mare-195gr-19-14528488",
     "path": [
-      "Băcănie",
-      "Leguminoase",
-      "Linte și năut",
+      "Brutărie",
+      "Pâine",
+      "Alte sortimente",
       "195 g"
     ],
     "updated_at": "2026-11-06"
@@ -25946,6 +25751,36 @@
       "Pâine",
       "Alte sortimente",
       "225 g"
+    ],
+    "updated_at": "2026-11-06"
+  },
+  {
+    "store": "Carrefour",
+    "name": "Mulino Bianco Granetti Integrali 280 G",
+    "brand": null,
+    "price": "17.99",
+    "unit": "kg",
+    "source_url": "https://carrefour.ro/produse/mulino-bianco-granetti-integrali-280-g-19-14528277",
+    "path": [
+      "Dulciuri și snacks",
+      "Snacks",
+      "Sărate",
+      "280 g"
+    ],
+    "updated_at": "2026-11-06"
+  },
+  {
+    "store": "Carrefour",
+    "name": "Mulino Bianco Granetti Classici 280 G",
+    "brand": null,
+    "price": "17.99",
+    "unit": "kg",
+    "source_url": "https://carrefour.ro/produse/mulino-bianco-granetti-classici-280-g-19-14528278",
+    "path": [
+      "Dulciuri și snacks",
+      "Snacks",
+      "Sărate",
+      "280 g"
     ],
     "updated_at": "2026-11-06"
   },
@@ -25987,25 +25822,10 @@
     "unit": "kg",
     "source_url": "https://carrefour.ro/produse/6-lipii-bogate-in-proteina-din-faina-integrala-de-ovaz-360g-19-14529290",
     "path": [
-      "Băcănie",
-      "Făină",
-      "Alte tipuri",
+      "Brutărie",
+      "Pâine",
+      "Lipie și tortilla",
       "360 g"
-    ],
-    "updated_at": "2026-11-06"
-  },
-  {
-    "store": "Carrefour",
-    "name": "Mini Crutoane Cu Masline Valledoro, 100g",
-    "brand": null,
-    "price": "9.99",
-    "unit": "kg",
-    "source_url": "https://carrefour.ro/produse/mini-crutoane-cu-masline-valledoro-100g-19-14527739",
-    "path": [
-      "Conserve și mâncare gata",
-      "Murături și măsline",
-      "Măsline",
-      "100 g"
     ],
     "updated_at": "2026-11-06"
   },
@@ -26197,9 +26017,9 @@
     "unit": "kg",
     "source_url": "https://carrefour.ro/produse/toast-wasa-cu-chia-si-sare-de-mare-245g-19-14526505",
     "path": [
-      "Băcănie",
-      "Leguminoase",
-      "Linte și năut",
+      "Brutărie",
+      "Pâine",
+      "Alte sortimente",
       "245 g"
     ],
     "updated_at": "2026-11-06"
@@ -26348,8 +26168,8 @@
     "source_url": "https://carrefour.ro/produse/paine-coapta-valentina-snacks-cu-trufe-150g-19-14524311",
     "path": [
       "Dulciuri și snacks",
-      "Ciocolată",
-      "Praline",
+      "Snacks",
+      "Sărate",
       "150 g"
     ],
     "updated_at": "2026-11-06"
@@ -26377,9 +26197,9 @@
     "unit": "kg",
     "source_url": "https://carrefour.ro/produse/19-14510365",
     "path": [
-      "Dulciuri și snacks",
-      "Alune și semințe",
-      "Semințe",
+      "Brutărie",
+      "Pâine",
+      "Chifle",
       "200 g"
     ],
     "updated_at": "2026-11-06"
@@ -26602,9 +26422,9 @@
     "unit": "kg",
     "source_url": "https://carrefour.ro/produse/paine-prajita-felii-din-faina-integrala-mulino-bianco-315g-19-11004075",
     "path": [
-      "Băcănie",
-      "Făină",
-      "Alte tipuri",
+      "Brutărie",
+      "Pâine",
+      "Integrală",
       "315 g"
     ],
     "updated_at": "2026-11-06"
@@ -26647,9 +26467,9 @@
     "unit": "buc",
     "source_url": "https://carrefour.ro/produse/tortillas-lipie-old-el-paso-faina-integrala-6buc-350g-19-14521308",
     "path": [
-      "Băcănie",
-      "Făină",
-      "Alte tipuri",
+      "Dulciuri și snacks",
+      "Snacks",
+      "Sărate",
       "6 buc"
     ],
     "updated_at": "2026-11-06"
@@ -26851,21 +26671,6 @@
   },
   {
     "store": "Carrefour",
-    "name": "Raftul Bunicii Faina dietetica integrala 1kg",
-    "brand": null,
-    "price": "4.49",
-    "unit": "kg",
-    "source_url": "https://carrefour.ro/produse/raftul-bunicii-faina-dietetica-integrala-1kg-19-14521051",
-    "path": [
-      "Băcănie",
-      "Făină",
-      "Alte tipuri",
-      "1 kg"
-    ],
-    "updated_at": "2026-11-06"
-  },
-  {
-    "store": "Carrefour",
     "name": "Faina Bio Malai Bramata 600G Pronat",
     "brand": null,
     "price": "8.39",
@@ -26881,21 +26686,6 @@
   },
   {
     "store": "Carrefour",
-    "name": "Monte Banato Galuste Gris 85G",
-    "brand": null,
-    "price": "9.99",
-    "unit": "kg",
-    "source_url": "https://carrefour.ro/produse/monte-banato-galuste-gris-85g-19-14530191",
-    "path": [
-      "Băcănie",
-      "Făină",
-      "Griș",
-      "85 g"
-    ],
-    "updated_at": "2026-11-06"
-  },
-  {
-    "store": "Carrefour",
     "name": "Faina neagra Drojdie&Maia Baneasa 500G",
     "brand": null,
     "price": "5.49",
@@ -26903,8 +26693,8 @@
     "source_url": "https://carrefour.ro/produse/faina-neagra-drojdie-maia-baneasa-500g-19-14530112",
     "path": [
       "Băcănie",
-      "Ingrediente prăjituri",
-      "Drojdie și praf de copt",
+      "Făină",
+      "Alte tipuri",
       "500 g"
     ],
     "updated_at": "2026-11-06"
@@ -26932,9 +26722,9 @@
     "unit": "kg",
     "source_url": "https://carrefour.ro/produse/faina-alba-din-grau-superioara-000-pentru-cozonac-1-kg-19-14529969",
     "path": [
-      "Dulciuri și snacks",
-      "Prăjituri",
-      "Prăjituri și deserturi",
+      "Băcănie",
+      "Făină",
+      "Albă",
       "1 kg"
     ],
     "updated_at": "2026-11-06"
@@ -26977,9 +26767,9 @@
     "unit": "kg",
     "source_url": "https://carrefour.ro/produse/faina-alba-de-grau-550-pentru-pizza-panzani-1kg-19-14528189",
     "path": [
-      "Congelate",
-      "Semipreparate congelate",
-      "Pizza",
+      "Băcănie",
+      "Făină",
+      "Albă",
       "1 kg"
     ],
     "updated_at": "2026-11-06"
@@ -27097,9 +26887,9 @@
     "unit": "kg",
     "source_url": "https://carrefour.ro/produse/faina-alba-grania-superioara-000-pentru-cozonac-1kg-19-14501046",
     "path": [
-      "Dulciuri și snacks",
-      "Prăjituri",
-      "Prăjituri și deserturi",
+      "Băcănie",
+      "Făină",
+      "Albă",
       "1 kg"
     ],
     "updated_at": "2026-11-06"
@@ -27112,9 +26902,9 @@
     "unit": "kg",
     "source_url": "https://carrefour.ro/produse/faina-pentru-cozonac-dobrogea-1-kg-19-11005302",
     "path": [
-      "Dulciuri și snacks",
-      "Prăjituri",
-      "Prăjituri și deserturi",
+      "Băcănie",
+      "Făină",
+      "Alte tipuri",
       "1 kg"
     ],
     "updated_at": "2026-11-06"
@@ -27187,9 +26977,9 @@
     "unit": "kg",
     "source_url": "https://carrefour.ro/produse/faina-din-grau-dur-la-molisana-pentru-pizza-1-kg-19-14517203",
     "path": [
-      "Congelate",
-      "Semipreparate congelate",
-      "Pizza",
+      "Băcănie",
+      "Făină",
+      "Alte tipuri",
       "1 kg"
     ],
     "updated_at": "2026-11-06"
@@ -27262,9 +27052,9 @@
     "unit": "kg",
     "source_url": "https://carrefour.ro/produse/faina-alba-de-grau-000-pentru-cozonac-baneasa-1-kg-19-14002427",
     "path": [
-      "Dulciuri și snacks",
-      "Prăjituri",
-      "Prăjituri și deserturi",
+      "Băcănie",
+      "Făină",
+      "Albă",
       "1 kg"
     ],
     "updated_at": "2026-11-06"
@@ -27382,9 +27172,9 @@
     "unit": "kg",
     "source_url": "https://carrefour.ro/produse/faina-alba-pentru-prajituri-raftul-bunicii-superioara-000-1-kg-19-14521050",
     "path": [
-      "Dulciuri și snacks",
-      "Prăjituri",
-      "Prăjituri și deserturi",
+      "Băcănie",
+      "Făină",
+      "Albă",
       "1 kg"
     ],
     "updated_at": "2026-11-06"
@@ -27397,9 +27187,9 @@
     "unit": "kg",
     "source_url": "https://carrefour.ro/produse/faina-alba-pentru-cozonac-raftul-bunicii-superioara-000-1-kg-19-14510073",
     "path": [
-      "Dulciuri și snacks",
-      "Prăjituri",
-      "Prăjituri și deserturi",
+      "Băcănie",
+      "Făină",
+      "Albă",
       "1 kg"
     ],
     "updated_at": "2026-11-06"
@@ -27502,9 +27292,9 @@
     "unit": "kg",
     "source_url": "https://carrefour.ro/produse/mix-muffin-cu-cacao-in-shaker-250g-19-14535938",
     "path": [
-      "Cafea, ceai și cacao",
-      "Cacao",
-      "Cacao",
+      "Băcănie",
+      "Ingrediente prăjituri",
+      "Drojdie și praf de copt",
       "250 g"
     ],
     "updated_at": "2026-11-06"
@@ -27532,10 +27322,55 @@
     "unit": "kg",
     "source_url": "https://carrefour.ro/produse/mix-clatite-pancakes-in-shaker-200g-19-14535937",
     "path": [
-      "Congelate",
-      "Semipreparate congelate",
-      "Patiserie",
+      "Băcănie",
+      "Ingrediente prăjituri",
+      "Drojdie și praf de copt",
       "200 g"
+    ],
+    "updated_at": "2026-11-06"
+  },
+  {
+    "store": "Carrefour",
+    "name": "Baghete Zahar Brun Diamant 250G",
+    "brand": null,
+    "price": "5.89",
+    "unit": "kg",
+    "source_url": "https://carrefour.ro/produse/baghete-zahar-brun-diamant-250g-19-14534306",
+    "path": [
+      "Băcănie",
+      "Zahăr",
+      "Brun",
+      "250 g"
+    ],
+    "updated_at": "2026-11-06"
+  },
+  {
+    "store": "Carrefour",
+    "name": "Baghete Zahar Alb Diamant 50x5g",
+    "brand": null,
+    "price": "4.99",
+    "unit": "kg",
+    "source_url": "https://carrefour.ro/produse/baghete-zahar-alb-diamant-50x5g-19-14534307",
+    "path": [
+      "Băcănie",
+      "Zahăr",
+      "Tos",
+      "250 g"
+    ],
+    "updated_at": "2026-11-06"
+  },
+  {
+    "store": "Carrefour",
+    "name": "Baghete Zahar Alb Diamant 1Kg",
+    "brand": null,
+    "price": "16.49",
+    "unit": "kg",
+    "source_url": "https://carrefour.ro/produse/baghete-zahar-alb-diamant-1kg-19-14535215",
+    "path": [
+      "Băcănie",
+      "Zahăr",
+      "Tos",
+      "1 kg"
     ],
     "updated_at": "2026-11-06"
   },
@@ -27551,51 +27386,6 @@
       "Condimente",
       "Condimente",
       "45 g"
-    ],
-    "updated_at": "2026-11-06"
-  },
-  {
-    "store": "Carrefour",
-    "name": "Praf Copt Bio 3X17G Bio Vegan",
-    "brand": null,
-    "price": "7.25",
-    "unit": "kg",
-    "source_url": "https://carrefour.ro/produse/praf-copt-bio-3x17g-bio-vegan-19-14530535",
-    "path": [
-      "Băcănie",
-      "Ingrediente prăjituri",
-      "Drojdie și praf de copt",
-      "51 g"
-    ],
-    "updated_at": "2026-11-06"
-  },
-  {
-    "store": "Carrefour",
-    "name": "Kamis esenta de rom 20ml",
-    "brand": null,
-    "price": "14.49",
-    "unit": "l",
-    "source_url": "https://carrefour.ro/produse/kamis-esenta-de-rom-20ml-19-14535141",
-    "path": [
-      "Băcănie",
-      "Ingrediente prăjituri",
-      "Drojdie și praf de copt",
-      "20 ml"
-    ],
-    "updated_at": "2026-11-06"
-  },
-  {
-    "store": "Carrefour",
-    "name": "Dr.Oetker Mix pentru Waffles 190g",
-    "brand": null,
-    "price": "5.79",
-    "unit": "kg",
-    "source_url": "https://carrefour.ro/produse/dr-oetker-mix-pentru-waffles-190g-19-14520993",
-    "path": [
-      "Băcănie",
-      "Ingrediente prăjituri",
-      "Drojdie și praf de copt",
-      "190 g"
     ],
     "updated_at": "2026-11-06"
   },
@@ -27646,21 +27436,6 @@
   },
   {
     "store": "Carrefour",
-    "name": "Bio Fulgi de Drojdie Inactiva Bett'r 100g",
-    "brand": null,
-    "price": "26.99",
-    "unit": "kg",
-    "source_url": "https://carrefour.ro/produse/bio-fulgi-de-drojdie-inactiva-bett-r-100g-19-14530675",
-    "path": [
-      "Băcănie",
-      "Cereale",
-      "Fulgi și musli",
-      "100 g"
-    ],
-    "updated_at": "2026-11-06"
-  },
-  {
-    "store": "Carrefour",
     "name": "Mix pentru Brownies Bio Fara Gluten Vegan Bettr 400 g",
     "brand": null,
     "price": "24.89",
@@ -27682,9 +27457,9 @@
     "unit": "kg",
     "source_url": "https://carrefour.ro/produse/mix-preparat-chec-cu-lamaie-500g-carrefour-extra-19-14529562",
     "path": [
-      "Dulciuri și snacks",
-      "Prăjituri",
-      "Prăjituri și deserturi",
+      "Băcănie",
+      "Ingrediente prăjituri",
+      "Drojdie și praf de copt",
       "500 g"
     ],
     "updated_at": "2026-11-06"
@@ -27727,9 +27502,9 @@
     "unit": "kg",
     "source_url": "https://carrefour.ro/produse/mix-prepararare-clatite-2x175g-carrefour-original-19-14529563",
     "path": [
-      "Congelate",
-      "Semipreparate congelate",
-      "Patiserie",
+      "Băcănie",
+      "Ingrediente prăjituri",
+      "Drojdie și praf de copt",
       "350 g"
     ],
     "updated_at": "2026-11-06"
@@ -27802,9 +27577,9 @@
     "unit": "kg",
     "source_url": "https://carrefour.ro/produse/mix-pentru-clatite-bio-fara-gluten-vegan-bettr-400-g-19-14530670",
     "path": [
-      "Congelate",
-      "Semipreparate congelate",
-      "Patiserie",
+      "Băcănie",
+      "Ingrediente prăjituri",
+      "Drojdie și praf de copt",
       "400 g"
     ],
     "updated_at": "2026-11-06"
@@ -27826,21 +27601,6 @@
   },
   {
     "store": "Carrefour",
-    "name": "Aroma Naturala De Vanilie Pentru Aluaturi, Fara Gluten 2X2,5G",
-    "brand": null,
-    "price": "7.09",
-    "unit": "kg",
-    "source_url": "https://carrefour.ro/produse/aroma-naturala-de-vanilie-pentru-aluaturi-fara-gluten-2x2-5g-19-14529149",
-    "path": [
-      "Băcănie",
-      "Ingrediente prăjituri",
-      "Drojdie și praf de copt",
-      "5 g"
-    ],
-    "updated_at": "2026-11-06"
-  },
-  {
-    "store": "Carrefour",
     "name": "Mix Pentru Prajitura Red Velvet 400G",
     "brand": null,
     "price": "11.99",
@@ -27851,6 +27611,21 @@
       "Prăjituri",
       "Prăjituri și deserturi",
       "400 g"
+    ],
+    "updated_at": "2026-11-06"
+  },
+  {
+    "store": "Carrefour",
+    "name": "Carrefour Bio Zahar vanilat organic, 6x7,5g",
+    "brand": null,
+    "price": "12.09",
+    "unit": "kg",
+    "source_url": "https://carrefour.ro/produse/carrefour-bio-zahar-vanilat-organic-6x7-5g-19-14521209",
+    "path": [
+      "Băcănie",
+      "Zahăr",
+      "Vanilat",
+      "45 g"
     ],
     "updated_at": "2026-11-06"
   },
@@ -27907,9 +27682,9 @@
     "unit": "l",
     "source_url": "https://carrefour.ro/produse/esenta-de-migdale-kamis-20ml-19-14529295",
     "path": [
-      "Dulciuri și snacks",
-      "Alune și semințe",
-      "Alune și arahide",
+      "Băcănie",
+      "Ingrediente prăjituri",
+      "Drojdie și praf de copt",
       "20 ml"
     ],
     "updated_at": "2026-11-06"
@@ -27922,9 +27697,9 @@
     "unit": "kg",
     "source_url": "https://carrefour.ro/produse/mix-pentru-tort-pufos-cu-cacao-fara-gluten-400g-19-14529155",
     "path": [
-      "Dulciuri și snacks",
-      "Prăjituri",
-      "Prăjituri și deserturi",
+      "Băcănie",
+      "Ingrediente prăjituri",
+      "Drojdie și praf de copt",
       "400 g"
     ],
     "updated_at": "2026-11-06"
@@ -27946,30 +27721,15 @@
   },
   {
     "store": "Carrefour",
-    "name": "Fulgi de drojdie uscata inactiva, 200 g, Sanovita",
-    "brand": null,
-    "price": "36.99",
-    "unit": "kg",
-    "source_url": "https://carrefour.ro/produse/fulgi-de-drojdie-uscata-inactiva-200-g-sanovita-19-14527830",
-    "path": [
-      "Băcănie",
-      "Cereale",
-      "Fulgi și musli",
-      "200 g"
-    ],
-    "updated_at": "2026-11-06"
-  },
-  {
-    "store": "Carrefour",
     "name": "Mix Pentru Paine Si Pizza Fara Gluten 500G",
     "brand": null,
     "price": "9.99",
     "unit": "kg",
     "source_url": "https://carrefour.ro/produse/mix-pentru-paine-si-pizza-fara-gluten-500g-19-14529152",
     "path": [
-      "Congelate",
-      "Semipreparate congelate",
-      "Pizza",
+      "Băcănie",
+      "Ingrediente prăjituri",
+      "Drojdie și praf de copt",
       "500 g"
     ],
     "updated_at": "2026-11-06"
@@ -28012,9 +27772,9 @@
     "unit": "kg",
     "source_url": "https://carrefour.ro/produse/mix-pentru-pizza-cu-maia-si-drojdie-750g-19-14529150",
     "path": [
-      "Congelate",
-      "Semipreparate congelate",
-      "Pizza",
+      "Băcănie",
+      "Ingrediente prăjituri",
+      "Drojdie și praf de copt",
       "750 g"
     ],
     "updated_at": "2026-11-06"
@@ -28027,9 +27787,9 @@
     "unit": "kg",
     "source_url": "https://carrefour.ro/produse/mix-clatitite-americane-pancakes-cu-faina-de-ovaz-250g-19-14529157",
     "path": [
-      "Congelate",
-      "Semipreparate congelate",
-      "Patiserie",
+      "Băcănie",
+      "Ingrediente prăjituri",
+      "Drojdie și praf de copt",
       "250 g"
     ],
     "updated_at": "2026-11-06"
@@ -28042,9 +27802,9 @@
     "unit": "kg",
     "source_url": "https://carrefour.ro/produse/mix-pentru-clatite-americane-pancakes-integrali-250g-19-14529158",
     "path": [
-      "Congelate",
-      "Semipreparate congelate",
-      "Patiserie",
+      "Băcănie",
+      "Ingrediente prăjituri",
+      "Drojdie și praf de copt",
       "250 g"
     ],
     "updated_at": "2026-11-06"
@@ -28057,9 +27817,9 @@
     "unit": "kg",
     "source_url": "https://carrefour.ro/produse/mix-pentru-clatite-americane-pancakes-250g-19-14529159",
     "path": [
-      "Congelate",
-      "Semipreparate congelate",
-      "Patiserie",
+      "Băcănie",
+      "Ingrediente prăjituri",
+      "Drojdie și praf de copt",
       "250 g"
     ],
     "updated_at": "2026-11-06"
@@ -28186,21 +27946,6 @@
   },
   {
     "store": "Carrefour",
-    "name": "Dr.Oetker Praf pentru Milkshake cu gust de Ciocolata 32g",
-    "brand": null,
-    "price": "2.69",
-    "unit": "kg",
-    "source_url": "https://carrefour.ro/produse/dr-oetker-praf-pentru-milkshake-cu-gust-de-ciocolata-32g-19-14001695",
-    "path": [
-      "Cafea, ceai și cacao",
-      "Cacao",
-      "Ciocolată caldă",
-      "32 g"
-    ],
-    "updated_at": "2026-11-06"
-  },
-  {
-    "store": "Carrefour",
     "name": "Drojdie Uscata 100 G Pakmaya",
     "brand": null,
     "price": "8.69",
@@ -28252,9 +27997,9 @@
     "unit": "l",
     "source_url": "https://carrefour.ro/produse/cosmin-esenta-fistic-25ml-19-14525333",
     "path": [
-      "Dulciuri și snacks",
-      "Alune și semințe",
-      "Alune și arahide",
+      "Băcănie",
+      "Ingrediente prăjituri",
+      "Drojdie și praf de copt",
       "25 ml"
     ],
     "updated_at": "2026-11-06"
@@ -28306,21 +28051,6 @@
   },
   {
     "store": "Carrefour",
-    "name": "Dr.Oetker Ciocco Latte cu Rom 21g",
-    "brand": null,
-    "price": "2.19",
-    "unit": "kg",
-    "source_url": "https://carrefour.ro/produse/dr-oetker-ciocco-latte-cu-rom-21g-19-14524870",
-    "path": [
-      "Băuturi",
-      "Băuturi spirtoase",
-      "Spirtoase",
-      "21 g"
-    ],
-    "updated_at": "2026-11-06"
-  },
-  {
-    "store": "Carrefour",
     "name": "Scortisoara Macinata Cosmin, 80G",
     "brand": null,
     "price": "6.99",
@@ -28357,9 +28087,9 @@
     "unit": "kg",
     "source_url": "https://carrefour.ro/produse/lapte-praf-integral-dr-oetker-130g-19-11017552",
     "path": [
-      "Bebeluși",
-      "Hrană bebeluși",
-      "Lapte de creștere",
+      "Lactate și ouă",
+      "Lapte",
+      "Praf",
       "130 g"
     ],
     "updated_at": "2026-11-06"
@@ -28402,9 +28132,9 @@
     "unit": "kg",
     "source_url": "https://carrefour.ro/produse/pane-crocant-boia-70g-kotanyi-19-14536362",
     "path": [
-      "Congelate",
-      "Semipreparate congelate",
-      "Pane și crispy",
+      "Sosuri și condimente",
+      "Condimente",
+      "Condimente",
       "70 g"
     ],
     "updated_at": "2026-11-06"
@@ -28417,9 +28147,9 @@
     "unit": "kg",
     "source_url": "https://carrefour.ro/produse/pane-crocant-usturoi-70g-kotany-19-14536364",
     "path": [
-      "Congelate",
-      "Semipreparate congelate",
-      "Pane și crispy",
+      "Sosuri și condimente",
+      "Condimente",
+      "Condimente",
       "70 g"
     ],
     "updated_at": "2026-11-06"
@@ -28432,9 +28162,9 @@
     "unit": "kg",
     "source_url": "https://carrefour.ro/produse/pane-crocant-clasic-70g-kotany-19-14536365",
     "path": [
-      "Congelate",
-      "Semipreparate congelate",
-      "Pane și crispy",
+      "Sosuri și condimente",
+      "Condimente",
+      "Condimente",
       "70 g"
     ],
     "updated_at": "2026-11-06"
@@ -28447,9 +28177,9 @@
     "unit": "buc",
     "source_url": "https://carrefour.ro/produse/knorr-cub-vita-10-buc-5l-100g-19-14535703",
     "path": [
-      "Carne și pește",
-      "Carne proaspătă",
-      "Porc și vită",
+      "Conserve și mâncare gata",
+      "Supe",
+      "Supe și cuburi",
       "10 buc"
     ],
     "updated_at": "2026-11-06"
@@ -28696,15 +28426,45 @@
   },
   {
     "store": "Carrefour",
+    "name": "Ghimbir Bio macinat, 35 g, Pronat",
+    "brand": null,
+    "price": "10.35",
+    "unit": "kg",
+    "source_url": "https://carrefour.ro/produse/ghimbir-bio-macinat-35-g-pronat-19-14530539",
+    "path": [
+      "Sosuri și condimente",
+      "Condimente",
+      "Condimente",
+      "35 g"
+    ],
+    "updated_at": "2026-11-06"
+  },
+  {
+    "store": "Carrefour",
+    "name": "Cuisoare Bio, 40 g, Pronat",
+    "brand": null,
+    "price": "14.99",
+    "unit": "kg",
+    "source_url": "https://carrefour.ro/produse/cuisoare-bio-40-g-pronat-19-14530540",
+    "path": [
+      "Sosuri și condimente",
+      "Condimente",
+      "Condimente",
+      "40 g"
+    ],
+    "updated_at": "2026-11-06"
+  },
+  {
+    "store": "Carrefour",
     "name": "Kamis Mix Asia Thai Curry 15g",
     "brand": null,
     "price": "4.19",
     "unit": "kg",
     "source_url": "https://carrefour.ro/produse/kamis-mix-asia-thai-curry-15g-19-14535137",
     "path": [
-      "Băcănie",
-      "Ingrediente prăjituri",
-      "Drojdie și praf de copt",
+      "Sosuri și condimente",
+      "Condimente",
+      "Condimente",
       "15 g"
     ],
     "updated_at": "2026-11-06"
@@ -28717,9 +28477,9 @@
     "unit": "kg",
     "source_url": "https://carrefour.ro/produse/kamis-mix-asia-korean-bbq-15g-19-14535138",
     "path": [
-      "Băcănie",
-      "Ingrediente prăjituri",
-      "Drojdie și praf de copt",
+      "Sosuri și condimente",
+      "Condimente",
+      "Condimente",
       "15 g"
     ],
     "updated_at": "2026-11-06"
@@ -28732,9 +28492,9 @@
     "unit": "kg",
     "source_url": "https://carrefour.ro/produse/kamis-mix-asia-butter-chicken-15g-19-14535139",
     "path": [
-      "Băcănie",
-      "Ingrediente prăjituri",
-      "Drojdie și praf de copt",
+      "Sosuri și condimente",
+      "Condimente",
+      "Condimente",
       "15 g"
     ],
     "updated_at": "2026-11-06"
@@ -28781,6 +28541,21 @@
       "Condimente",
       "Condimente",
       "24 g"
+    ],
+    "updated_at": "2026-11-06"
+  },
+  {
+    "store": "Carrefour",
+    "name": "Rasnita Paprika Iute 65 G Pirifan",
+    "brand": null,
+    "price": "20.39",
+    "unit": "kg",
+    "source_url": "https://carrefour.ro/produse/rasnita-paprika-iute-65-g-pirifan-19-14513363",
+    "path": [
+      "Sosuri și condimente",
+      "Condimente",
+      "Condimente",
+      "65 g"
     ],
     "updated_at": "2026-11-06"
   },
@@ -28921,16 +28696,16 @@
   },
   {
     "store": "Carrefour",
-    "name": "Bettr Mix Pentru Hummus Bio 50G",
+    "name": "Salvie maruntita Kotanyi 8g",
     "brand": null,
-    "price": "4.99",
+    "price": "3.59",
     "unit": "kg",
-    "source_url": "https://carrefour.ro/produse/bettr-mix-pentru-hummus-bio-50g-19-14530685",
+    "source_url": "https://carrefour.ro/produse/salvie-maruntita-kotanyi-8g-19-11002554",
     "path": [
-      "Băcănie",
-      "Ingrediente prăjituri",
-      "Drojdie și praf de copt",
-      "50 g"
+      "Sosuri și condimente",
+      "Condimente",
+      "Condimente",
+      "8 g"
     ],
     "updated_at": "2026-11-06"
   },
@@ -28942,9 +28717,9 @@
     "unit": "kg",
     "source_url": "https://carrefour.ro/produse/boia-de-ardei-iute-bio-50g-pronat-19-14528405",
     "path": [
-      "Conserve și mâncare gata",
-      "Conserve de legume",
-      "Porumb și mazăre",
+      "Sosuri și condimente",
+      "Condimente",
+      "Condimente",
       "50 g"
     ],
     "updated_at": "2026-11-06"
@@ -29191,6 +28966,21 @@
   },
   {
     "store": "Carrefour",
+    "name": "Cardamon macinat 10 g Kamis",
+    "brand": null,
+    "price": "8.29",
+    "unit": "kg",
+    "source_url": "https://carrefour.ro/produse/cardamon-macinat-10-g-kamis-19-14509469",
+    "path": [
+      "Sosuri și condimente",
+      "Condimente",
+      "Condimente",
+      "10 g"
+    ],
+    "updated_at": "2026-11-06"
+  },
+  {
+    "store": "Carrefour",
     "name": "Amestec Condimente pentru Gratar Kotanyi 30g",
     "brand": null,
     "price": "3.89",
@@ -29221,16 +29011,16 @@
   },
   {
     "store": "Carrefour",
-    "name": "V6BBQ ardei amestec 40G, RUB",
+    "name": "Ghimbir macinat 15 g Galeo",
     "brand": null,
-    "price": "5.45",
+    "price": "3.69",
     "unit": "kg",
-    "source_url": "https://carrefour.ro/produse/v6bbq-ardei-amestec-40g-rub-19-14524365",
+    "source_url": "https://carrefour.ro/produse/ghimbir-macinat-15-g-galeo-19-14515124",
     "path": [
-      "Conserve și mâncare gata",
-      "Conserve de legume",
-      "Porumb și mazăre",
-      "40 g"
+      "Sosuri și condimente",
+      "Condimente",
+      "Condimente",
+      "15 g"
     ],
     "updated_at": "2026-11-06"
   },
@@ -29251,15 +29041,30 @@
   },
   {
     "store": "Carrefour",
+    "name": "Sofran 0.15 G Kamis",
+    "brand": null,
+    "price": "18.69",
+    "unit": "kg",
+    "source_url": "https://carrefour.ro/produse/sofran-0-15-g-kamis-19-14511409",
+    "path": [
+      "Sosuri și condimente",
+      "Condimente",
+      "Condimente",
+      "0 g"
+    ],
+    "updated_at": "2026-11-06"
+  },
+  {
+    "store": "Carrefour",
     "name": "Amestec de Condimente pentru friptura de porc 30 g Kotanyi",
     "brand": null,
     "price": "3.59",
     "unit": "kg",
     "source_url": "https://carrefour.ro/produse/amestec-de-condimente-pentru-friptura-de-porc-30-g-kotanyi-19-11002546",
     "path": [
-      "Carne și pește",
-      "Carne proaspătă",
-      "Porc și vită",
+      "Sosuri și condimente",
+      "Condimente",
+      "Condimente",
       "30 g"
     ],
     "updated_at": "2026-11-06"
@@ -29291,36 +29096,6 @@
       "Orez",
       "Alte tipuri",
       "250 g"
-    ],
-    "updated_at": "2026-11-06"
-  },
-  {
-    "store": "Carrefour",
-    "name": "Baneasa Risotto Cu Branzeturi 175G",
-    "brand": null,
-    "price": "11.99",
-    "unit": "kg",
-    "source_url": "https://carrefour.ro/produse/baneasa-risotto-cu-branzeturi-175g-19-14534331",
-    "path": [
-      "Băcănie",
-      "Orez",
-      "Alte tipuri",
-      "175 g"
-    ],
-    "updated_at": "2026-11-06"
-  },
-  {
-    "store": "Carrefour",
-    "name": "Baneasa Risotto Cu Hribi Si Ciuperci 175G",
-    "brand": null,
-    "price": "11.99",
-    "unit": "kg",
-    "source_url": "https://carrefour.ro/produse/baneasa-risotto-cu-hribi-si-ciuperci-175g-19-14534333",
-    "path": [
-      "Conserve și mâncare gata",
-      "Conserve de legume",
-      "Porumb și mazăre",
-      "175 g"
     ],
     "updated_at": "2026-11-06"
   },
@@ -29362,9 +29137,9 @@
     "unit": "kg",
     "source_url": "https://carrefour.ro/produse/hartie-de-orez-50-g-lien-ying-19-14522473",
     "path": [
-      "Băcănie",
-      "Orez",
-      "Alte tipuri",
+      "Curățenie și casă",
+      "Șervețele și role",
+      "Prosoape de hârtie",
       "50 g"
     ],
     "updated_at": "2026-11-06"
@@ -29392,9 +29167,9 @@
     "unit": "kg",
     "source_url": "https://carrefour.ro/produse/orez-rotund-special-pentru-desert-carrefour-classic-500g-19-14529493",
     "path": [
-      "Dulciuri și snacks",
-      "Prăjituri",
-      "Prăjituri și deserturi",
+      "Băcănie",
+      "Orez",
+      "Alte tipuri",
       "500 g"
     ],
     "updated_at": "2026-11-06"
@@ -29521,21 +29296,6 @@
   },
   {
     "store": "Carrefour",
-    "name": "Orez la microunde cu curry si linte cu lapte de cocos Carrefour Veggie, 250g",
-    "brand": null,
-    "price": "11.99",
-    "unit": "kg",
-    "source_url": "https://carrefour.ro/produse/orez-la-microunde-cu-curry-si-linte-cu-lapte-de-cocos-carrefour-veggie-250g-19-14529500",
-    "path": [
-      "Băcănie",
-      "Leguminoase",
-      "Linte și năut",
-      "250 g"
-    ],
-    "updated_at": "2026-11-06"
-  },
-  {
-    "store": "Carrefour",
     "name": "Orez Integral Basmati Bio 350G Pronat",
     "brand": null,
     "price": "13.45",
@@ -29581,21 +29341,6 @@
   },
   {
     "store": "Carrefour",
-    "name": "ECO Linte rosii 500g",
-    "brand": null,
-    "price": "19.25",
-    "unit": "kg",
-    "source_url": "https://carrefour.ro/produse/eco-linte-rosii-500g-19-14525212",
-    "path": [
-      "Băcănie",
-      "Leguminoase",
-      "Linte și năut",
-      "500 g"
-    ],
-    "updated_at": "2026-11-06"
-  },
-  {
-    "store": "Carrefour",
     "name": "Orez pentru sushi 250g",
     "brand": null,
     "price": "19.99",
@@ -29632,9 +29377,9 @@
     "unit": "kg",
     "source_url": "https://carrefour.ro/produse/mix-pentru-risotto-cu-aroma-de-ciuperci-porcini-carrefour-extra-250g-19-14529849",
     "path": [
-      "Conserve și mâncare gata",
-      "Conserve de legume",
-      "Porumb și mazăre",
+      "Băcănie",
+      "Ingrediente prăjituri",
+      "Drojdie și praf de copt",
       "250 g"
     ],
     "updated_at": "2026-11-06"
@@ -29851,36 +29596,6 @@
   },
   {
     "store": "Carrefour",
-    "name": "Soia texturat cuburi Inedit 100 g",
-    "brand": null,
-    "price": "5.69",
-    "unit": "kg",
-    "source_url": "https://carrefour.ro/produse/soia-texturat-cuburi-inedit-100-g-19-14500670",
-    "path": [
-      "Conserve și mâncare gata",
-      "Supe",
-      "Supe și cuburi",
-      "100 g"
-    ],
-    "updated_at": "2026-11-06"
-  },
-  {
-    "store": "Carrefour",
-    "name": "Crochete vegetale din soia Inedit in sos tomat 155 g",
-    "brand": null,
-    "price": "15.99",
-    "unit": "kg",
-    "source_url": "https://carrefour.ro/produse/crochete-vegetale-din-soia-inedit-in-sos-tomat-155-g-19-14514323",
-    "path": [
-      "Sosuri și condimente",
-      "Sosuri",
-      "Sos",
-      "155 g"
-    ],
-    "updated_at": "2026-11-06"
-  },
-  {
-    "store": "Carrefour",
     "name": "Bulgur Baktat 500g",
     "brand": null,
     "price": "11.99",
@@ -29936,21 +29651,6 @@
       "Leguminoase",
       "Linte și năut",
       "500 g"
-    ],
-    "updated_at": "2026-11-06"
-  },
-  {
-    "store": "Carrefour",
-    "name": "Sano vita Qinoua 250g",
-    "brand": null,
-    "price": "15.49",
-    "unit": "kg",
-    "source_url": "https://carrefour.ro/produse/sano-vita-qinoua-250g-19-14009784",
-    "path": [
-      "Carne și pește",
-      "Carne proaspătă",
-      "Porc și vită",
-      "250 g"
     ],
     "updated_at": "2026-11-06"
   },
@@ -30161,21 +29861,6 @@
       "Orez",
       "Alte tipuri",
       "500 g"
-    ],
-    "updated_at": "2026-11-06"
-  },
-  {
-    "store": "Carrefour",
-    "name": "Baneasa Mac & Cheese Branza Trufe Si Ciuperci 184G",
-    "brand": null,
-    "price": "11.99",
-    "unit": "kg",
-    "source_url": "https://carrefour.ro/produse/baneasa-mac-cheese-branza-trufe-si-ciuperci-184g-19-14534343",
-    "path": [
-      "Conserve și mâncare gata",
-      "Conserve de legume",
-      "Porumb și mazăre",
-      "184 g"
     ],
     "updated_at": "2026-11-06"
   },
@@ -30668,8 +30353,8 @@
     "source_url": "https://carrefour.ro/produse/spaghetti-bio-din-orez-integral-250g-felicia-19-14528409",
     "path": [
       "Băcănie",
-      "Orez",
-      "Alte tipuri",
+      "Paste",
+      "Alte formate",
       "250 g"
     ],
     "updated_at": "2026-11-06"
@@ -31327,9 +31012,9 @@
     "unit": "l",
     "source_url": "https://carrefour.ro/produse/ulei-din-turte-de-masline-costa-d-oro-1l-19-11005766",
     "path": [
-      "Dulciuri și snacks",
-      "Snacks",
-      "Galete",
+      "Băcănie",
+      "Ulei",
+      "Măsline",
       "1 l"
     ],
     "updated_at": "2026-11-06"
@@ -31387,9 +31072,9 @@
     "unit": "l",
     "source_url": "https://carrefour.ro/produse/ulei-de-masline-extravirgin-250-ml-kaiser-franz-josef-19-14507671",
     "path": [
-      "Carne și pește",
-      "Mezeluri",
-      "Șuncă și salam",
+      "Băcănie",
+      "Ulei",
+      "Măsline",
       "250 ml"
     ],
     "updated_at": "2026-11-06"
@@ -31642,9 +31327,9 @@
     "unit": "l",
     "source_url": "https://carrefour.ro/produse/ulei-din-turte-de-masline-carrefour-classic-2l-19-14523188",
     "path": [
-      "Dulciuri și snacks",
-      "Snacks",
-      "Galete",
+      "Băcănie",
+      "Ulei",
+      "Măsline",
       "2 l"
     ],
     "updated_at": "2026-11-06"
@@ -31702,9 +31387,9 @@
     "unit": "l",
     "source_url": "https://carrefour.ro/produse/ulei-carrefour-classic-din-turte-de-masline-1l-19-14523187",
     "path": [
-      "Dulciuri și snacks",
-      "Snacks",
-      "Galete",
+      "Băcănie",
+      "Ulei",
+      "Măsline",
       "1 l"
     ],
     "updated_at": "2026-11-06"
@@ -31792,9 +31477,9 @@
     "unit": "l",
     "source_url": "https://carrefour.ro/produse/ulei-de-masline-extravirgin-kaiser-franz-josef-500-ml-19-14507670",
     "path": [
-      "Carne și pește",
-      "Mezeluri",
-      "Șuncă și salam",
+      "Băcănie",
+      "Ulei",
+      "Măsline",
       "500 ml"
     ],
     "updated_at": "2026-11-06"
@@ -31882,9 +31567,9 @@
     "unit": "l",
     "source_url": "https://carrefour.ro/produse/ulei-masline-extra-virgin-kaiser-franz-josef-grecia-500-ml-19-14515237",
     "path": [
-      "Carne și pește",
-      "Mezeluri",
-      "Șuncă și salam",
+      "Băcănie",
+      "Ulei",
+      "Măsline",
       "500 ml"
     ],
     "updated_at": "2026-11-06"
@@ -31897,9 +31582,9 @@
     "unit": "l",
     "source_url": "https://carrefour.ro/produse/ulei-de-masline-extra-virgin-kaiser-franz-josef-creta-500-ml-19-14515238",
     "path": [
-      "Carne și pește",
-      "Mezeluri",
-      "Șuncă și salam",
+      "Băcănie",
+      "Ulei",
+      "Măsline",
       "500 ml"
     ],
     "updated_at": "2026-11-06"
@@ -32176,21 +31861,6 @@
   },
   {
     "store": "Carrefour",
-    "name": "Vinegreta cu otet balsamic si busuioc Carrefour Selection, 250ml",
-    "brand": null,
-    "price": "11.99",
-    "unit": "l",
-    "source_url": "https://carrefour.ro/produse/vinegreta-cu-otet-balsamic-si-busuioc-carrefour-selection-250ml-19-14529381",
-    "path": [
-      "Băcănie",
-      "Oțet",
-      "Oțet",
-      "250 ml"
-    ],
-    "updated_at": "2026-11-06"
-  },
-  {
-    "store": "Carrefour",
     "name": "Otet lamaie Carrefour Classic, 750ml",
     "brand": null,
     "price": "8.59",
@@ -32261,21 +31931,6 @@
       "Suc",
       "Alte arome",
       "1 l"
-    ],
-    "updated_at": "2026-11-06"
-  },
-  {
-    "store": "Carrefour",
-    "name": "Crema de otet balsamic de Modena Monini Glaze, 250g",
-    "brand": null,
-    "price": "28.99",
-    "unit": "kg",
-    "source_url": "https://carrefour.ro/produse/crema-de-otet-balsamic-de-modena-monini-glaze-250g-19-14507451",
-    "path": [
-      "Băcănie",
-      "Oțet",
-      "Oțet",
-      "250 g"
     ],
     "updated_at": "2026-11-06"
   },
@@ -32362,9 +32017,9 @@
     "unit": "l",
     "source_url": "https://carrefour.ro/produse/otet-facut-incet-otet-din-cidru-de-mere-cu-catina-500-ml-19-14522130",
     "path": [
-      "Băuturi",
-      "Cidru",
-      "Cidru",
+      "Băcănie",
+      "Oțet",
+      "Oțet",
       "500 ml"
     ],
     "updated_at": "2026-11-06"
@@ -32392,9 +32047,9 @@
     "unit": "l",
     "source_url": "https://carrefour.ro/produse/otet-balsamic-din-cidru-de-mere-ana-are-250-ml-19-14505917",
     "path": [
-      "Băuturi",
-      "Cidru",
-      "Cidru",
+      "Băcănie",
+      "Oțet",
+      "Oțet",
       "250 ml"
     ],
     "updated_at": "2026-11-06"
@@ -32491,21 +32146,6 @@
   },
   {
     "store": "Carrefour",
-    "name": "Mirin din vin de orez Saitaku 150ml",
-    "brand": null,
-    "price": "18.49",
-    "unit": "l",
-    "source_url": "https://carrefour.ro/produse/mirin-din-vin-de-orez-saitaku-150ml-19-14523530",
-    "path": [
-      "Băuturi",
-      "Vin",
-      "Vin",
-      "150 ml"
-    ],
-    "updated_at": "2026-11-06"
-  },
-  {
-    "store": "Carrefour",
     "name": "Otet crema balsamica Greek Land cu trufe 250ml",
     "brand": null,
     "price": "15.79",
@@ -32527,9 +32167,9 @@
     "unit": "l",
     "source_url": "https://carrefour.ro/produse/otet-crema-balsamica-greek-land-cu-smochine-250ml-19-14523201",
     "path": [
-      "Dulciuri și snacks",
-      "Fructe uscate",
-      "Uscate",
+      "Băcănie",
+      "Oțet",
+      "Oțet",
       "250 ml"
     ],
     "updated_at": "2026-11-06"
@@ -32596,21 +32236,6 @@
   },
   {
     "store": "Carrefour",
-    "name": "Crema de otet balsamic Ponti, 250ml",
-    "brand": null,
-    "price": "16.49",
-    "unit": "l",
-    "source_url": "https://carrefour.ro/produse/crema-de-otet-balsamic-ponti-250ml-19-14504041",
-    "path": [
-      "Băcănie",
-      "Oțet",
-      "Oțet",
-      "250 ml"
-    ],
-    "updated_at": "2026-11-06"
-  },
-  {
-    "store": "Carrefour",
     "name": "Otet din mere Ana Are 500 ml",
     "brand": null,
     "price": "12.49",
@@ -32632,9 +32257,9 @@
     "unit": "l",
     "source_url": "https://carrefour.ro/produse/otet-din-cidru-de-mere-de-nigris-500-ml-19-14513569",
     "path": [
-      "Băuturi",
-      "Cidru",
-      "Cidru",
+      "Băcănie",
+      "Oțet",
+      "Oțet",
       "500 ml"
     ],
     "updated_at": "2026-11-06"
@@ -32977,9 +32602,9 @@
     "unit": "kg",
     "source_url": "https://carrefour.ro/produse/masline-verzi-cu-migdale-xenia-355g-19-14508997",
     "path": [
-      "Dulciuri și snacks",
-      "Alune și semințe",
-      "Alune și arahide",
+      "Conserve și mâncare gata",
+      "Murături și măsline",
+      "Măsline",
       "355 g"
     ],
     "updated_at": "2026-11-06"
@@ -32992,9 +32617,9 @@
     "unit": "kg",
     "source_url": "https://carrefour.ro/produse/masline-verzi-fara-samburi-xenia-370g-19-14508995",
     "path": [
-      "Dulciuri și snacks",
-      "Alune și semințe",
-      "Alune și arahide",
+      "Conserve și mâncare gata",
+      "Murături și măsline",
+      "Măsline",
       "370 g"
     ],
     "updated_at": "2026-11-06"
@@ -33022,9 +32647,9 @@
     "unit": "kg",
     "source_url": "https://carrefour.ro/produse/masline-verzi-fara-samburi-180g-19-14530506",
     "path": [
-      "Dulciuri și snacks",
-      "Alune și semințe",
-      "Alune și arahide",
+      "Conserve și mâncare gata",
+      "Murături și măsline",
+      "Măsline",
       "180 g"
     ],
     "updated_at": "2026-11-06"
@@ -33037,9 +32662,9 @@
     "unit": "kg",
     "source_url": "https://carrefour.ro/produse/masline-verzi-cu-migdale-200g-19-14530507",
     "path": [
-      "Dulciuri și snacks",
-      "Alune și semințe",
-      "Alune și arahide",
+      "Conserve și mâncare gata",
+      "Murături și măsline",
+      "Măsline",
       "200 g"
     ],
     "updated_at": "2026-11-06"
@@ -33053,8 +32678,8 @@
     "source_url": "https://carrefour.ro/produse/masline-verzi-cu-ardei-200g-19-14530508",
     "path": [
       "Conserve și mâncare gata",
-      "Conserve de legume",
-      "Porumb și mazăre",
+      "Murături și măsline",
+      "Măsline",
       "200 g"
     ],
     "updated_at": "2026-11-06"
@@ -33136,21 +32761,6 @@
   },
   {
     "store": "Carrefour",
-    "name": "Mediteranean Mix GOLD Bonduelle 310g",
-    "brand": null,
-    "price": "12.39",
-    "unit": "kg",
-    "source_url": "https://carrefour.ro/produse/mediteranean-mix-gold-bonduelle-310g-19-14517589",
-    "path": [
-      "Băcănie",
-      "Ingrediente prăjituri",
-      "Drojdie și praf de copt",
-      "310 g"
-    ],
-    "updated_at": "2026-11-06"
-  },
-  {
-    "store": "Carrefour",
     "name": "Piure 4X125G Carrefour Classic",
     "brand": null,
     "price": "15.39",
@@ -33161,21 +32771,6 @@
       "Hrană bebeluși",
       "Piure",
       "500 g"
-    ],
-    "updated_at": "2026-11-06"
-  },
-  {
-    "store": "Carrefour",
-    "name": "Mango Felii In Sirop 425G Carrefour Classic",
-    "brand": null,
-    "price": "9.99",
-    "unit": "kg",
-    "source_url": "https://carrefour.ro/produse/mango-felii-in-sirop-425g-carrefour-classic-19-14529560",
-    "path": [
-      "Băuturi",
-      "Suc",
-      "Sirop și concentrat",
-      "425 g"
     ],
     "updated_at": "2026-11-06"
   },
@@ -33337,9 +32932,9 @@
     "unit": "kg",
     "source_url": "https://carrefour.ro/produse/dublu-concentrat-pasta-de-tomate-carrefour-bio-200g-19-14529479",
     "path": [
-      "Băuturi",
-      "Suc",
-      "Sirop și concentrat",
+      "Conserve și mâncare gata",
+      "Roșii conservate",
+      "Pastă",
       "200 g"
     ],
     "updated_at": "2026-11-06"
@@ -33401,21 +32996,6 @@
       "Roșii conservate",
       "Bulion și suc",
       "800 g"
-    ],
-    "updated_at": "2026-11-06"
-  },
-  {
-    "store": "Carrefour",
-    "name": "Rosii cherry in suc Carrefour Classic, 425g",
-    "brand": null,
-    "price": "6.09",
-    "unit": "kg",
-    "source_url": "https://carrefour.ro/produse/rosii-cherry-in-suc-carrefour-classic-425g-19-14529411",
-    "path": [
-      "Fructe și legume",
-      "Legume proaspete",
-      "Legume",
-      "425 g"
     ],
     "updated_at": "2026-11-06"
   },
@@ -33571,21 +33151,6 @@
   },
   {
     "store": "Carrefour",
-    "name": "Bonduelle ciuperci marinate, 280g",
-    "brand": null,
-    "price": "9.89",
-    "unit": "kg",
-    "source_url": "https://carrefour.ro/produse/bonduelle-ciuperci-marinate-280g-19-14532261",
-    "path": [
-      "Conserve și mâncare gata",
-      "Conserve de legume",
-      "Porumb și mazăre",
-      "280 g"
-    ],
-    "updated_at": "2026-11-06"
-  },
-  {
-    "store": "Carrefour",
     "name": "Fasole uscata Reflets de France, 530g",
     "brand": null,
     "price": "15.99",
@@ -33607,25 +33172,10 @@
     "unit": "kg",
     "source_url": "https://carrefour.ro/produse/masline-kalam-fara-samburi-xenia-350g-19-14508993",
     "path": [
-      "Dulciuri și snacks",
-      "Alune și semințe",
-      "Alune și arahide",
-      "350 g"
-    ],
-    "updated_at": "2026-11-06"
-  },
-  {
-    "store": "Carrefour",
-    "name": "Olympia Gourmet ardei Jalapeno borcan 300 g",
-    "brand": null,
-    "price": "13.49",
-    "unit": "kg",
-    "source_url": "https://carrefour.ro/produse/olympia-gourmet-ardei-jalapeno-borcan-300-g-19-14505251",
-    "path": [
       "Conserve și mâncare gata",
-      "Conserve de legume",
-      "Porumb și mazăre",
-      "300 g"
+      "Murături și măsline",
+      "Măsline",
+      "350 g"
     ],
     "updated_at": "2026-11-06"
   },
@@ -34477,9 +34027,9 @@
     "unit": "kg",
     "source_url": "https://carrefour.ro/produse/capsule-de-cafea-carrefour-selection-cu-alune-intensitate-7-compatibile-cu-nespresso-52g-19-14529722",
     "path": [
-      "Dulciuri și snacks",
-      "Alune și semințe",
-      "Alune și arahide",
+      "Cafea, ceai și cacao",
+      "Cafea",
+      "Capsule",
       "52 g"
     ],
     "updated_at": "2026-11-06"
@@ -35047,9 +34597,9 @@
     "unit": "buc",
     "source_url": "https://carrefour.ro/produse/ceai-rece-fares-cu-merisoare-si-fragute-12-plicuri-19-14524059",
     "path": [
-      "Dulciuri și snacks",
-      "Fructe uscate",
-      "Uscate",
+      "Cafea, ceai și cacao",
+      "Ceai",
+      "Rece",
       "12 buc"
     ],
     "updated_at": "2026-11-06"
@@ -35302,9 +34852,9 @@
     "unit": "buc",
     "source_url": "https://carrefour.ro/produse/ceai-de-zmeura-si-merisoare-lipton-20-plicuri-19-14522921",
     "path": [
-      "Dulciuri și snacks",
-      "Fructe uscate",
-      "Uscate",
+      "Cafea, ceai și cacao",
+      "Ceai",
+      "Plante și infuzii",
       "20 buc"
     ],
     "updated_at": "2026-11-06"
@@ -35926,36 +35476,6 @@
   },
   {
     "store": "Carrefour",
-    "name": "Yummy Tableta Cacao Cu Bucati De Arahide 85G",
-    "brand": null,
-    "price": "5.29",
-    "unit": "kg",
-    "source_url": "https://carrefour.ro/produse/yummy-tableta-cacao-cu-bucati-de-arahide-85g-19-14534859",
-    "path": [
-      "Dulciuri și snacks",
-      "Alune și semințe",
-      "Alune și arahide",
-      "85 g"
-    ],
-    "updated_at": "2026-11-06"
-  },
-  {
-    "store": "Carrefour",
-    "name": "Yummy Tableta Cacao Cu Bucati De Arahide Si Stafide 85G",
-    "brand": null,
-    "price": "5.29",
-    "unit": "kg",
-    "source_url": "https://carrefour.ro/produse/yummy-tableta-cacao-cu-bucati-de-arahide-si-stafide-85g-19-14534858",
-    "path": [
-      "Dulciuri și snacks",
-      "Alune și semințe",
-      "Alune și arahide",
-      "85 g"
-    ],
-    "updated_at": "2026-11-06"
-  },
-  {
-    "store": "Carrefour",
     "name": "Delaviuda Praline Asortate (Lapte, Alune Padure, Neagra 70% Cacao), 200 G",
     "brand": null,
     "price": "39.99",
@@ -36069,7 +35589,7 @@
     "path": [
       "Dulciuri și snacks",
       "Ciocolată",
-      "Neagră",
+      "Alte sortimente",
       "120 g"
     ],
     "updated_at": "2026-11-06"
@@ -36084,7 +35604,7 @@
     "path": [
       "Dulciuri și snacks",
       "Ciocolată",
-      "Neagră",
+      "Alte sortimente",
       "140 g"
     ],
     "updated_at": "2026-11-06"
@@ -36099,7 +35619,7 @@
     "path": [
       "Dulciuri și snacks",
       "Ciocolată",
-      "Neagră",
+      "Alte sortimente",
       "120 g"
     ],
     "updated_at": "2026-11-06"
@@ -36114,7 +35634,7 @@
     "path": [
       "Dulciuri și snacks",
       "Ciocolată",
-      "Neagră",
+      "Alte sortimente",
       "40 g"
     ],
     "updated_at": "2026-11-06"
@@ -36129,7 +35649,7 @@
     "path": [
       "Dulciuri și snacks",
       "Ciocolată",
-      "Neagră",
+      "Alte sortimente",
       "40 g"
     ],
     "updated_at": "2026-11-06"
@@ -36191,21 +35711,6 @@
       "Ciocolată",
       "Neagră",
       "75 g"
-    ],
-    "updated_at": "2026-11-06"
-  },
-  {
-    "store": "Carrefour",
-    "name": "Yummy Tableta Cacao Cu Umplutura De Cocos 85G",
-    "brand": null,
-    "price": "5.29",
-    "unit": "kg",
-    "source_url": "https://carrefour.ro/produse/yummy-tableta-cacao-cu-umplutura-de-cocos-85g-19-14534854",
-    "path": [
-      "Cafea, ceai și cacao",
-      "Cacao",
-      "Cacao",
-      "85 g"
     ],
     "updated_at": "2026-11-06"
   },
@@ -36352,9 +35857,9 @@
     "unit": "kg",
     "source_url": "https://carrefour.ro/produse/tableta-ciocolata-cereale-si-migdale-80g-kandia-19-14534285",
     "path": [
-      "Băcănie",
-      "Cereale",
-      "Fulgi și musli",
+      "Dulciuri și snacks",
+      "Ciocolată",
+      "Alte sortimente",
       "80 g"
     ],
     "updated_at": "2026-11-06"
@@ -36697,9 +36202,9 @@
     "unit": "l",
     "source_url": "https://carrefour.ro/produse/hipp-apa-pentru-copii-1l-19-14531729",
     "path": [
-      "Bebeluși",
-      "Hrană bebeluși",
-      "Cereale și gustări",
+      "Băuturi",
+      "Apă",
+      "Alte tipuri",
       "1 l"
     ],
     "updated_at": "2026-11-06"
@@ -39142,9 +38647,9 @@
     "unit": "l",
     "source_url": "https://carrefour.ro/produse/igienol-detergent-perfect-clean-vanilie-relaxanta-2-7l-19-11508658",
     "path": [
-      "Băcănie",
-      "Ingrediente prăjituri",
-      "Drojdie și praf de copt",
+      "Curățenie și casă",
+      "Detergent",
+      "Rufe alte tipuri",
       "2.7 l"
     ],
     "updated_at": "2026-11-06"
@@ -39172,9 +38677,9 @@
     "unit": "l",
     "source_url": "https://carrefour.ro/produse/igienol-detergent-perfect-clean-vanilie-relaxanta-1-6l-19-11508665",
     "path": [
-      "Băcănie",
-      "Ingrediente prăjituri",
-      "Drojdie și praf de copt",
+      "Curățenie și casă",
+      "Detergent",
+      "Rufe alte tipuri",
       "1.6 l"
     ],
     "updated_at": "2026-11-06"
@@ -39562,9 +39067,9 @@
     "unit": "l",
     "source_url": "https://carrefour.ro/produse/detergent-de-vase-dual-power-manual-super-concentrat-rodie-1000-ml-19-11505629",
     "path": [
-      "Băuturi",
-      "Suc",
-      "Sirop și concentrat",
+      "Curățenie și casă",
+      "Detergent",
+      "Vase",
       "1 l"
     ],
     "updated_at": "2026-11-06"
@@ -39577,9 +39082,9 @@
     "unit": "l",
     "source_url": "https://carrefour.ro/produse/detergent-de-vase-dual-power-manual-super-concentrat-lamaie-1000-ml-19-11023336",
     "path": [
-      "Băuturi",
-      "Suc",
-      "Sirop și concentrat",
+      "Curățenie și casă",
+      "Detergent",
+      "Vase",
       "1 l"
     ],
     "updated_at": "2026-11-06"
@@ -39592,9 +39097,9 @@
     "unit": "l",
     "source_url": "https://carrefour.ro/produse/detergent-vase-dual-power-bicarbonat-si-citrice-1-litru-19-11023334",
     "path": [
-      "Băcănie",
-      "Ingrediente prăjituri",
-      "Drojdie și praf de copt",
+      "Curățenie și casă",
+      "Detergent",
+      "Vase",
       "1 l"
     ],
     "updated_at": "2026-11-06"
@@ -39982,9 +39487,9 @@
     "unit": "l",
     "source_url": "https://carrefour.ro/produse/detergent-de-vase-cu-pompita-sano-spark-migdale-700-ml-19-11506523",
     "path": [
-      "Dulciuri și snacks",
-      "Alune și semințe",
-      "Alune și arahide",
+      "Curățenie și casă",
+      "Detergent",
+      "Vase",
       "700 ml"
     ],
     "updated_at": "2026-11-06"

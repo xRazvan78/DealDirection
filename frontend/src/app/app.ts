@@ -1,5 +1,5 @@
-import { Component, computed, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { Component, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import {
   NavigationEnd,
   Router,
@@ -7,8 +7,10 @@ import {
   RouterLinkActive,
   RouterOutlet,
 } from '@angular/router';
-import { filter, map } from 'rxjs';
+import { filter, fromEvent, map } from 'rxjs';
 import { ro } from './shared/ro';
+
+const SCROLL_TOP_THRESHOLD = 200;
 
 @Component({
   imports: [RouterLink, RouterLinkActive, RouterOutlet],
@@ -28,9 +30,44 @@ export class App {
 
   protected readonly ro = ro;
   protected readonly showNavigation = computed(() => !this.url().startsWith('/login'));
+  protected readonly menuOpen = signal(false);
   protected readonly tabs = [
-    { path: '/browse', label: ro.nav.deals, icon: 'deals' },
+    { path: '/browse', label: ro.nav.home, icon: 'home' },
     { path: '/cart', label: ro.nav.cart, icon: 'cart' },
     { path: '/cards', label: ro.nav.cards, icon: 'cards' },
   ];
+  protected readonly menuLinks = [
+    { path: '/lists', label: ro.nav.lists },
+    { path: '/import', label: ro.nav.import },
+    { path: '/wallet', label: ro.nav.wallet },
+    { path: '/settings', label: ro.nav.settings },
+  ];
+  private readonly scrolled = signal(false);
+  // The cart's fixed lower section sits where the arrow would float.
+  protected readonly showScrollTop = computed(
+    () => this.scrolled() && !this.url().startsWith('/cart'),
+  );
+  private scroller: Element | null = null;
+
+  constructor() {
+    // Scroll events don't bubble, so capturing here covers every scrolling area.
+    fromEvent(document, 'scroll', { capture: true, passive: true })
+      .pipe(takeUntilDestroyed())
+      .subscribe(({ target }) => {
+        if (target instanceof Element) {
+          this.scroller = target;
+          this.scrolled.set(target.scrollTop > SCROLL_TOP_THRESHOLD);
+        }
+      });
+    this.router.events
+      .pipe(
+        filter((event) => event instanceof NavigationEnd),
+        takeUntilDestroyed(),
+      )
+      .subscribe(() => this.scrolled.set(false));
+  }
+
+  protected scrollToTop(): void {
+    this.scroller?.scrollTo({ top: 0, behavior: 'smooth' });
+  }
 }
