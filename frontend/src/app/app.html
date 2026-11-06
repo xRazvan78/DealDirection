@@ -48,6 +48,9 @@
             }
           }
         </svg>
+        @if (tab.icon === 'cart' && cartCount() !== '0') {
+          <span class="cart-count">{{ cartCount() }}</span>
+        }
         {{ tab.label }}
       </a>
     }

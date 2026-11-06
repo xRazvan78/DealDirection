@@ -34,6 +34,9 @@ const CART_KEY = 'dealdirection.cart';
 export class CartService {
   readonly items = signal<CartItem[]>(readSavedItems());
   readonly total = computed(() => totalOf(this.items()));
+  readonly itemCount = computed(() =>
+    this.items().reduce((count, item) => addQuantities(count, item.quantity), '0'),
+  );
   readonly points = computed(() => pointsFor(this.total()));
   readonly stores = computed(() => {
     const stores = new Map<number, string>();

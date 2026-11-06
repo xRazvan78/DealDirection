@@ -20,6 +20,20 @@ describe('CartService', () => {
     return TestBed.inject(CartService);
   }
 
+  it('counts the total quantity across products, keeping fractions exact', () => {
+    const cart = create();
+
+    expect(cart.itemCount()).toBe('0');
+
+    cart.add({ name: 'Apă minerală', quantity: '5', price: '3' });
+    cart.add({ name: 'Apă plată', quantity: '3', price: '2' });
+    expect(cart.itemCount()).toBe('8');
+
+    cart.add({ name: 'Mere', quantity: '0.1', price: '6' });
+    cart.add({ name: 'Pere', quantity: '0.2', price: '7' });
+    expect(cart.itemCount()).toBe('8.3');
+  });
+
   it('adds typed products, with no store yet', () => {
     const cart = create();
 
