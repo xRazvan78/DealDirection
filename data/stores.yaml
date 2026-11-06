@@ -1,12 +1,22 @@
-# Store colours and 2-3 locations in the demo city. Owner: Member 1, Task 5.
+# Store colours and locations in the demo city, Sibiu. Owner: Member 1, Task 5.
 #
-# Add locations once the team picks the demo city:
-#   - {address: "...", latitude: 44.43, longitude: 26.10}
+# Addresses come from each store's official list, and coordinates from OpenStreetMap.
+# Auchan's only Sibiu store now trades as ATAC Sibiu. Small Carrefour Express shops
+# are left out, because directions shouldn't send a full cart to a corner shop.
 
 stores:
   Auchan:
     colour: "#d6001c"
-    locations: []
+    locations:
+      - address: "ATAC Sibiu, Șoseaua Sibiului nr. 5, Shopping City Sibiu, Șelimbăr"
+        latitude: 45.7754496
+        longitude: 24.1689359
   Carrefour:
     colour: "#004e9f"
-    locations: []
+    locations:
+      - address: "Carrefour Sibiu, Șoseaua Sibiului nr. 5, DN1 km 306, Șelimbăr"
+        latitude: 45.7771959
+        longitude: 24.1673848
+      - address: "Carrefour Market, Bulevardul Victoriei nr. 42, Sibiu"
+        latitude: 45.7865597
+        longitude: 24.1400471
