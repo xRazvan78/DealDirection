@@ -33,13 +33,13 @@
           </div>
         } @else if (editing()) {
           <button type="button" class="row" (click)="editingId.set(row.id)">
-            <span class="name">{{ row.name }}</span>
+            <span class="name">{{ row.name }}<small class="store">{{ row.storeName }}</small></span>
             <span>{{ row.quantity }}</span>
             <span>{{ formatLei(row.price) }}</span>
           </button>
         } @else {
           <div class="row">
-            <span class="name">{{ row.name }}</span>
+            <span class="name">{{ row.name }}<small class="store">{{ row.storeName }}</small></span>
             <span>{{ row.quantity }}</span>
             <span>{{ formatLei(row.price) }}</span>
           </div>
@@ -178,6 +178,40 @@
 }
 @if (importNote(); as message) {
   <p class="note" role="status">{{ message }}</p>
+}
+
+@if (comparison(); as plans) {
+  <section class="plans" [attr.aria-label]="ro.cart.plans">
+    <button
+      type="button"
+      class="plan plan-single"
+      [attr.aria-pressed]="isChosen(plans.single)"
+      (click)="choosePlan(plans.single)"
+    >
+      <small>{{ ro.cart.singlePlan }}: {{ plans.single.storeName }}</small>
+      <strong>{{ formatLei(plans.single.total) }}</strong>
+      @if (plans.single.missing) {
+        <small>{{ ro.cart.missingPrefix }} {{ plans.single.missing }}</small>
+      }
+    </button>
+    @if (plans.split; as split) {
+      <button
+        type="button"
+        class="plan plan-split"
+        [attr.aria-pressed]="isChosen(split)"
+        (click)="choosePlan(split)"
+      >
+        <small>{{ ro.cart.splitPlan }}</small>
+        <strong>{{ formatLei(split.total) }}</strong>
+        <small>{{ ro.cart.saves }} {{ formatLei(plans.saving) }}</small>
+      </button>
+    } @else {
+      <p class="no-split">{{ ro.cart.splitNotWorth }}</p>
+    }
+  </section>
+  @if (plans.unmatched) {
+    <p class="note compact">{{ ro.cart.notCompared }}</p>
+  }
 }
 
 <section class="summary">

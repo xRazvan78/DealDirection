@@ -432,7 +432,7 @@ Each task lists its files, what other tasks rely on, the decisions already made,
 ### Task 13: Wallet, rewards and cards (Member 2)
 
 - **Files:** `backend/app/wallet/router.py`, `backend/app/wallet/rewards.py`, `backend/app/cards/router.py`, `tests/backend/test_wallet.py`, `tests/backend/test_cards.py`
-- **Produces:** the Wallet and Cards routes. `GET /wallet` returns `{balance, history: [{amount, reason, created_at}]}`. `GET /rewards` returns `[{id, name, cost}]` from a static list labelled as sample data.
+- **Produces:** the Wallet and Cards routes. `GET /wallet` returns `{balance, history: [{amount, reason, created_at}]}`. `GET /rewards` returns `[{id, name, cost, store_name}]` from a static list labelled as sample data. `POST /rewards/{id}/redeem` returns the new voucher, `{id, code, reward_name, store_name, expires_at}`, and `GET /vouchers` returns the unused, unexpired ones.
 - **Rules:** `redeem` locks the user row with `SELECT ... FOR UPDATE` before checking the balance, so two taps can't overspend. Card images use the same size limit as receipts.
 - **Tests:**
   - The balance is the ledger's sum.
@@ -523,5 +523,5 @@ Each task lists its files, what other tasks rely on, the decisions already made,
   3. Build the frontend, load the data, and run `uv run uvicorn app.main:app --app-dir backend --port 8000`.
   4. Run `cloudflared tunnel --url http://localhost:8000`. The phone should open the HTTPS address, install the PWA and open the camera.
   5. Do the real-world checks in the README, and record the results in this file.
-  6. Write the demo script, prepare the demo user's data, and record a backup video.
+  6. Write the demo script, prepare the demo user's data from `data/demo_list.yaml`, and record a backup video.
 - **Done when:** the full loop works on the phone with the real receipt.

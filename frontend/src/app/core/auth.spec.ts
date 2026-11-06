@@ -1,6 +1,7 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
+import { CardsService } from '../cards/cards.service';
 import { CartService } from '../cart/cart.service';
 import { AuthService } from './auth';
 
@@ -65,6 +66,16 @@ describe('AuthService', () => {
     auth.logout();
 
     expect(cart.items()).toEqual([]);
+  });
+
+  it('removes saved cards on logout, so the next user does not see them', () => {
+    const auth = setup();
+    const cards = TestBed.inject(CardsService);
+    cards.add('Auchan', 'data:image/jpeg;base64,AAAA');
+
+    auth.logout();
+
+    expect(cards.cards()).toEqual([]);
   });
 
   it('clears the token on logout', () => {

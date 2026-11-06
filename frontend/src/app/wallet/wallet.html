@@ -1,1 +1,96 @@
-<p>wallet works!</p>
+<h1>{{ ro.wallet.title }}</h1>
+
+@if (wallet(); as data) {
+  <div class="balance">
+    <span>{{ ro.wallet.balance }}</span>
+    <strong>{{ data.balance }}</strong>
+  </div>
+
+  <section>
+    <h2>{{ ro.wallet.vouchers }}</h2>
+    @for (voucher of vouchers(); track voucher.id) {
+      <button type="button" class="voucher" (click)="openVoucher.set(voucher)">
+        <span class="name">{{ voucher.reward_name }}</span>
+        <small>
+          {{ ro.wallet.usableAt }} {{ voucher.store_name }} · {{ ro.wallet.expires }}
+          {{ voucher.expires_at | date: 'dd.MM.yyyy' }}
+        </small>
+      </button>
+    } @empty {
+      <p class="note">{{ ro.wallet.noVouchers }}</p>
+    }
+  </section>
+
+  <section>
+    <h2>{{ ro.wallet.rewards }}</h2>
+    <p class="note">{{ ro.wallet.simulated }}</p>
+
+    @if (error(); as message) {
+      <p class="error" role="alert">{{ message }}</p>
+    }
+
+    @for (reward of rewards(); track reward.id) {
+      <article class="reward">
+        <span class="name">{{ reward.name }}</span>
+        <span class="shop">{{ ro.wallet.usableAt }} {{ reward.store_name }}</span>
+        <span class="cost">{{ reward.cost }} {{ ro.wallet.points }}</span>
+        <button
+          type="button"
+          [disabled]="pointsShort(reward) > 0 || redeemingId() !== null"
+          (click)="redeem(reward)"
+        >
+          @if (pointsShort(reward) > 0) {
+            {{ ro.wallet.short }} {{ pointsShort(reward) }}
+          } @else {
+            {{ redeemingId() === reward.id ? ro.loading : ro.wallet.redeem }}
+          }
+        </button>
+      </article>
+    } @empty {
+      <p class="note">{{ ro.wallet.noRewards }}</p>
+    }
+  </section>
+
+  <section>
+    <h2>{{ ro.wallet.history }}</h2>
+    @for (entry of data.history; track $index) {
+      <div class="entry" [class.earned]="entry.amount > 0">
+        <span class="reason">
+          {{ entry.reason }}
+          <small>{{ entry.created_at | date: 'dd.MM.yyyy' }}</small>
+        </span>
+        <strong>{{ entry.amount > 0 ? '+' : '' }}{{ entry.amount }}</strong>
+      </div>
+    } @empty {
+      <p class="note">{{ ro.wallet.noHistory }}</p>
+    }
+  </section>
+} @else if (loadFailed()) {
+  <p class="error" role="alert">{{ ro.wallet.loadFailed }}</p>
+} @else {
+  <p class="note">{{ ro.loading }}</p>
+}
+
+@if (openVoucher(); as voucher) {
+  <div class="voucher-view" role="dialog" [attr.aria-label]="voucher.reward_name">
+    <h2>{{ voucher.reward_name }}</h2>
+    <p class="where">{{ ro.wallet.usableAt }} {{ voucher.store_name }}</p>
+    @if (qr(); as drawing) {
+      <svg
+        role="img"
+        shape-rendering="crispEdges"
+        [attr.viewBox]="'-2 -2 ' + (drawing.size + 4) + ' ' + (drawing.size + 4)"
+        [attr.aria-label]="ro.wallet.qrLabel + ' ' + voucher.code"
+      >
+        <path [attr.d]="drawing.path" />
+      </svg>
+    }
+    <p class="code">{{ voucher.code }}</p>
+    <p class="where">{{ ro.wallet.expires }} {{ voucher.expires_at | date: 'dd.MM.yyyy' }}</p>
+    <p class="how">{{ ro.wallet.voucherHow }}</p>
+    <p class="demo">{{ ro.wallet.voucherDemo }}</p>
+    <button type="button" class="close-voucher" (click)="openVoucher.set(null)">
+      {{ ro.wallet.close }}
+    </button>
+  </div>
+}

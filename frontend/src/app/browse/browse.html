@@ -2,7 +2,7 @@
   <a class="points" routerLink="/wallet">
     {{ ro.browse.points }}: <strong>{{ balance() ?? '–' }}</strong>
   </a>
-  <a class="point-shop" routerLink="/wallet" fragment="rewards">{{ ro.browse.pointShop }}</a>
+  <a class="point-shop" routerLink="/wallet">{{ ro.browse.pointShop }}</a>
 </div>
 
 <form class="search" role="search" (submit)="search($event)">
