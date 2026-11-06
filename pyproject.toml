@@ -21,6 +21,8 @@ dependencies = [
     "rapidfuzz",
     "sqlalchemy",
     "uvicorn[standard]",
+    "rapidocr>=3.10.0",
+    "onnxruntime>=1.31.1",
 ]
 
 [dependency-groups]
