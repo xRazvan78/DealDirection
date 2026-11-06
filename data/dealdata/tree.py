@@ -1,12 +1,14 @@
 """LeafRule, load_tree() and classify(). Owner: Member 1, Task 4."""
 
+import re
 from dataclasses import dataclass
 from decimal import Decimal
 from pathlib import Path
 
 import yaml
+from app.textutil import fold
 
-from dealdata.normalize import Size, parse_size
+from dealdata.normalize import RawProduct, Size, parse_size
 
 
 @dataclass(frozen=True)
@@ -56,6 +58,37 @@ def category_nodes(rules: list[LeafRule]) -> list[CategoryNode]:
         leaf = (*group, category, type_name, size_text)
         nodes[leaf] = CategoryNode(leaf, "size", rule.size.amount, rule.size.unit, rule.aliases)
     return list(nodes.values())
+
+
+def classify(product: RawProduct, size: Size, rules: list[LeafRule]) -> LeafRule | None:
+    """Return the first leaf that fits, so the order of tree.yaml matters."""
+    text = _comparable(product.name)
+    for rule in rules:
+        if rule.size == size and _fits(rule, text):
+            return rule
+    return None
+
+
+def _comparable(name: str) -> str:
+    """Fold a name, and write decimals with a dot, as tree.yaml does."""
+    return re.sub(r"(?<=\d),(?=\d)", ".", fold(name))
+
+
+def _fits(rule: LeafRule, text: str) -> bool:
+    return (
+        (not rule.starts_with or any(_starts_with(entry, text) for entry in rule.starts_with))
+        and all(_has_word(word, text) for word in rule.include)
+        and (not rule.any_of or any(_has_word(word, text) for word in rule.any_of))
+        and not any(_has_word(word, text) for word in rule.exclude)
+    )
+
+
+def _has_word(word: str, text: str) -> bool:
+    return re.search(rf"(?<!\w){re.escape(word)}(?!\w)", text) is not None
+
+
+def _starts_with(entry: str, text: str) -> bool:
+    return re.match(rf"{re.escape(entry)}(?!\w)", text) is not None
 
 
 def load_tree(path: Path) -> list[LeafRule]:
