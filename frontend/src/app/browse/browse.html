@@ -47,6 +47,9 @@
             {{ generic.store_name }} · {{ ro.browse.updated }}
             {{ generic.updated_at | date: 'dd.MM.yyyy' }}
           </span>
+          <button type="button" class="add" (click)="addToCart(generic)">
+            {{ addedId() === generic.id ? ro.browse.added : ro.browse.add }}
+          </button>
         </article>
       }
       @for (product of found.products; track product.id) {
@@ -57,6 +60,9 @@
             {{ product.store_name }} · {{ ro.browse.updated }}
             {{ product.updated_at | date: 'dd.MM.yyyy' }}
           </span>
+          <button type="button" class="add" (click)="addToCart(product)">
+            {{ addedId() === product.id ? ro.browse.added : ro.browse.add }}
+          </button>
         </article>
       } @empty {
         <p class="note">{{ ro.browse.empty }}</p>

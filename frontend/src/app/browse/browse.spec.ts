@@ -2,6 +2,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { CartService } from '../cart/cart.service';
 import { Category, CategoryProducts, Product, SearchResult, Wallet } from '../core/models';
 import { ro } from '../shared/ro';
 import { Browse } from './browse';
@@ -34,6 +35,7 @@ describe('Browse', () => {
   let page: HTMLElement;
 
   beforeEach(async () => {
+    localStorage.clear();
     await TestBed.configureTestingModule({
       imports: [Browse],
       providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting()],
@@ -164,6 +166,27 @@ describe('Browse', () => {
     expect(text).toContain('8,50 lei');
     expect(text).toContain('Auchan');
     expect(text).toContain('02.11.2026');
+  });
+
+  it('adds a product to the cart', async () => {
+    await openProducts();
+
+    page.querySelector<HTMLButtonElement>('.product .add')!.click();
+    await settle();
+
+    expect(TestBed.inject(CartService).items()[0]).toMatchObject({
+      name: 'Lapte Zuzu 3.5% 1 l',
+      storeName: 'Auchan',
+    });
+    expect(page.querySelector('.product .add')?.textContent).toContain(ro.browse.added);
+  });
+
+  it('adds the cheapest generic option to the cart', async () => {
+    await openProducts();
+
+    page.querySelector<HTMLButtonElement>('.generic .add')!.click();
+
+    expect(TestBed.inject(CartService).items()[0].price).toBe('8.5');
   });
 
   it('highlights the cheapest generic option', async () => {

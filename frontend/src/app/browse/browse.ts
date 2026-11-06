@@ -11,8 +11,9 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { Observable, Subscription } from 'rxjs';
+import { CartService } from '../cart/cart.service';
 import { ApiService } from '../core/api';
-import { Category, CategoryProducts, SearchResult } from '../core/models';
+import { Category, CategoryProducts, Product, SearchResult } from '../core/models';
 import { formatLei } from '../shared/format';
 import { ro } from '../shared/ro';
 
@@ -24,6 +25,7 @@ import { ro } from '../shared/ro';
 })
 export class Browse {
   private readonly api = inject(ApiService);
+  private readonly cart = inject(CartService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly list = viewChild<ElementRef<HTMLElement>>('list');
   private request?: Subscription;
@@ -39,6 +41,7 @@ export class Browse {
   protected readonly query = signal('');
   protected readonly loading = signal(true);
   protected readonly failed = signal(false);
+  protected readonly addedId = signal<number | null>(null);
   protected readonly heading = computed(() => {
     if (this.products()) {
       return this.productsTitle();
@@ -85,6 +88,11 @@ export class Browse {
       this.products.set(null);
       this.results.set(results);
     });
+  }
+
+  protected addToCart(product: Product): void {
+    this.cart.addProduct(product);
+    this.addedId.set(product.id);
   }
 
   protected back(): void {

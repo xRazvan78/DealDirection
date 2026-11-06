@@ -126,43 +126,66 @@ const handlers: Record<string, Handler> = {
   'POST /api/imports': () => ({
     items: [
       { food: 'lapte', size_category_id: 100, path: pathOf(100), packs: 2 },
-      { food: 'pâine', size_category_id: 200, path: pathOf(200), packs: 1 },
+      { food: 'paine', size_category_id: 200, path: pathOf(200), packs: 1 },
     ],
-    unmapped: ['quinoa'],
+    unmapped: ['ghimbir'],
   }),
   'POST /api/imports/confirm': (request) => ({
     list_id: createList((request.body as { name: string }).name).id,
   }),
 };
 
-function listHandler(request: HttpRequest<unknown>, listId: number): Handler | undefined {
-  if (request.method === 'PATCH') {
-    return () => {
-      const { name } = request.body as { name: string };
-      lists = lists.map((list) => (list.id === listId ? { ...list, name } : list));
-      return lists.find((list) => list.id === listId);
-    };
-  }
-  if (request.method === 'DELETE') {
-    return () => {
-      lists = lists.filter((list) => list.id !== listId);
+const routesWithIds: [RegExp, string, Handler][] = [
+  [/^\/api\/categories\/\d+\/products$/, 'GET', ({ url }) => productsFor(idIn(url))],
+  [
+    /^\/api\/stores\/\d+\/directions$/,
+    'GET',
+    () => ({
+      address: 'Adresă de test',
+      maps_url: 'https://www.google.com/maps/dir/?api=1&destination=44.4268,26.1025',
+    }),
+  ],
+  [
+    /^\/api\/lists\/\d+\/receipts$/,
+    'POST',
+    () => ({
+      matched: [{ name: 'Lapte 3.5% 1 l', line_total: '8.50' }],
+      unmatched_items: [],
+      estimate: '8.50',
+      paid: '8.50',
+      modifier: '1.00',
+      points: 85,
+    }),
+  ],
+  [
+    /^\/api\/lists\/\d+$/,
+    'PATCH',
+    ({ url, body }) => {
+      const { name } = body as { name: string };
+      lists = lists.map((list) => (list.id === idIn(url) ? { ...list, name } : list));
+      return lists.find((list) => list.id === idIn(url));
+    },
+  ],
+  [
+    /^\/api\/lists\/\d+$/,
+    'DELETE',
+    ({ url }) => {
+      lists = lists.filter((list) => list.id !== idIn(url));
       return null;
-    };
-  }
-  return undefined;
+    },
+  ],
+];
+
+function idIn(url: string): number {
+  return Number(url.match(/\d+/)?.[0]);
 }
 
-const categoryProductsRoute = /^\/api\/categories\/(\d+)\/products$/;
-const listRoute = /^\/api\/lists\/(\d+)$/;
-
 export const mockInterceptor: HttpInterceptorFn = (request, next) => {
-  const sizeId = request.url.match(categoryProductsRoute)?.[1];
-  const listId = request.url.match(listRoute)?.[1];
-  const handler = sizeId
-    ? () => productsFor(Number(sizeId))
-    : listId
-      ? listHandler(request, Number(listId))
-      : handlers[`${request.method} ${request.url}`];
+  const handler =
+    handlers[`${request.method} ${request.url}`] ??
+    routesWithIds.find(
+      ([route, method]) => method === request.method && route.test(request.url),
+    )?.[2];
   return handler
     ? of(new HttpResponse({ status: 200, body: handler(request) })).pipe(delay(300))
     : next(request);
