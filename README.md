@@ -179,7 +179,7 @@ Each placeholder file names its owner and task. Stay inside your own files where
 ### Project structure
 
 ```text
-pyproject.toml, uv.lock, .python-version, .env.example, .gitignore
+pyproject.toml, uv.lock, requirements.txt, .python-version, .env.example, .gitignore
 backend/app/
   main.py config.py db.py models.py textutil.py deps.py
   auth/router.py   catalog/router.py   lists/router.py
@@ -335,6 +335,12 @@ cp .env.example .env
 
 ```bash
 uv sync
+```
+
+If you don't use uv, install the same pinned packages with Python 3.12 and pip. [requirements.txt](requirements.txt) also lists the tools pip can't install.
+
+```bash
+python -m pip install -r requirements.txt
 ```
 
 ```bash
