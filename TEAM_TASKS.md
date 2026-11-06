@@ -6,51 +6,53 @@ The [Task details](#task-details) section at the end describes all 19 tasks. The
 
 ## Team overview
 
-| Member | Role | Owns | Plan tasks |
-|---|---|---|---|
-| Member 1 | Data and supporting screens | Scrapers, product tree, lists and import screens, card wallet | 4, 5, 16, 18 |
-| Member 2 | Backend lead | Database, login, catalog, lists, optimiser, plans, wallet API, final integration | 1, 6, 7, 3, 8, 9, 13 |
-| Member 3 | Scanning and points | OCR, receipt parsing, matching, points, list import | 2, 10, 11, 12 |
-| Member 4 | Frontend lead and pitch | App shell, login, browse, cart, plan, receipt and wallet screens, pitch | 14, 15, 17 |
+| Member   | Role                        | Owns                                                                             | Plan tasks           |
+| -------- | --------------------------- | -------------------------------------------------------------------------------- | -------------------- |
+| Member 1 | Data and supporting screens | Scrapers, product tree, lists and import screens, card wallet                    | 4, 5, 16, 18         |
+| Member 2 | Backend lead                | Database, login, catalog, lists, optimiser, plans, wallet API, final integration | 1, 6, 7, 3, 8, 9, 13 |
+| Member 3 | Scanning and points         | OCR, receipt parsing, matching, points, list import                              | 2, 10, 11, 12        |
+| Member 4 | Frontend lead and pitch     | App shell, login, browse, cart, plan, receipt and wallet screens, pitch          | 14, 15, 17           |
 
 ## Timeline
 
-| Hours | Member 1 | Member 2 | Member 3 | Member 4 |
-|---|---|---|---|---|
-| 0–2 | Draft the category tree | Task 1: skeleton and database | Check Tesseract, prepare receipts | Create the Angular project, sketch screens |
-| 2–6 | Tasks 4–5: tree, scrapers | Tasks 6–7: login, catalog | Task 2, then Task 10 OCR test | Task 14: shell, login, settings |
-| 6–8 | Task 5: load the snapshot | Task 3: optimiser | Task 10: reader | Task 15: browse |
-| 8–11 | Task 16: lists screen | Task 3, then Task 8: lists | Task 10: reader | Task 15: cart |
-| 11–14 | Task 16: import screen | Task 9: plans, directions | Task 11: receipts | Task 15: plan screen |
-| 14–16 | Abbreviations and aliases | Task 13: wallet, cards API | Task 11: receipts | Task 17: receipt screen |
-| 16–19 | Task 18: card wallet | Connect all screens to the API | Task 12: list import | Task 17: wallet screen |
-| 19–21 | Finish Task 18, clean demo data | Fix integration bugs | Tune OCR on real receipts | Polish the phone layout and PWA |
-| 21–23 | **Feature freeze:** Task 19 | Task 19 | Task 19 | Task 19 |
-| 23–24 | Rehearse | Rehearse | Rehearse | Rehearse |
+| Hours | Member 1                        | Member 2                       | Member 3                          | Member 4                                   |
+| ----- | ------------------------------- | ------------------------------ | --------------------------------- | ------------------------------------------ |
+| 0–2   | Draft the category tree         | Task 1: skeleton and database  | Check Tesseract, prepare receipts | Create the Angular project, sketch screens |
+| 2–6   | Tasks 4–5: tree, scrapers       | Tasks 6–7: login, catalog      | Task 2, then Task 10 OCR test     | Task 14: shell, login, settings            |
+| 6–8   | Task 5: load the snapshot       | Task 3: optimiser              | Task 10: reader                   | Task 15: browse                            |
+| 8–11  | Task 16: lists screen           | Task 3, then Task 8: lists     | Task 10: reader                   | Task 15: cart                              |
+| 11–14 | Task 16: import screen          | Task 9: plans, directions      | Task 11: receipts                 | Task 15: plan screen                       |
+| 14–16 | Abbreviations and aliases       | Task 13: wallet, cards API     | Task 11: receipts                 | Task 17: receipt screen                    |
+| 16–19 | Task 18: card wallet            | Connect all screens to the API | Task 12: list import              | Task 17: wallet screen                     |
+| 19–21 | Finish Task 18, clean demo data | Fix integration bugs           | Tune OCR on real receipts         | Polish the phone layout and PWA            |
+| 21–23 | **Feature freeze:** Task 19     | Task 19                        | Task 19                           | Task 19                                    |
+| 23–24 | Rehearse                        | Rehearse                       | Rehearse                          | Rehearse                                   |
 
 ## Checkpoints
 
 Stop for 10 minutes at each one, and make a cut if you're behind.
 
-| Hour | What must work | If not |
-|---|---|---|
-| 2 | The API is agreed and the skeleton runs on every laptop | Member 2 fixes this before anything else |
-| 8 | Real products can be browsed, and the OCR test result is known | Use a smaller product set, or try RapidOCR |
-| 14 | A cart produces plans and opens directions | Everyone helps finish this first |
-| 19 | The full loop works once, even if rough | Drop the card wallet |
-| 21 | Feature freeze | Drop PDF import if it's unstable, and stop adding features |
+| Hour | What must work                                                 | If not                                                     |
+| ---- | -------------------------------------------------------------- | ---------------------------------------------------------- |
+| 2    | The API is agreed and the skeleton runs on every laptop        | Member 2 fixes this before anything else                   |
+| 8    | Real products can be browsed, and the OCR test result is known | Use a smaller product set, or try RapidOCR                 |
+| 14   | A cart produces plans and opens directions                     | Everyone helps finish this first                           |
+| 19   | The full loop works once, even if rough                        | Drop the card wallet                                       |
+| 21   | Feature freeze                                                 | Drop PDF import if it's unstable, and stop adding features |
 
 ## Member 1: Data and supporting screens
 
 **Goal:** real, clean prices in the database, plus the lists, import and card screens.
 
 **Before the event**
+
 - [ ] Read Auchan's and Carrefour's terms of use, and report any problem to the team.
 - [ ] Check the hackathon allows pre-scraped data.
 - [ ] Run a small test scrape of both stores.
 
 **During the event**
-- [ ] Task 4: write `data/tree.yaml` with about 30 categories, and the size parser and classifier.
+
+- [ ] Task 4: write `data/tree.yaml` with about 65 categories, and the size parser and classifier.
 - [ ] Task 5: build the scrapers, save the snapshot, and load it with store locations and the demo user.
 - [ ] Task 16: build the lists and import screens, using mock data until the API is ready.
 - [ ] Help Member 3 with `data/abbreviations.yaml` and the tree's food aliases.
@@ -68,17 +70,19 @@ Stop for 10 minutes at each one, and make a cut if you're behind.
 **Goal:** a stable API, and a cart that gives correct plans. You also own integration.
 
 **Before the event**
+
 - [ ] Install PostgreSQL 16+, and write the shared setup notes.
 - [ ] Choose the demo city with the team.
 - [ ] Install `cloudflared`, and prepare the HTTPS demo setup.
 
 **During the event**
+
 - [ ] Task 1: build the skeleton, database and test fixtures.
 - [ ] Task 6: add login and the demo user.
 - [ ] Task 7: add the catalog and store selection.
 - [ ] Task 3: build the optimiser, with every listed test case.
 - [ ] Task 8: add shopping lists.
-- [ ] Task 9: add plans, the one-time suggestion and directions.
+- [x] Task 9: add plans, the one-time suggestion and directions. IGNORE FOR NOW
 - [ ] Task 13: add the wallet, simulated rewards and the cards API.
 - [ ] Connect all screens to the real API, and fix integration bugs.
 - [ ] Task 19: write the full-loop test, and run the app on a phone over HTTPS.
@@ -94,12 +98,14 @@ Stop for 10 minutes at each one, and make a cut if you're behind.
 **Goal:** a real receipt turns into correct points, and a plan turns into a list. This is the riskiest part of the project, so it starts early.
 
 **Before the event**
+
 - [ ] Install Tesseract with Romanian data, and confirm `tesseract --list-langs` shows `ron`.
 - [ ] Photograph 5 real receipts each from Auchan and Carrefour.
 - [ ] Buy 5 products at Auchan, and compare the receipt with the online prices.
 - [ ] Prepare a PDF, a picture and a copied text message of a nutrition plan.
 
 **During the event**
+
 - [ ] Task 2: build the points calculation.
 - [ ] Task 10, step 1: test OCR on real receipts, and tell the team the result by hour 8.
 - [ ] Task 10: build the local reader, parsers, abbreviation dictionary and fuzzy matching.
@@ -119,11 +125,13 @@ Stop for 10 minutes at each one, and make a cut if you're behind.
 **Goal:** the main demo flow feels smooth on a phone, and the pitch is ready.
 
 **Before the event**
+
 - [ ] Install Node.js and the Angular CLI.
 - [ ] Sketch the main screens, and agree the bottom navigation.
 - [ ] Draft the pitch: the problem, the demo and why it's different.
 
 **During the event**
+
 - [ ] Task 14: build the PWA shell, login, settings and Romanian text file.
 - [ ] Task 15: build the browse, cart and plan screens, using mock data until the API is ready.
 - [ ] Task 17: build the receipt and wallet screens.
@@ -170,12 +178,12 @@ Each task lists its files, what other tasks rely on, the decisions already made,
 - **Tests:** a zero estimate raises `ValueError`, and at 100 lei estimate and 10 points per lei:
 
 | Paid | Modifier | Points |
-|---|---|---|
-| 90 | 1.00 | 1,000 |
-| 103 | 1.00 | 1,000 |
-| 105 | 1.05 | 1,050 |
-| 112 | 1.12 | 1,120 |
-| 140 | 1.25 | 1,250 |
+| ---- | -------- | ------ |
+| 90   | 1.00     | 1,000  |
+| 103  | 1.00     | 1,000  |
+| 105  | 1.05     | 1,050  |
+| 112  | 1.12     | 1,120  |
+| 140  | 1.25     | 1,250  |
 
 ### Task 3: Cart optimiser (Member 2)
 
@@ -233,7 +241,7 @@ Each task lists its files, what other tasks rely on, the decisions already made,
   - `Paine alba` has no size.
   - `Lapte de curatare Pouce, 300ml` isn't classified.
   - `Lapte integral Albalact, 3.5% grasime, 1 l` becomes `("Lapte", "3.5%", "1 l")`.
-  - The real tree has 25–35 categories.
+  - The real tree has about 65 categories.
 
 ### Task 5: Scrapers and data load (Member 1)
 
@@ -252,7 +260,7 @@ Each task lists its files, what other tasks rely on, the decisions already made,
   - Both parsers read the real fixtures, with expected values taken from them.
   - Out-of-stock Auchan products are skipped.
   - Running the load twice doesn't duplicate rows, and the demo user exists.
-- **Done when:** the snapshot has 150–300 products across both stores, and at least 30 leaves have products at both. If a site blocks the scrape, stop and tell the team.
+- **Done when:** the snapshot has about 2,700 products across both stores, and at least 30 leaves have products at both. If a site blocks the scrape, stop and tell the team.
 
 ### Task 6: Login (Member 2)
 
@@ -288,7 +296,7 @@ Each task lists its files, what other tasks rely on, the decisions already made,
 
 - **Files:** `backend/app/lists/router.py`, `tests/backend/test_lists.py`
 - **Produces:** the Lists and List items routes. Items are added with `{size_category_id, quantity, chosen_product_id?}`.
-- **Rules:** `DELETE /lists/{id}` sets `deleted_at` and never removes the row. Normal list routes skip lists with `deleted_at` set. The trash shows lists deleted within `TRASH_RETENTION_DAYS`, and can restore them by clearing `deleted_at`. The trash routes aren't in the API table yet, so agree them with the frontend members.
+- **Rules:** `DELETE /lists/{id}` sets `deleted_at` and never removes the row. Normal list routes skip lists with `deleted_at` set. The trash shows lists deleted within `TRASH_RETENTION_DAYS`, and can restore them by clearing `deleted_at`. The trash routes are `GET /lists/trash` and `POST /lists/{id}/restore`.
 - **Tests:**
   - Create, read, update and delete work.
   - Generic and brand items can be added, with the brand copied from the chosen product.

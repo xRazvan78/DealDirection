@@ -248,3 +248,24 @@ def test_second_real_lidl_receipt_read_by_rapidocr() -> None:
         ("Paine Durum", Decimal("6.99")),
         ("Nutella Crema cacão alun", Decimal("35.99")),
     ]
+
+
+# --- Counts without a unit --------------------------------------------------
+
+
+def test_count_without_a_unit_means_pieces() -> None:
+    food = only_food("2 oua zilnic")
+
+    assert (food.name, food.amount, food.unit, food.per_day) == ("oua", Decimal("2"), "buc", True)
+
+
+def test_count_after_a_meal_label() -> None:
+    foods = parse_foods("Mic dejun: 2 oua zilnic, 250 ml lapte zilnic").foods
+
+    assert [(f.name, f.amount, f.unit) for f in foods] == [("oua", Decimal("2"), "buc"), ("lapte", Decimal("250"), "ml")]
+
+
+def test_plan_length_and_day_numbers_are_not_foods() -> None:
+    assert parse_foods("Plan 7 zile\nZiua 1\n3 mese pe zi\nMasa 2: 1 banana").foods == [
+        parse_foods("1 banana").foods[0]
+    ]

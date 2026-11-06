@@ -3,6 +3,8 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import {
   AuthResponse,
+  CardBrand,
+  CardScan,
   Category,
   CategoryProducts,
   Credentials,
@@ -180,19 +182,32 @@ export class ApiService {
   }
 
   // Cards
+  getCardBrands(): Observable<CardBrand[]> {
+    return this.http.get<CardBrand[]>('/api/card-brands');
+  }
+
   getCards(): Observable<LoyaltyCard[]> {
     return this.http.get<LoyaltyCard[]>('/api/cards');
   }
 
-  addCard(storeId: number, image: Blob): Observable<LoyaltyCard> {
+  // Reads the code from a card's photo and suggests its brand; saves nothing.
+  scanCard(photo: File): Observable<CardScan> {
     const body = new FormData();
-    body.append('store_id', String(storeId));
-    body.append('file', image, 'card.png');
-    return this.http.post<LoyaltyCard>('/api/cards', body);
+    body.append('file', photo);
+    return this.http.post<CardScan>('/api/cards/scan', body);
   }
 
-  getCardImage(cardId: number): Observable<Blob> {
-    return this.http.get(`/api/cards/${cardId}/image`, { responseType: 'blob' });
+  // Saves a scanned code, or the photo itself when no code could be read.
+  saveCard(brand: string, source: { scan: CardScan } | { photo: File }): Observable<LoyaltyCard> {
+    const body = new FormData();
+    body.append('brand', brand);
+    if ('scan' in source) {
+      body.append('code_text', source.scan.code_text);
+      body.append('code_format', source.scan.code_format);
+    } else {
+      body.append('file', source.photo);
+    }
+    return this.http.post<LoyaltyCard>('/api/cards', body);
   }
 
   deleteCard(cardId: number): Observable<void> {

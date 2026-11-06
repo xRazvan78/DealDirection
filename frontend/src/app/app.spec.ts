@@ -3,6 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { App } from './app';
 import { setLanguage } from './shared/language';
+import { CartService } from './cart/cart.service';
 import { ro } from './shared/ro';
 
 @Component({ template: '' })
@@ -12,6 +13,7 @@ describe('App', () => {
   let fixture: ComponentFixture<App>;
 
   beforeEach(async () => {
+    localStorage.clear();
     await TestBed.configureTestingModule({
       imports: [App],
       providers: [
@@ -128,6 +130,33 @@ describe('App', () => {
 
     expect(tabs).toEqual(['Home', 'Cart', 'Cards']);
     expect(menu).toEqual(['Lists', 'Point Shop', 'Settings']);
+  it('shows no count on the cart tab while the cart is empty', async () => {
+    const page = await openAt('/browse');
+
+    expect(page.querySelector('.cart-count')).toBeNull();
+  });
+
+  it('counts every unit in the cart, not the distinct products', async () => {
+    const cart = TestBed.inject(CartService);
+    cart.add({ name: 'Apă minerală', quantity: '5', price: '3' });
+    cart.add({ name: 'Apă plată', quantity: '3', price: '2' });
+
+    const page = await openAt('/browse');
+    const count = page.querySelector('.cart-count');
+
+    expect(count?.textContent).toBe('8');
+    expect(count?.closest('a')?.getAttribute('href')).toBe('/cart');
+  });
+
+  it('removes the count once the cart is emptied', async () => {
+    const cart = TestBed.inject(CartService);
+    cart.add({ name: 'Mere', quantity: '2', price: '3' });
+    const page = await openAt('/browse');
+
+    cart.clear();
+    await fixture.whenStable();
+
+    expect(page.querySelector('.cart-count')).toBeNull();
   });
 
   it('has the hamburger on the left and the account link on the right', async () => {

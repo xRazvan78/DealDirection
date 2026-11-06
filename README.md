@@ -110,6 +110,36 @@ python -m dealdata.load
 
 This also creates two test users, `ana@dealdirection.ro` and `mihai@dealdirection.ro`. Both log in with `SEED_PASSWORD`, which is in `.env.example`.
 
+**Open it on a phone:** this needs `cloudflared` installed and the backend from step 2 running. The tunnel gives the app a public HTTPS address, which the phone's camera needs. Anyone with the link can reach your app while the tunnel is running.
+
+In a new terminal, build the frontend, because the backend serves that build. Do this again after any frontend change:
+
+```bash
+cd frontend
+```
+
+```bash
+npx ng build
+```
+
+Start the tunnel and leave it running:
+
+```bash
+cloudflared tunnel --url http://localhost:8000
+```
+
+It prints a box with an address ending in `.trycloudflare.com`. Copy that address. In another new terminal, make the QR code, replacing the sample address with yours:
+
+```bash
+cd frontend
+```
+
+```bash
+npx qrcode --small "https://your-address.trycloudflare.com"
+```
+
+Scan the code with your phone. The address changes each time you restart `cloudflared`, so you'll need a new QR code then.
+
 [requirements.txt](requirements.txt) also lists the tools pip can't install.
 
 ## Demo goal
@@ -192,7 +222,7 @@ Points can be spent on specific products at partner stores, online or in person.
 
 ### Loyalty cards
 
-The client uploads a photo of a card and crops it to the barcode or QR code. The app shows that code on a generic card, in a colour unique to the store, with its name or logo clearly visible.
+The client photographs a card's QR code or barcode, and the backend reads it (QR, EAN-13, EAN-8, UPC-A, Code 128, Code 39). The client then picks the card's supermarket from a fixed list (Lidl, Kaufland, Auchan, Carrefour, Mega Image, Profi, Penny), with the brand suggested when its name is printed on the card or inside the code. The app saves the code, not the photo, and redraws it sharply on a card in the brand's colour, because a till reads a clean code far better than a photo. If no code can be read, the photo itself can be saved instead. Each account keeps one card per brand: to replace a card, delete it first. Card brands are separate from the price-comparison stores.
 
 ### Lists
 
@@ -234,7 +264,7 @@ Receipt photos are read and discarded, and only the extracted data is kept.
 | Lidl       | Website pages                | Optional third source                          |
 | Mega Image | Not tested                   | Backup source                                  |
 
-The team scrapes once, slowly, and demos from a saved snapshot of 150–300 products in about 30 categories. A block during the pitch can't affect it.
+The team scrapes once, slowly, and demos from a saved snapshot of about 2,700 products in about 65 categories. A block during the pitch can't affect it.
 
 ### Data import steps
 
@@ -338,7 +368,7 @@ Each unit has one job, and can be tested without the others.
 | `receipt_lines`   | receipt, raw text, quantity, line total, matched list item                                                                                 |
 | `points_ledger`   | user, amount, reason, receipt, created_at                                                                                                  |
 | `vouchers`        | user, reward, store, code (unique), expires_at, used_at |
-| `loyalty_cards`   | user, store, code image; unique on user and store                                                                                          |
+| `loyalty_cards`   | user, brand, code text, code format, photo (only if no code was read); unique on user and brand                                            |
 
 Create tables with `Base.metadata.create_all`, since a hackathon doesn't need migrations.
 
@@ -353,12 +383,13 @@ All routes are under `/api`.
 | Stores     | `GET /stores`, `PUT /me/stores`, `GET /stores/{id}/directions?lat=&lng=`                                               |
 | Catalog    | `GET /categories?parent_id=`, `GET /categories/{id}/products?brand_q=`, `GET /search?q=`                               |
 | Lists      | `POST /lists`, `GET /lists`, `GET /lists/{id}`, `PATCH /lists/{id}`, `DELETE /lists/{id}`, `POST /lists/{id}/complete` |
+| Trash      | `GET /lists/trash`, `POST /lists/{id}/restore`                                                                         |
 | List items | `POST /lists/{id}/items`, `PATCH /lists/{id}/items/{item_id}`, `DELETE /lists/{id}/items/{item_id}`                    |
 | Plans      | `POST /lists/{id}/plans`, `POST /lists/{id}/suggestion/accept`, `POST /lists/{id}/activate`, `GET /lists/{id}/parts`   |
 | Receipts   | `POST /lists/{id}/receipts?store_id=`                                                                                  |
 | Import     | `POST /imports`, `POST /imports/confirm`                                                                               |
 | Wallet     | `GET /wallet`, `GET /rewards`, `POST /rewards/{id}/redeem`, `GET /vouchers` |
-| Cards          | Saved cards with a typed label, added from a photo or the camera, and a large code view |
+| Cards      | `GET /card-brands`, `POST /cards/scan`, `GET /cards`, `POST /cards`, `DELETE /cards/{id}`                              |
 
 ### Configuration
 
@@ -396,7 +427,7 @@ All screens are in Romanian by default, and Settings switches them to English.
 | Lists          | Saved lists, opened and edited in the Cart, plus rename, delete and new list |
 | Receipt result | Matched and unmatched items, estimate, paid, modifier, points                |
 | Point Shop     | Points balance, simulated rewards, point history, at `/wallet`                 |
-| Cards          | Saved cards with a typed label, added from a photo or the camera, and a large code view |
+| Cards          | Scan a card's code, pick its supermarket, and show a clean redrawn code at the till |
 | Settings       | Store selection, logout                                                      |
 
 ### Error handling

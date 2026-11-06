@@ -174,7 +174,27 @@ export interface Reward {
 }
 
 // Assumed.
+// A supermarket a loyalty card can belong to (separate from price-comparison stores).
+export interface CardBrand {
+  id: string;
+  name: string;
+  colour: string;
+}
+
+// A code read from a card's photo; nothing is saved yet.
+export interface CardScan {
+  code_text: string;
+  code_format: string;
+  image: string; // data URI of the redrawn code
+  suggested_brand: string | null;
+}
+
 export interface LoyaltyCard {
   id: number;
-  store_id: number;
+  brand: string;
+  name: string;
+  colour: string;
+  code_text: string | null; // null when only a photo could be saved
+  code_format: string | null;
+  image: string; // data URI: the redrawn code, or the saved photo
 }

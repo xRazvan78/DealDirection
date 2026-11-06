@@ -1,75 +1,123 @@
+import { provideHttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
+import { CardBrand, CardScan, LoyaltyCard } from '../core/models';
 import { CardsService } from './cards.service';
 
-const image = 'data:image/jpeg;base64,AAAA';
+const brands: CardBrand[] = [
+  { id: 'lidl', name: 'Lidl', colour: '#0050aa' },
+  { id: 'kaufland', name: 'Kaufland', colour: '#e10915' },
+];
+const lidl: LoyaltyCard = {
+  id: 1,
+  brand: 'lidl',
+  name: 'Lidl',
+  colour: '#0050aa',
+  code_text: '4812345678901',
+  code_format: 'qr',
+  image: 'data:image/svg+xml;base64,AAAA',
+};
+const scan: CardScan = {
+  code_text: '2401234567891',
+  code_format: 'ean13',
+  image: 'data:image/svg+xml;base64,BBBB',
+  suggested_brand: 'kaufland',
+};
 
 describe('CardsService', () => {
-  beforeEach(() => localStorage.clear());
-  afterEach(() => vi.restoreAllMocks());
+  let http: HttpTestingController;
+  let service: CardsService;
 
-  function create(): CardsService {
-    return TestBed.inject(CardsService);
+  beforeEach(() => {
+    TestBed.configureTestingModule({ providers: [provideHttpClient(), provideHttpClientTesting()] });
+    http = TestBed.inject(HttpTestingController);
+    service = TestBed.inject(CardsService);
+  });
+
+  afterEach(() => http.verify());
+
+  function loaded(cards: LoyaltyCard[] = [lidl]): void {
+    service.load();
+    http.expectOne('/api/card-brands').flush(brands);
+    http.expectOne('/api/cards').flush(cards);
   }
 
-  it('saves a card with its label and image', () => {
-    const cards = create();
+  it('loads the brands and the account cards', () => {
+    loaded();
 
-    expect(cards.add('Auchan', image)).toBe(true);
-
-    expect(cards.cards()[0]).toMatchObject({ label: 'Auchan', image });
+    expect(service.brands()).toEqual(brands);
+    expect(service.cards()).toEqual([lidl]);
   });
 
-  it('gives every card its own id', () => {
-    const cards = create();
+  it('loads the brands only once', () => {
+    loaded();
 
-    cards.add('Auchan', image);
-    cards.add('Lidl', image);
+    service.load();
 
-    expect(new Set(cards.cards().map(({ id }) => id)).size).toBe(2);
+    http.expectNone('/api/card-brands');
+    http.expectOne('/api/cards').flush([lidl]);
   });
 
-  it('keeps cards after a reload', () => {
-    create().add('Auchan', image);
-    TestBed.resetTestingModule();
+  it('sends a photo to be scanned', () => {
+    const photo = new File(['x'], 'card.jpg', { type: 'image/jpeg' });
+    let result: CardScan | undefined;
 
-    expect(create().cards()[0].label).toBe('Auchan');
+    service.scan(photo).subscribe((found) => (result = found));
+    const request = http.expectOne('/api/cards/scan');
+    expect((request.request.body as FormData).get('file')).toBe(photo);
+    request.flush(scan);
+
+    expect(result).toEqual(scan);
   });
 
-  it('survives damaged saved data', () => {
-    localStorage.setItem('dealdirection.cards', '{broken');
+  it('saves a scanned code under the chosen brand', () => {
+    loaded([]);
 
-    expect(create().cards()).toEqual([]);
+    service.add('kaufland', { scan }).subscribe();
+    const request = http.expectOne('/api/cards');
+    const body = request.request.body as FormData;
+    expect([body.get('brand'), body.get('code_text'), body.get('code_format'), body.get('file')]).toEqual([
+      'kaufland',
+      '2401234567891',
+      'ean13',
+      null,
+    ]);
+    request.flush({ ...lidl, id: 2, brand: 'kaufland', name: 'Kaufland' });
+
+    expect(service.cards().map((card) => card.brand)).toEqual(['kaufland']);
   });
 
-  it('removes one card', () => {
-    const cards = create();
-    cards.add('Auchan', image);
-    cards.add('Lidl', image);
+  it('saves the photo itself when no code was read', () => {
+    loaded([]);
+    const photo = new File(['x'], 'card.jpg', { type: 'image/jpeg' });
 
-    cards.remove(cards.cards()[0].id);
+    service.add('lidl', { photo }).subscribe();
+    const body = http.expectOne('/api/cards').request.body as FormData;
 
-    expect(cards.cards().map(({ label }) => label)).toEqual(['Lidl']);
+    expect([body.get('brand'), body.get('file'), body.get('code_text')]).toEqual(['lidl', photo, null]);
   });
 
-  it('refuses a card when the device has no room, and keeps the others', () => {
-    const cards = create();
-    cards.add('Auchan', image);
-    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
-      throw new DOMException('Full', 'QuotaExceededError');
-    });
+  it('removes a deleted card', () => {
+    loaded();
 
-    expect(cards.add('Lidl', image)).toBe(false);
+    service.remove(1).subscribe();
+    http.expectOne({ method: 'DELETE', url: '/api/cards/1' }).flush(null);
 
-    expect(cards.cards().map(({ label }) => label)).toEqual(['Auchan']);
+    expect(service.cards()).toEqual([]);
   });
 
-  it('clears everything', () => {
-    const cards = create();
-    cards.add('Auchan', image);
+  it('knows which brands already have a card', () => {
+    loaded();
 
-    cards.clear();
+    expect(service.hasBrand('lidl')).toBe(true);
+    expect(service.hasBrand('kaufland')).toBe(false);
+  });
 
-    expect(cards.cards()).toEqual([]);
-    expect(localStorage.getItem('dealdirection.cards')).toBeNull();
+  it('clears the cards on logout', () => {
+    loaded();
+
+    service.clear();
+
+    expect(service.cards()).toEqual([]);
   });
 });

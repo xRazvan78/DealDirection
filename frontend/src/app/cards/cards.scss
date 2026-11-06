@@ -149,11 +149,13 @@ img {
   background: var(--card);
   box-shadow: var(--shadow-card);
 
-  img {
+  .preview {
     width: 100%;
-    max-height: 200px;
     border-radius: var(--radius-sm);
+    max-height: 160px;
+    background: #fff;
   }
+}
 
   label {
     display: flex;
@@ -162,7 +164,42 @@ img {
     color: var(--muted);
     font-size: 14px;
     font-weight: 600;
+.code-text {
+  margin: 0;
+  overflow-wrap: anywhere;
+  color: var(--muted);
+  font-size: 13px;
+  text-align: center;
+}
+
+.brands {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+
+  legend {
+    margin-bottom: 8px;
+    padding: 0;
+    color: var(--navy);
+    font-weight: 700;
   }
+}
+
+/* Each brand chip shows its own colour once chosen. */
+.brand {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 88px;
+  padding: 8px 10px;
+  border: 2px solid var(--brand);
+  border-radius: 999px;
+  color: var(--brand);
+  font-weight: 700;
+  cursor: pointer;
 
   input {
     height: 46px;
@@ -174,7 +211,41 @@ img {
     color: var(--text);
     font: inherit;
     font-size: 16px;
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
   }
+
+  &.chosen {
+    background: var(--brand);
+    color: #fff;
+  }
+
+  &.taken {
+    border-style: dashed;
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  small {
+    font-weight: 400;
+    font-size: 11px;
+  }
+
+  &:has(input:focus-visible) {
+    outline: 2px solid var(--navy);
+    outline-offset: 2px;
+  }
+}
+
+.save-photo {
+  flex-shrink: 0;
+  min-height: 44px;
+  border: 1.5px solid var(--navy);
+  border-radius: 8px;
+  background: none;
+  color: var(--navy);
+  font-weight: 700;
 }
 
 .actions {
@@ -228,7 +299,7 @@ img {
   font-size: 14px;
 }
 
-/* White, so a till scanner can read the code. */
+/* The code sits on white, so a till scanner can read it; the brand colour is only the header. */
 .card-view {
   position: fixed;
   inset: 0;
@@ -243,12 +314,25 @@ img {
     margin: 0;
     color: var(--navy);
     font-size: 22px;
+    padding: 12px;
+    border-radius: 12px;
+    color: #fff;
     text-align: center;
   }
 
-  img {
+  .code {
+    display: flex;
     flex: 1;
-    width: 100%;
+    align-items: center;
+    justify-content: center;
     min-height: 0;
+    padding: 16px;
+    background: #fff;
+  }
+
+  img {
+    width: 100%;
+    max-height: 100%;
+    image-rendering: pixelated; /* keeps the redrawn code's edges sharp */
   }
 }

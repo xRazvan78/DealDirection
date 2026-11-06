@@ -39,6 +39,9 @@ export class CartService {
   // The saved list open in the cart, or null for a list that isn't saved yet.
   readonly currentListId = signal<number | null>(readCurrentListId());
   readonly total = computed(() => totalOf(this.items()));
+  readonly itemCount = computed(() =>
+    this.items().reduce((count, item) => addQuantities(count, item.quantity), '0'),
+  );
   readonly points = computed(() => pointsFor(this.total()));
   readonly stores = computed(() => {
     const stores = new Map<number, string>();

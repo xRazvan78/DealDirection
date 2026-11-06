@@ -8,6 +8,7 @@ import {
   RouterOutlet,
 } from '@angular/router';
 import { filter, fromEvent, map } from 'rxjs';
+import { CartService } from './cart/cart.service';
 import { ro } from './shared/ro';
 
 const SCROLL_TOP_THRESHOLD = 200;
@@ -29,6 +30,7 @@ export class App {
   );
 
   protected readonly ro = ro;
+  protected readonly cartCount = inject(CartService).itemCount;
   protected readonly showNavigation = computed(() => !this.url().startsWith('/login'));
   protected readonly onHome = computed(() => this.url().startsWith('/browse'));
   protected readonly menuOpen = signal(false);
