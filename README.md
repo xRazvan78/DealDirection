@@ -10,7 +10,7 @@ This README holds the product rules and technical reference. [TEAM_TASKS.md](TEA
 
 ## Run the app
 
-You'll need Python 3.12, Node.js and PostgreSQL 16+ running. Tesseract with Romanian language data is only needed for scanning. You don't need to create the database: the backend creates it and any missing tables each time it starts.
+You'll need Python 3.12, Node.js and PostgreSQL 16+ running. Scanning uses RapidOCR, which installs with the Python packages; Tesseract with Romanian language data is only needed if you set `OCR_ENGINE=tesseract`. You don't need to create the database: the backend creates it and any missing tables each time it starts.
 
 Start in the repo root, and run the commands one at a time.
 
@@ -186,13 +186,13 @@ A deleted list goes to the trash for 2 weeks, and can be restored until then. Af
 
 ## Technology
 
-| Part        | Technology                                          |
-| ----------- | --------------------------------------------------- |
-| Frontend    | Angular PWA, Romanian only                          |
-| Backend     | Python 3.12, FastAPI, SQLAlchemy                    |
-| Database    | PostgreSQL                                          |
-| Data import | Python scripts, run offline                         |
-| Scanning    | Tesseract, OpenCV, regular expressions, `rapidfuzz` |
+| Part        | Technology                                                                 |
+| ----------- | -------------------------------------------------------------------------- |
+| Frontend    | Angular PWA, Romanian only                                                 |
+| Backend     | Python 3.12, FastAPI, SQLAlchemy                                           |
+| Database    | PostgreSQL                                                                 |
+| Data import | Python scripts, run offline                                                |
+| Scanning    | RapidOCR (Tesseract as fallback), OpenCV, regular expressions, `rapidfuzz` |
 
 FastAPI serves the Angular app and the `/api` routes from one HTTPS address.
 
@@ -200,12 +200,12 @@ FastAPI serves the Angular app and the `/api` routes from one HTTPS address.
 
 Scanning uses **no AI service**, and everything runs on the backend machine.
 
-1. **Clean the photo** with OpenCV: find the receipt, straighten it, and sharpen it.
-2. **Read the text** with Tesseract in Romanian. PDFs with text use `pypdf`, and scanned PDFs are turned into images first.
+1. **Crop the photo** with OpenCV: find the receipt, and straighten it when its corners are clear.
+2. **Read the text** with RapidOCR's Romanian model, which runs locally through `onnxruntime`. PDFs with text use `pypdf`, and scanned PDFs are turned into images first.
 3. **Parse the text** with regular expressions, using small rules per store.
 4. **Match products** with `rapidfuzz`, scoring `0.7 × name similarity + 0.3 × price closeness`.
 
-The weights and the minimum score of 70 are starting values. RapidOCR is the backup if Tesseract reads real receipts poorly.
+The weights and the minimum score of 70 are starting values. On real, creased receipt photos, Tesseract read almost nothing while RapidOCR read the store, date, total and every item, so RapidOCR is the default. Set `OCR_ENGINE=tesseract` to switch back. To compare engines on your own photos, run `uv run python scripts/ocr_check.py "<photo folder>"`.
 
 Receipt photos are read and discarded, and only the extracted data is kept.
 
@@ -294,17 +294,17 @@ frontend/src/app/
 
 Each unit has one job, and can be tested without the others.
 
-| Unit              | Input                         | Output                                       | Depends on            |
-| ----------------- | ----------------------------- | -------------------------------------------- | --------------------- |
-| `auth`            | Login details                 | Signed token                                 | Database              |
-| `catalog`         | Category, search text, stores | Size-level products and generic prices       | Database              |
-| `lists`           | List changes                  | Saved lists and items                        | Database              |
-| `optimizer`       | Items, prices, stores         | Plans and missing items                      | Nothing: pure logic   |
-| `documents`       | Image, PDF or text            | Structured receipt or food list, and matches | Tesseract, OpenCV     |
-| `imports`         | Foods, days, product tree     | List items ready for review                  | `documents`           |
-| `receipts`        | Receipt, list items           | Matches and points                           | `documents`, `points` |
-| `points`          | Estimate, paid, config        | Modifier and points                          | Nothing: pure logic   |
-| `wallet`, `cards` | Rewards and card images       | Point history and saved cards                | Database              |
+| Unit              | Input                         | Output                                       | Depends on                    |
+| ----------------- | ----------------------------- | -------------------------------------------- | ----------------------------- |
+| `auth`            | Login details                 | Signed token                                 | Database                      |
+| `catalog`         | Category, search text, stores | Size-level products and generic prices       | Database                      |
+| `lists`           | List changes                  | Saved lists and items                        | Database                      |
+| `optimizer`       | Items, prices, stores         | Plans and missing items                      | Nothing: pure logic           |
+| `documents`       | Image, PDF or text            | Structured receipt or food list, and matches | RapidOCR or Tesseract, OpenCV |
+| `imports`         | Foods, days, product tree     | List items ready for review                  | `documents`                   |
+| `receipts`        | Receipt, list items           | Matches and points                           | `documents`, `points`         |
+| `points`          | Estimate, paid, config        | Modifier and points                          | Nothing: pure logic           |
+| `wallet`, `cards` | Rewards and card images       | Point history and saved cards                | Database                      |
 
 ### Database tables
 
@@ -354,8 +354,10 @@ All values live in backend config and can be changed without a code change.
 | `POINTS_PER_LEI`       | 10 (placeholder)              |
 | `MIN_SPLIT_SAVING_LEI` | 10 (placeholder)              |
 | `TRASH_RETENTION_DAYS` | 14                            |
-| `OCR_LANG`             | `ron+eng`                     |
-| `OCR_PSM`              | 4                             |
+| `OCR_ENGINE`           | `rapidocr` (or `tesseract`)   |
+| `OCR_RAPID_LANG`       | `ro`                          |
+| `OCR_LANG`             | `ron+eng` (Tesseract only)    |
+| `OCR_PSM`              | 4 (Tesseract only)            |
 | `OCR_MIN_MATCH_SCORE`  | 70 (placeholder)              |
 | `MAX_UPLOAD_MB`        | 10                            |
 | `TESSERACT_CMD`        | Path to the Tesseract program |

@@ -28,7 +28,9 @@ class Settings(BaseSettings):
     TRASH_RETENTION_DAYS: int = 14
 
     # Scanning and uploads
-    OCR_LANG: str = "ron+eng"
+    OCR_ENGINE: str = "rapidocr"  # or "tesseract"; RapidOCR read real receipt photos far better
+    OCR_RAPID_LANG: str = "ro"
+    OCR_LANG: str = "ron+eng"  # Tesseract only
     OCR_PSM: int = 4
     OCR_MIN_MATCH_SCORE: int = 70
     MAX_UPLOAD_MB: int = 10

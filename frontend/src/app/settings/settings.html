@@ -1,1 +1,32 @@
-<p>settings works!</p>
+<h1>{{ ro.settings.title }}</h1>
+
+<h2>{{ ro.settings.stores }}</h2>
+<p>{{ ro.settings.storesHint }}</p>
+
+@if (error(); as message) {
+  <p class="error" role="alert">{{ message }}</p>
+}
+
+@if (stores(); as items) {
+  <ul>
+    @for (store of items; track store.id) {
+      <li>
+        <label>
+          <input
+            #toggleInput
+            type="checkbox"
+            [checked]="store.selected"
+            [disabled]="saving()"
+            (change)="toggle(store, toggleInput)"
+          />
+          <span class="dot" [style.background]="store.colour"></span>
+          {{ store.name }}
+        </label>
+      </li>
+    }
+  </ul>
+} @else if (!error()) {
+  <p>{{ ro.loading }}</p>
+}
+
+<button type="button" class="logout" (click)="logout()">{{ ro.settings.logout }}</button>
