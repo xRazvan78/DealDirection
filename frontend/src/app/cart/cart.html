@@ -1,1 +1,250 @@
-<p>cart works!</p>
+<section class="table" [class.editing]="editing()">
+  <div class="head">
+    <span>{{ ro.cart.product }}</span>
+    <span>{{ ro.cart.quantity }}</span>
+    <span>{{ ro.cart.price }}</span>
+  </div>
+
+  <div class="rows">
+    @for (row of rows(); track row.id) {
+      <div class="line">
+        @if (editing() && editingId() === row.id) {
+          <div class="row picked">
+            <input
+              class="edit-name"
+              [attr.aria-label]="ro.cart.product"
+              [value]="row.name"
+              (input)="changeDraft(row.id, { name: $any($event.target).value })"
+            />
+            <input
+              class="edit-quantity"
+              inputmode="decimal"
+              [attr.aria-label]="ro.cart.quantity"
+              [value]="row.quantity"
+              (input)="changeDraft(row.id, { quantity: $any($event.target).value })"
+            />
+            <input
+              class="edit-price"
+              inputmode="decimal"
+              [attr.aria-label]="ro.cart.price"
+              [value]="row.price"
+              (input)="changeDraft(row.id, { price: $any($event.target).value })"
+            />
+          </div>
+        } @else if (editing()) {
+          <button type="button" class="row" (click)="editingId.set(row.id)">
+            <span class="name">{{ row.name }}</span>
+            <span>{{ row.quantity }}</span>
+            <span>{{ formatLei(row.price) }}</span>
+          </button>
+        } @else {
+          <div class="row">
+            <span class="name">{{ row.name }}</span>
+            <span>{{ row.quantity }}</span>
+            <span>{{ formatLei(row.price) }}</span>
+          </div>
+        }
+        @if (editing()) {
+          <button
+            type="button"
+            class="remove"
+            [attr.aria-label]="ro.cart.remove + ' ' + row.name"
+            (click)="removeRow(row.id)"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12" /></svg>
+          </button>
+        }
+      </div>
+    } @empty {
+      @if (!adding()) {
+        <p class="note">{{ ro.cart.empty }}</p>
+      }
+    }
+
+    @if (adding()) {
+      <form class="new-row" (submit)="addRow($event)">
+        <div class="row picked">
+          <input
+            class="new-name"
+            [placeholder]="ro.cart.product"
+            [attr.aria-label]="ro.cart.product"
+            [value]="newName()"
+            (input)="newName.set($any($event.target).value)"
+          />
+          <input
+            class="new-quantity"
+            inputmode="decimal"
+            [attr.aria-label]="ro.cart.quantity"
+            [value]="newQuantity()"
+            (input)="newQuantity.set($any($event.target).value)"
+          />
+          <input
+            class="new-price"
+            inputmode="decimal"
+            [placeholder]="ro.cart.price"
+            [attr.aria-label]="ro.cart.price"
+            [value]="newPrice()"
+            (input)="newPrice.set($any($event.target).value)"
+          />
+        </div>
+        @if (addFailed()) {
+          <p class="error" role="alert">{{ ro.cart.invalidRow }}</p>
+        }
+        <div class="new-actions">
+          <button type="button" class="cancel-new" (click)="adding.set(false)">
+            {{ ro.cart.cancel }}
+          </button>
+          <button type="submit" class="confirm-new">{{ ro.cart.addProduct }}</button>
+        </div>
+      </form>
+    } @else if (!editing()) {
+      <button
+        type="button"
+        class="add-row"
+        [attr.aria-label]="ro.cart.addProduct"
+        (click)="startAdding()"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
+      </button>
+    }
+  </div>
+
+  @if (editFailed() && editing()) {
+    <p class="error" role="alert">{{ ro.cart.invalidRow }}</p>
+  }
+
+  <div class="edit-bar">
+    @if (editing()) {
+      <button type="button" class="cancel" (click)="editing.set(false)">
+        {{ ro.cart.cancel }}
+      </button>
+      <button type="button" class="save" (click)="saveEdits()">{{ ro.cart.save }}</button>
+    } @else {
+      <button type="button" class="edit" [disabled]="!cart.items().length" (click)="startEditing()">
+        {{ ro.cart.edit }}
+      </button>
+    }
+  </div>
+</section>
+
+<div class="import-bar" [class.open]="importOpen()">
+  <button
+    type="button"
+    class="import"
+    [attr.aria-expanded]="importOpen()"
+    [disabled]="importing()"
+    (click)="importOpen.set(!importOpen())"
+  >
+    {{ importing() ? ro.cart.reading : ro.cart.import }}
+  </button>
+  <div class="import-choices">
+    <button
+      type="button"
+      class="import-pdf"
+      [disabled]="importing()"
+      (click)="pdfInput.click()"
+    >
+      {{ ro.cart.pdf }}
+    </button>
+    <button
+      type="button"
+      class="import-image"
+      [disabled]="importing()"
+      (click)="imageInput.click()"
+    >
+      {{ ro.cart.image }}
+    </button>
+  </div>
+  <input
+    #pdfInput
+    hidden
+    type="file"
+    class="pdf-input"
+    accept="application/pdf"
+    (change)="importFile(pdfInput)"
+  />
+  <input
+    #imageInput
+    hidden
+    type="file"
+    class="image-input"
+    accept="image/*"
+    (change)="importFile(imageInput)"
+  />
+</div>
+
+@if (importError(); as message) {
+  <p class="error" role="alert">{{ message }}</p>
+}
+@if (importNote(); as message) {
+  <p class="note" role="status">{{ message }}</p>
+}
+
+<section class="summary">
+  <div class="total">
+    <span>{{ ro.cart.total }}</span>
+    <strong>{{ formatLei(cart.total()) }}</strong>
+  </div>
+  <div class="earned">
+    <span>{{ ro.cart.points }}</span>
+    <strong>{{ cart.points() }}</strong>
+  </div>
+
+  <div class="shops">
+    <span>{{ ro.cart.shops }}</span>
+    <div class="shop-list">
+      @for (shop of cart.stores(); track shop.id) {
+        <button
+          type="button"
+          class="shop"
+          [attr.aria-pressed]="shop.id === store()?.id"
+          (click)="chooseStore(shop.id)"
+        >
+          {{ shop.name }}
+        </button>
+      } @empty {
+        <small>{{ ro.cart.noShops }}</small>
+      }
+    </div>
+  </div>
+
+  <button type="button" class="directions" [disabled]="!store()" (click)="openDirections()">
+    {{ ro.cart.directions }}
+  </button>
+  <button
+    type="button"
+    class="scan"
+    [disabled]="!store() || scanning()"
+    (click)="receiptInput.click()"
+  >
+    {{ scanning() ? ro.cart.scanning : ro.cart.scan }}
+  </button>
+  <input
+    #receiptInput
+    hidden
+    type="file"
+    class="receipt-input"
+    accept="image/*"
+    capture="environment"
+    (change)="scanReceipt(receiptInput)"
+  />
+</section>
+
+@if (directionsFailed()) {
+  <p class="error" role="alert">{{ ro.cart.directionsFailed }}</p>
+}
+@if (receiptError(); as message) {
+  <p class="error" role="alert">{{ message }}</p>
+}
+
+@if (receiptResult(); as result) {
+  <div class="receipt-result" role="dialog" [attr.aria-label]="ro.cart.receiptValid">
+    <h2>{{ ro.cart.receiptValid }}</h2>
+    <p class="earned-points">+{{ result.points }} {{ ro.cart.pointsSuffix }}</p>
+    <p>{{ ro.cart.estimate }}: {{ formatLei(result.estimate) }}</p>
+    <p>{{ ro.cart.paid }}: {{ formatLei(result.paid) }}</p>
+    <button type="button" class="close-result" (click)="receiptResult.set(null)">
+      {{ ro.cart.close }}
+    </button>
+  </div>
+}

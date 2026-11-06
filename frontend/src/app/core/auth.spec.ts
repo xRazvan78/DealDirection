@@ -1,6 +1,7 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
+import { CartService } from '../cart/cart.service';
 import { AuthService } from './auth';
 
 // Built in code, so secret scanners have no literal to flag. Not a real password.
@@ -54,6 +55,16 @@ describe('AuthService', () => {
     localStorage.setItem('dealdirection.token', 'saved');
 
     expect(setup().token()).toBe('saved');
+  });
+
+  it('empties the cart on logout, so the next user does not see it', () => {
+    const auth = setup();
+    const cart = TestBed.inject(CartService);
+    cart.add({ name: 'Mere', quantity: '1', price: '1' });
+
+    auth.logout();
+
+    expect(cart.items()).toEqual([]);
   });
 
   it('clears the token on logout', () => {

@@ -1,5 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { Observable, tap } from 'rxjs';
+import { CartService } from '../cart/cart.service';
 import { ApiService } from './api';
 import { AuthResponse, Credentials } from './models';
 
@@ -8,6 +9,7 @@ const TOKEN_KEY = 'dealdirection.token';
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly api = inject(ApiService);
+  private readonly cart = inject(CartService);
 
   readonly token = signal<string | null>(localStorage.getItem(TOKEN_KEY));
 
@@ -26,6 +28,7 @@ export class AuthService {
   logout(): void {
     localStorage.removeItem(TOKEN_KEY);
     this.token.set(null);
+    this.cart.clear();
   }
 
   private save(token: string): void {

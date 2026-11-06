@@ -373,7 +373,7 @@ All screens are in Romanian.
 | Login          | Simple login with minimal details, and a demo user entry                     |
 | Browse         | Category → type → size, generic price, brand search                          |
 | Deals          | Seasonal offers and large discounts, opened from the Home screen             |
-| Cart           | Items, plans, missing-item prompts, the unselected-store suggestion          |
+| Cart           | Items added by hand, from Home or by import, total, points, shops, directions, receipt scan |
 | Plan           | Chosen plan by store, with directions and a receipt button per store         |
 | Import         | One button for a PDF, picture or text, the number of days, the review screen |
 | Lists          | Saved lists: view, edit, delete                                              |

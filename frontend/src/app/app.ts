@@ -42,7 +42,11 @@ export class App {
     { path: '/wallet', label: ro.nav.wallet },
     { path: '/settings', label: ro.nav.settings },
   ];
-  protected readonly showScrollTop = signal(false);
+  private readonly scrolled = signal(false);
+  // The cart's fixed lower section sits where the arrow would float.
+  protected readonly showScrollTop = computed(
+    () => this.scrolled() && !this.url().startsWith('/cart'),
+  );
   private scroller: Element | null = null;
 
   constructor() {
@@ -52,7 +56,7 @@ export class App {
       .subscribe(({ target }) => {
         if (target instanceof Element) {
           this.scroller = target;
-          this.showScrollTop.set(target.scrollTop > SCROLL_TOP_THRESHOLD);
+          this.scrolled.set(target.scrollTop > SCROLL_TOP_THRESHOLD);
         }
       });
     this.router.events
@@ -60,7 +64,7 @@ export class App {
         filter((event) => event instanceof NavigationEnd),
         takeUntilDestroyed(),
       )
-      .subscribe(() => this.showScrollTop.set(false));
+      .subscribe(() => this.scrolled.set(false));
   }
 
   protected scrollToTop(): void {
