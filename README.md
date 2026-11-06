@@ -182,6 +182,8 @@ The client uploads a photo of a card and crops it to the barcode or QR code. The
 
 Clients can create, view, rename, edit and delete lists. A list is `draft`, `active` once a plan is chosen, or `completed` when every store part has a receipt or the client closes it.
 
+A deleted list goes to the trash for 2 weeks, and can be restored until then. After that the client can't see it. The database only soft deletes lists by setting `deleted_at`, so a list's receipts stay stored and can't be used again.
+
 ## Technology
 
 | Part        | Technology                                          |
@@ -314,7 +316,7 @@ Each unit has one job, and can be tested without the others.
 | `user_stores`     | user, store                                                                                                                                |
 | `categories`      | parent, name, level (category, type or size), size_amount, size_unit, aliases                                                              |
 | `store_products`  | store, size-level category, type category, name, brand, barcode, price, unit, image, source URL, search_text, updated_at                   |
-| `shopping_lists`  | user, name, state, suggestion_shown, extra_store_id                                                                                        |
+| `shopping_lists`  | user, name, state, suggestion_shown, extra_store_id, created_at, deleted_at                                                                |
 | `list_items`      | list, size-level category, chosen product (empty for generic), brand, quantity, assigned store, assigned product, estimated_price, removed |
 | `receipts`        | list, store, fingerprint (unique), purchased_at, total, estimate, paid, modifier, points; unique on list and store                         |
 | `receipt_lines`   | receipt, raw text, quantity, line total, matched list item                                                                                 |
@@ -351,6 +353,7 @@ All values live in backend config and can be changed without a code change.
 | `MAX_MODIFIER`         | 1.25                          |
 | `POINTS_PER_LEI`       | 10 (placeholder)              |
 | `MIN_SPLIT_SAVING_LEI` | 10 (placeholder)              |
+| `TRASH_RETENTION_DAYS` | 14                            |
 | `OCR_LANG`             | `ron+eng`                     |
 | `OCR_PSM`              | 4                             |
 | `OCR_MIN_MATCH_SCORE`  | 70 (placeholder)              |

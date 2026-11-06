@@ -288,6 +288,7 @@ Each task lists its files, what other tasks rely on, the decisions already made,
 
 - **Files:** `backend/app/lists/router.py`, `tests/backend/test_lists.py`
 - **Produces:** the Lists and List items routes. Items are added with `{size_category_id, quantity, chosen_product_id?}`.
+- **Rules:** `DELETE /lists/{id}` sets `deleted_at` and never removes the row. Normal list routes skip lists with `deleted_at` set. The trash shows lists deleted within `TRASH_RETENTION_DAYS`, and can restore them by clearing `deleted_at`. The trash routes aren't in the API table yet, so agree them with the frontend members.
 - **Tests:**
   - Create, read, update and delete work.
   - Generic and brand items can be added, with the brand copied from the chosen product.
