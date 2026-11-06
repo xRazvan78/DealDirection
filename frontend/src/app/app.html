@@ -1,5 +1,5 @@
 @if (showNavigation()) {
-  <header class="top-bar">
+  <header class="top-bar" [class.flush]="onHome()">
     <button
       type="button"
       class="menu-button"
@@ -27,7 +27,7 @@
 
 @if (showNavigation()) {
   <nav class="bottom-nav">
-    @for (tab of tabs; track tab.path) {
+    @for (tab of tabs(); track tab.path) {
       <a [routerLink]="tab.path" routerLinkActive="active">
         <svg viewBox="0 0 24 24" aria-hidden="true">
           @switch (tab.icon) {
@@ -76,7 +76,7 @@
     (click)="menuOpen.set(false)"
   ></button>
   <nav class="side-menu" [attr.aria-label]="ro.nav.menu">
-    @for (link of menuLinks; track link.path) {
+    @for (link of menuLinks(); track link.path) {
       <a [routerLink]="link.path" (click)="menuOpen.set(false)">{{ link.label }}</a>
     }
   </nav>

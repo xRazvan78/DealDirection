@@ -1,1 +1,81 @@
-<p>lists works!</p>
+<div class="title-row">
+  <h1>{{ ro.lists.title }}</h1>
+  <button type="button" class="new-list" (click)="startNew()">{{ ro.lists.newList }}</button>
+</div>
+
+@if (pending()) {
+  <div class="unsaved-warning" role="alert">
+    <p>{{ ro.lists.unsavedWarning }}</p>
+    <button type="button" class="save-first" (click)="saveFirst()">
+      {{ ro.lists.saveFirst }}
+    </button>
+    <button type="button" class="discard" (click)="continue()">{{ ro.lists.discard }}</button>
+    <button type="button" class="keep-editing" (click)="pending.set(null)">
+      {{ ro.lists.cancel }}
+    </button>
+  </div>
+}
+
+@if (saved.unsaved() && !saved.current()) {
+  <button type="button" class="draft" (click)="openCart()">
+    <span class="name">{{ ro.lists.unsavedCart }}</span>
+    <span class="details">{{ countOf(cart.items()) }}</span>
+  </button>
+}
+
+@for (list of saved.lists(); track list.id) {
+  <article class="list-card">
+    @if (renamingId() === list.id) {
+      <form class="rename-form" (submit)="saveName($event, list)">
+        <input
+          class="rename-input"
+          maxlength="60"
+          autocomplete="off"
+          [attr.aria-label]="ro.lists.rename"
+          [value]="newName()"
+          (input)="newName.set($any($event.target).value)"
+        />
+        <div class="actions">
+          <button type="button" class="cancel-rename" (click)="renamingId.set(null)">
+            {{ ro.lists.cancel }}
+          </button>
+          <button type="submit" class="primary">{{ ro.lists.save }}</button>
+        </div>
+      </form>
+    } @else {
+      <button type="button" class="open-list" (click)="openList(list)">
+        <span class="name">{{ list.name }}</span>
+        @if (list.id === saved.current()?.id) {
+          <span class="badge">{{ ro.lists.openNow }}</span>
+        }
+        <span class="details">
+          {{ countOf(list.items) }} · {{ totalOf(list) }} ·
+          {{ list.updatedAt | date: 'dd.MM.yyyy' }}
+        </span>
+      </button>
+
+      @if (deletingId() === list.id) {
+        <p class="question">{{ ro.lists.confirmDelete }}</p>
+        <div class="actions">
+          <button type="button" class="keep-list" (click)="deletingId.set(null)">
+            {{ ro.lists.cancel }}
+          </button>
+          <button type="button" class="confirm-delete" (click)="deleteList(list)">
+            {{ ro.lists.delete }}
+          </button>
+        </div>
+      } @else {
+        <div class="actions">
+          <button type="button" class="rename" (click)="startRename(list)">
+            {{ ro.lists.rename }}
+          </button>
+          <button type="button" class="delete" (click)="deletingId.set(list.id)">
+            {{ ro.lists.delete }}
+          </button>
+        </div>
+      }
+    }
+  </article>
+} @empty {
+  <p class="note">{{ ro.lists.empty }}</p>
+}

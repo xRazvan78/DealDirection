@@ -1,0 +1,13 @@
+h1 {
+  margin: 0 0 16px;
+  color: var(--navy);
+  font-size: 26px;
+}
+
+p {
+  margin: 0;
+  padding: 18px;
+  border: 2px dashed var(--border);
+  border-radius: var(--radius-md);
+  color: var(--muted);
+}

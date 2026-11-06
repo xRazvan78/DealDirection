@@ -2,14 +2,14 @@
   display: flex;
   flex: 1;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
   min-height: 0;
 }
 
 h1 {
   margin: 0;
   color: var(--navy);
-  font-size: 20px;
+  font-size: 26px;
 }
 
 button {
@@ -25,50 +25,74 @@ img {
   display: flex;
   flex: 1;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
   min-height: 0;
+  margin: 0 -4px;
+  padding: 0 4px 8px;
   overflow-y: auto;
 }
 
 .card {
+  position: relative;
   display: flex;
   flex-shrink: 0;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  min-height: 72px;
-  padding: 10px 14px;
+  min-height: 104px;
+  padding: 16px;
   border: 0;
-  border-radius: 12px;
-  background: var(--navy);
+  border-radius: var(--radius-md);
+  background: linear-gradient(120deg, var(--navy), var(--navy-soft));
+  box-shadow: var(--shadow-card);
   color: var(--on-navy);
+  font-family: var(--font-display);
+  font-size: 18px;
   font-weight: 700;
+  overflow: hidden;
   text-align: left;
 
   .name {
+    position: relative;
     overflow-wrap: anywhere;
   }
 
   img {
+    position: relative;
     flex-shrink: 0;
-    width: 64px;
-    height: 52px;
-    border-radius: 6px;
+    width: 76px;
+    height: 72px;
+    padding: 4px;
+    border-radius: var(--radius-sm);
     background: #fff;
+    box-sizing: border-box;
   }
+}
+
+/* The sheen a plastic card has. */
+.card::before {
+  content: '';
+  position: absolute;
+  top: -60px;
+  right: 40px;
+  width: 170px;
+  height: 170px;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 6%);
 }
 
 .add-card {
   display: grid;
   flex-shrink: 0;
   place-items: center;
-  width: 44px;
-  height: 44px;
+  width: 48px;
+  height: 48px;
   margin: 4px auto;
   padding: 0;
   border: 0;
   border-radius: 50%;
   background: var(--accent);
+  box-shadow: var(--shadow-card);
   color: var(--navy);
 
   svg {
@@ -85,11 +109,15 @@ img {
   display: grid;
   flex-shrink: 0;
   gap: 8px;
+  padding: 12px;
+  border-radius: var(--radius-md);
+  background: var(--card);
+  box-shadow: var(--shadow-card);
 
   button {
-    min-height: 44px;
-    border: 1.5px solid var(--navy);
-    border-radius: 8px;
+    min-height: 48px;
+    border: 0;
+    border-radius: var(--radius-pill);
     background: none;
     color: var(--navy);
     font-weight: 700;
@@ -101,13 +129,12 @@ img {
   }
 
   .scan-card {
-    border-color: var(--accent);
     background: var(--accent);
   }
 
   .close-options {
-    border: 0;
-    font-weight: 400;
+    min-height: 40px;
+    font-weight: 500;
     text-decoration: underline;
   }
 }
@@ -116,18 +143,27 @@ img {
   display: flex;
   flex-shrink: 0;
   flex-direction: column;
-  gap: 10px;
-  padding: 12px;
-  border: 1.5px solid var(--navy);
-  border-radius: 12px;
+  gap: 12px;
+  padding: 14px;
+  border-radius: var(--radius-md);
+  background: var(--card);
+  box-shadow: var(--shadow-card);
 
   .preview {
     width: 100%;
+    border-radius: var(--radius-sm);
     max-height: 160px;
     background: #fff;
   }
 }
 
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    color: var(--muted);
+    font-size: 14px;
+    font-weight: 600;
 .code-text {
   margin: 0;
   overflow-wrap: anywhere;
@@ -166,6 +202,15 @@ img {
   cursor: pointer;
 
   input {
+    height: 46px;
+    padding: 0 12px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    box-sizing: border-box;
+    color: var(--text);
+    font: inherit;
+    font-size: 16px;
     position: absolute;
     opacity: 0;
     pointer-events: none;
@@ -210,9 +255,9 @@ img {
 
   button {
     flex: 1;
-    min-height: 44px;
-    border: 1px solid var(--navy);
-    border-radius: 8px;
+    min-height: 48px;
+    border: 1.5px solid var(--navy);
+    border-radius: var(--radius-pill);
     background: none;
     color: var(--navy);
     font-weight: 700;
@@ -224,14 +269,14 @@ img {
     color: var(--on-navy);
   }
 
-  .delete-card,
-  .confirm-delete {
-    border-color: #b00020;
-    color: #b00020;
+  .delete-card {
+    border-color: var(--danger);
+    color: var(--danger);
   }
 
   .confirm-delete {
-    background: #b00020;
+    border-color: var(--danger);
+    background: var(--danger);
     color: #fff;
   }
 }
@@ -250,7 +295,7 @@ img {
 .error {
   flex-shrink: 0;
   margin: 0;
-  color: #b00020;
+  color: var(--danger);
   font-size: 14px;
 }
 
@@ -262,11 +307,13 @@ img {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  padding: 24px 16px calc(24px + env(safe-area-inset-bottom));
+  padding: calc(24px + env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom));
   background: #fff;
 
   h2 {
     margin: 0;
+    color: var(--navy);
+    font-size: 22px;
     padding: 12px;
     border-radius: 12px;
     color: #fff;

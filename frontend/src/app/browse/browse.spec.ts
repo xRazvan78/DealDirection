@@ -178,7 +178,95 @@ describe('Browse', () => {
       name: 'Lapte Zuzu 3.5% 1 l',
       storeName: 'Auchan',
     });
-    expect(page.querySelector('.product .add')?.textContent).toContain(ro.browse.added);
+  });
+
+  describe('quantity counter', () => {
+    function cart(): CartService {
+      return TestBed.inject(CartService);
+    }
+
+    function control(selector: string): HTMLButtonElement {
+      return page.querySelector<HTMLButtonElement>(`.product ${selector}`)!;
+    }
+
+    async function press(selector: string): Promise<void> {
+      control(selector).click();
+      await settle();
+    }
+
+    it('shows Adaugă until the product is in the cart', async () => {
+      await openProducts();
+
+      expect(control('.add').textContent).toContain(ro.browse.add);
+      expect(control('.counter')).toBeNull();
+    });
+
+    it('turns into a counter after adding', async () => {
+      await openProducts();
+
+      await press('.add');
+
+      expect(control('.add')).toBeNull();
+      expect(control('.count').textContent).toBe('1');
+    });
+
+    it('raises the quantity with +', async () => {
+      await openProducts();
+      await press('.add');
+
+      await press('.increase');
+
+      expect(control('.count').textContent).toBe('2');
+      expect(cart().items()[0].quantity).toBe('2');
+    });
+
+    it('lowers the quantity with −', async () => {
+      await openProducts();
+      await press('.add');
+      await press('.increase');
+
+      await press('.decrease');
+
+      expect(control('.count').textContent).toBe('1');
+      expect(cart().items()[0].quantity).toBe('1');
+    });
+
+    it('removes the product at zero, and shows Adaugă again', async () => {
+      await openProducts();
+      await press('.add');
+
+      await press('.decrease');
+
+      expect(cart().items()).toEqual([]);
+      expect(control('.add')).not.toBeNull();
+    });
+
+    it('shows a quantity that was already in the cart', async () => {
+      cart().addProduct(product);
+      cart().addProduct(product);
+
+      await openProducts();
+
+      expect(control('.count').textContent).toBe('2');
+    });
+
+    it('counts the cheapest option and its product row as the same item', async () => {
+      await openProducts();
+
+      page.querySelector<HTMLButtonElement>('.generic .add')!.click();
+      await settle();
+
+      expect(page.querySelector('.generic .count')?.textContent).toBe('1');
+      expect(control('.count').textContent).toBe('1');
+    });
+
+    it('labels the buttons for screen readers', async () => {
+      await openProducts();
+      await press('.add');
+
+      expect(control('.decrease').getAttribute('aria-label')).toBe(ro.browse.decrease);
+      expect(control('.increase').getAttribute('aria-label')).toBe(ro.browse.increase);
+    });
   });
 
   it('remembers the size category, so stores can be compared later', async () => {

@@ -1,6 +1,8 @@
 {
   "name": "DealDirection",
   "short_name": "DealDirection",
+  "theme_color": "#0b2545",
+  "background_color": "#0b2545",
   "display": "standalone",
   "scope": "./",
   "start_url": "./",

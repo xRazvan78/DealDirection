@@ -1,4 +1,4 @@
-import { DatePipe } from '@angular/common';
+import { DatePipe, NgTemplateOutlet } from '@angular/common';
 import {
   Component,
   DestroyRef,
@@ -18,7 +18,7 @@ import { formatLei } from '../shared/format';
 import { ro } from '../shared/ro';
 
 @Component({
-  imports: [DatePipe, RouterLink],
+  imports: [DatePipe, NgTemplateOutlet, RouterLink],
   selector: 'app-browse',
   styleUrl: './browse.scss',
   templateUrl: './browse.html',
@@ -42,7 +42,6 @@ export class Browse {
   protected readonly query = signal('');
   protected readonly loading = signal(true);
   protected readonly failed = signal(false);
-  protected readonly addedId = signal<number | null>(null);
   protected readonly heading = computed(() => {
     if (this.products()) {
       return this.productsTitle();
@@ -92,9 +91,16 @@ export class Browse {
     });
   }
 
+  protected quantityOf(product: Product): string | null {
+    return this.cart.quantityOf(product);
+  }
+
+  protected decrease(product: Product): void {
+    this.cart.decreaseProduct(product);
+  }
+
   protected addToCart(product: Product): void {
     this.cart.addProduct(product, this.productsCategoryId());
-    this.addedId.set(product.id);
   }
 
   protected back(): void {

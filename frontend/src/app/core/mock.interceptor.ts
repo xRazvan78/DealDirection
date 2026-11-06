@@ -1,5 +1,11 @@
-import { HttpInterceptorFn, HttpRequest, HttpResponse } from '@angular/common/http';
-import { delay, of } from 'rxjs';
+import {
+  HttpErrorResponse,
+  HttpEvent,
+  HttpInterceptorFn,
+  HttpRequest,
+  HttpResponse,
+} from '@angular/common/http';
+import { Observable, catchError, delay, of, throwError } from 'rxjs';
 import { Category, CategoryProducts, Product, Reward, Store, Voucher, Wallet } from './models';
 
 // Fake API for `ng serve`, active only in development builds. Delete a route's
@@ -193,7 +199,22 @@ function idIn(url: string): number {
   return Number(url.match(/\d+/)?.[0]);
 }
 
+// With the backend off, login still works during development. A real rejection,
+// like a wrong password, stays an error.
+function withDemoLogin(response: Observable<HttpEvent<unknown>>): Observable<HttpEvent<unknown>> {
+  return response.pipe(
+    catchError((error: HttpErrorResponse) =>
+      error.status === 0 || error.status >= 500
+        ? of(new HttpResponse({ status: 200, body: { token: 'mock-token' } }))
+        : throwError(() => error),
+    ),
+  );
+}
+
 export const mockInterceptor: HttpInterceptorFn = (request, next) => {
+  if (request.url.startsWith('/api/auth/')) {
+    return withDemoLogin(next(request));
+  }
   const handler =
     handlers[`${request.method} ${request.url}`] ??
     routesWithIds.find(

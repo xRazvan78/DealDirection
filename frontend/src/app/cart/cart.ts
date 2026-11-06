@@ -1,11 +1,28 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, computed, inject, signal } from '@angular/core';
+import {
+  ApplicationRef,
+  Component,
+  ElementRef,
+  Injector,
+  afterNextRender,
+  computed,
+  inject,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { Observable, catchError, finalize, forkJoin, map, of, switchMap } from 'rxjs';
 import { ApiService } from '../core/api';
 import { ImportPreview, Product, ReceiptResult } from '../core/models';
+import { SavedListsService } from '../lists/saved-lists.service';
 import { formatLei } from '../shared/format';
-import { isPrice, isQuantity, normalizeAmount } from '../shared/money';
+import {
+  addQuantities,
+  decreaseQuantity,
+  isPrice,
+  isQuantity,
+  normalizeAmount,
+} from '../shared/money';
 import { ro } from '../shared/ro';
 import { CartItem, CartService } from './cart.service';
 import { CartPlan, comparePlans } from './plans';
@@ -22,13 +39,19 @@ interface PricedImport {
 }
 
 @Component({
+  host: { '(window:resize)': 'keepFieldInView()' },
   selector: 'app-cart',
   styleUrl: './cart.scss',
   templateUrl: './cart.html',
 })
 export class Cart {
   private readonly api = inject(ApiService);
+  private readonly injector = inject(Injector);
+  private readonly appRef = inject(ApplicationRef);
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly newRow = viewChild<ElementRef<HTMLElement>>('newRow');
   protected readonly cart = inject(CartService);
+  protected readonly lists = inject(SavedListsService);
 
   protected readonly ro = ro;
   protected readonly formatLei = formatLei;
@@ -44,6 +67,9 @@ export class Cart {
   protected readonly editingId = signal<number | null>(null);
   protected readonly editFailed = signal(false);
   protected readonly rows = computed(() => (this.editing() ? this.draft() : this.cart.items()));
+
+  protected readonly naming = signal(false);
+  protected readonly listName = signal('');
 
   protected readonly importOpen = signal(false);
   protected readonly importing = signal(false);
@@ -71,6 +97,22 @@ export class Cart {
   protected readonly receiptError = signal<string | null>(null);
   protected readonly receiptResult = signal<ReceiptResult | null>(null);
 
+  // An open list already has a name, so only a new list asks for one.
+  protected saveList(): void {
+    if (this.lists.current()) {
+      this.lists.saveCurrent();
+      return;
+    }
+    this.listName.set('');
+    this.naming.set(true);
+  }
+
+  protected confirmListName(event: Event): void {
+    event.preventDefault();
+    this.lists.saveCurrent(this.listName());
+    this.naming.set(false);
+  }
+
   protected isChosen(plan: CartPlan): boolean {
     const items = this.cart.items();
     return plan.lines.every(({ itemId, offer }) => {
@@ -94,6 +136,11 @@ export class Cart {
     this.newPrice.set('');
     this.addFailed.set(false);
     this.adding.set(true);
+    // Otherwise its buttons can sit below the visible part of the list.
+    afterNextRender(
+      () => this.newRow()?.nativeElement.scrollIntoView?.({ block: 'nearest' }),
+      { injector: this.injector },
+    );
   }
 
   protected addRow(event: Event): void {
@@ -119,6 +166,55 @@ export class Cart {
     this.editFailed.set(false);
     this.importNote.set(null);
     this.editing.set(true);
+  }
+
+  // Rendering now, inside the tap, is what lets a phone open its keyboard for this field.
+  protected pickRow(id: number, event: Event): void {
+    const cell = (event.target as HTMLElement).closest<HTMLElement>('[data-field]');
+    this.editingId.set(id);
+    this.appRef.tick();
+    const input = this.host.nativeElement.querySelector<HTMLInputElement>(
+      `.edit-${cell?.dataset['field'] ?? 'quantity'}`,
+    );
+    input?.focus();
+    input?.select();
+    this.keepFieldInView();
+  }
+
+  // A keyboard can shrink the page and cover the field being typed in.
+  protected keepFieldInView(): void {
+    const field = document.activeElement;
+    if (field instanceof HTMLInputElement && this.host.nativeElement.contains(field)) {
+      field.scrollIntoView?.({ block: 'center' });
+    }
+  }
+
+  protected canDecrease(row: CartItem): boolean {
+    return this.oneLess(row) !== null;
+  }
+
+  protected stepUp(row: CartItem, event: Event): void {
+    event.stopPropagation();
+    const quantity = normalizeAmount(row.quantity);
+    this.changeDraft(row.id, {
+      quantity: isQuantity(quantity) ? addQuantities(quantity, '1') : '1',
+    });
+  }
+
+  protected stepDown(row: CartItem, event: Event): void {
+    event.stopPropagation();
+    const quantity = this.oneLess(row);
+    if (quantity === null) {
+      this.removeRow(row.id);
+    } else {
+      this.changeDraft(row.id, { quantity });
+    }
+  }
+
+  // A row can hold a half-typed quantity, which has nothing to count down from.
+  private oneLess(row: CartItem): string | null {
+    const quantity = normalizeAmount(row.quantity);
+    return isQuantity(quantity) ? decreaseQuantity(quantity) : null;
   }
 
   protected changeDraft(id: number, change: Partial<CartItem>): void {

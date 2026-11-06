@@ -16,22 +16,34 @@ svg {
   stroke-linejoin: round;
 }
 
+/* Continues the navy header, and the search box overlaps its curved edge. */
 .points-row {
   display: flex;
+  flex-shrink: 0;
+  align-items: center;
   justify-content: space-between;
   gap: 12px;
+  margin: -16px -16px 0;
+  padding: 6px 16px 42px;
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  background: var(--navy);
 
   a {
-    padding: 8px 14px;
-    border-radius: 8px;
+    padding: 9px 16px;
+    border-radius: var(--radius-pill);
     font-size: 14px;
     text-decoration: none;
   }
 }
 
 .points {
-  border: 1.5px solid var(--navy);
-  color: var(--navy);
+  background: rgb(255 255 255 / 12%);
+  color: var(--on-navy);
+
+  strong {
+    color: var(--accent);
+    font-size: 16px;
+  }
 }
 
 .point-shop {
@@ -41,54 +53,70 @@ svg {
 }
 
 .search {
+  position: relative;
   display: flex;
+  flex-shrink: 0;
   align-items: center;
-  border: 1.5px solid var(--navy);
-  border-radius: 10px;
+  margin-top: -38px;
+  border-radius: var(--radius-md);
+  background: var(--card);
+  box-shadow: var(--shadow-card);
 
   input {
     flex: 1;
     min-width: 0;
-    height: 44px;
-    padding: 0 14px;
+    height: 50px;
+    padding: 0 16px;
     border: 0;
-    border-radius: 10px;
+    border-radius: var(--radius-md);
     background: none;
     color: inherit;
     font: inherit;
+    font-size: 16px;
     outline-offset: -2px;
+  }
+
+  input::placeholder {
+    color: var(--muted);
   }
 
   button {
     display: grid;
+    flex-shrink: 0;
     place-items: center;
-    width: 44px;
-    height: 44px;
+    width: 40px;
+    height: 40px;
+    margin-right: 5px;
     padding: 0;
     border: 0;
-    background: none;
-    color: var(--navy);
+    border-radius: 50%;
+    background: var(--navy);
+    color: var(--on-navy);
   }
 }
 
 .heading {
   display: flex;
+  flex-shrink: 0;
   align-items: center;
   gap: 4px;
 
   h1 {
     margin: 0;
-    font-size: 18px;
+    color: var(--navy);
+    font-size: 19px;
   }
 }
 
 .back {
   display: grid;
   place-items: center;
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
+  margin-left: -8px;
   padding: 0;
   border: 0;
+  border-radius: 50%;
   background: none;
   color: var(--navy);
 }
@@ -99,6 +127,8 @@ svg {
   flex-direction: column;
   gap: 8px;
   min-height: 0;
+  margin: 0 -4px;
+  padding: 0 4px 8px;
   overflow-y: auto;
 }
 
@@ -106,16 +136,42 @@ svg {
   display: flex;
   flex-shrink: 0;
   align-items: center;
-  justify-content: space-between;
   gap: 12px;
-  min-height: 48px;
-  padding: 8px 14px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: var(--surface);
+  min-height: 56px;
+  padding: 8px 14px 8px 10px;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: var(--card);
+  box-shadow: var(--shadow-card);
   color: var(--text);
   font: inherit;
+  font-weight: 600;
   text-align: left;
+}
+
+.row[data-initial]::before {
+  content: attr(data-initial);
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: var(--accent-soft);
+  color: var(--navy);
+  font-family: var(--font-display);
+  font-weight: 700;
+}
+
+.row::after {
+  content: '';
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  margin-left: auto;
+  border-top: 2px solid var(--muted);
+  border-right: 2px solid var(--muted);
+  transform: rotate(45deg);
 }
 
 .products {
@@ -127,25 +183,37 @@ svg {
 .generic,
 .product {
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 2px 12px;
-  padding: 12px 14px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
+  align-items: center;
+  padding: 14px;
+  border-radius: var(--radius-md);
+  background: var(--card);
+  box-shadow: var(--shadow-card);
 }
 
 .generic {
-  border-color: var(--navy);
   background: var(--navy);
   color: var(--on-navy);
 
+  .label {
+    font-size: 13px;
+  }
+
   strong {
+    grid-column: 1;
     color: var(--accent);
+    font-family: var(--font-display);
+    font-size: 22px;
   }
 
   .details {
-    color: inherit;
+    color: var(--on-navy-muted);
   }
+}
+
+.product .name {
+  font-weight: 600;
 }
 
 .details {
@@ -154,15 +222,53 @@ svg {
 }
 
 .add {
-  min-height: 36px;
-  padding: 0 14px;
+  grid-row: 1 / span 3;
+  grid-column: 2;
+  min-height: 40px;
+  padding: 0 16px;
   border: 0;
-  border-radius: 8px;
+  border-radius: var(--radius-pill);
   background: var(--accent);
   color: var(--navy);
   font: inherit;
   font-size: 14px;
   font-weight: 700;
+}
+
+.counter {
+  display: flex;
+  grid-row: 1 / span 3;
+  grid-column: 2;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  border-radius: var(--radius-pill);
+  background: var(--accent);
+  color: var(--navy);
+
+  button {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: var(--card);
+    color: var(--navy);
+  }
+
+  svg {
+    width: 18px;
+    height: 18px;
+    stroke-width: 3;
+  }
+}
+
+.count {
+  min-width: 26px;
+  font-weight: 700;
+  text-align: center;
 }
 
 .note {
@@ -172,26 +278,44 @@ svg {
 
 .error {
   margin: 8px 0;
-  color: #b00020;
+  color: var(--danger);
 }
 
 .seasonal {
+  position: relative;
   display: block;
   flex-shrink: 0;
-  padding: 12px 14px;
-  border-top: 2px dashed var(--navy);
-  background: var(--surface);
+  padding: 12px 62px 12px 20px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(115deg, var(--navy), var(--navy-soft));
   text-decoration: none;
 
   h2 {
-    margin: 0 0 4px;
-    color: var(--navy);
-    font-size: 16px;
+    margin: 0 0 2px;
+    color: var(--accent);
+    font-size: 17px;
   }
 
   p {
     margin: 0;
-    color: var(--muted);
+    color: var(--on-navy);
     font-size: 14px;
   }
+}
+
+/* The ticket's stub, marked by a dashed tear line. */
+.seasonal::after {
+  content: '%';
+  position: absolute;
+  top: 8px;
+  right: 0;
+  bottom: 8px;
+  display: grid;
+  place-items: center;
+  width: 54px;
+  border-left: 2px dashed rgb(255 255 255 / 35%);
+  color: var(--accent);
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
 }

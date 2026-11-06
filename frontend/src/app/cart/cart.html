@@ -1,3 +1,7 @@
+@if (lists.current(); as list) {
+  <p class="list-title">{{ list.name }}</p>
+}
+
 <section class="table" [class.editing]="editing()">
   <div class="head">
     <span>{{ ro.cart.product }}</span>
@@ -32,11 +36,44 @@
             />
           </div>
         } @else if (editing()) {
-          <button type="button" class="row" (click)="editingId.set(row.id)">
-            <span class="name">{{ row.name }}<small class="store">{{ row.storeName }}</small></span>
-            <span>{{ row.quantity }}</span>
-            <span>{{ formatLei(row.price) }}</span>
-          </button>
+          <div class="row" (click)="pickRow(row.id, $event)">
+            <button type="button" class="cell name" data-field="name">
+              {{ row.name }}<small class="store">{{ row.storeName }}</small>
+            </button>
+            <div class="quantity">
+              @if (canDecrease(row)) {
+                <button
+                  type="button"
+                  class="decrease"
+                  [attr.aria-label]="ro.cart.decrease + ' ' + row.name"
+                  (click)="stepDown(row, $event)"
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12" /></svg>
+                </button>
+              } @else {
+                <button
+                  type="button"
+                  class="trash"
+                  [attr.aria-label]="ro.cart.remove + ' ' + row.name"
+                  (click)="stepDown(row, $event)"
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v5M14 11v5" />
+                  </svg>
+                </button>
+              }
+              <button type="button" class="count" data-field="quantity">{{ row.quantity }}</button>
+              <button
+                type="button"
+                class="increase"
+                [attr.aria-label]="ro.cart.increase + ' ' + row.name"
+                (click)="stepUp(row, $event)"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6v12M6 12h12" /></svg>
+              </button>
+            </div>
+            <button type="button" class="cell" data-field="price">{{ formatLei(row.price) }}</button>
+          </div>
         } @else {
           <div class="row">
             <span class="name">{{ row.name }}<small class="store">{{ row.storeName }}</small></span>
@@ -44,7 +81,7 @@
             <span>{{ formatLei(row.price) }}</span>
           </div>
         }
-        @if (editing()) {
+        @if (editing() && editingId() === row.id) {
           <button
             type="button"
             class="remove"
@@ -62,7 +99,7 @@
     }
 
     @if (adding()) {
-      <form class="new-row" (submit)="addRow($event)">
+      <form #newRow class="new-row" (submit)="addRow($event)">
         <div class="row picked">
           <input
             class="new-name"
@@ -113,6 +150,26 @@
     <p class="error" role="alert">{{ ro.cart.invalidRow }}</p>
   }
 
+  @if (naming()) {
+    <form class="name-form" (submit)="confirmListName($event)">
+      <input
+        class="list-name-input"
+        maxlength="60"
+        autocomplete="off"
+        [attr.aria-label]="ro.cart.listName"
+        [placeholder]="lists.nextDefaultName()"
+        [value]="listName()"
+        (input)="listName.set($any($event.target).value)"
+      />
+      <div class="new-actions">
+        <button type="button" class="cancel-name" (click)="naming.set(false)">
+          {{ ro.cart.cancel }}
+        </button>
+        <button type="submit" class="confirm-new">{{ ro.cart.save }}</button>
+      </div>
+    </form>
+  }
+
   <div class="edit-bar">
     @if (editing()) {
       <button type="button" class="cancel" (click)="editing.set(false)">
@@ -122,6 +179,14 @@
     } @else {
       <button type="button" class="edit" [disabled]="!cart.items().length" (click)="startEditing()">
         {{ ro.cart.edit }}
+      </button>
+      <button
+        type="button"
+        class="save-list"
+        [disabled]="!lists.unsaved() || naming()"
+        (click)="saveList()"
+      >
+        {{ lists.current() && !lists.unsaved() ? ro.cart.saved : ro.cart.saveList }}
       </button>
     }
   </div>

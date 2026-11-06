@@ -148,7 +148,7 @@ Stop for 10 minutes at each one, and make a cut if you're behind.
 
 - Agree the API in hours 0–2, and don't change a route without telling the frontend members.
 - Use one branch per task, and merge to `main` only when its tests pass. Frontend tasks merge into the `frontend` branch instead, and `frontend` merges to `main` when all of it is ready.
-- Keep Romanian text in `frontend/src/app/shared/ro.ts`.
+- Keep UI text in `frontend/src/app/shared/ro.ts` and `en.ts`, and add every string to both.
 - Keep `.env`, secrets and raw scrape output out of git.
 - After hour 21, fix bugs only.
 - If you're stuck for 30 minutes, tell the team.
