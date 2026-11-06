@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 
 from dealdata.normalize import RawProduct, Size, parse_size
-from dealdata.tree import CategoryNode, LeafRule, category_nodes, load_tree
+from dealdata.tree import CategoryNode, LeafRule, category_nodes, classify, load_tree
 
 REAL_TREE = Path(__file__).parents[2] / "data" / "tree.yaml"
 
@@ -281,6 +281,134 @@ def test_real_tree_paths_are_unique() -> None:
     paths = [rule.path for rule in load_tree(REAL_TREE)]
 
     assert len(paths) == len(set(paths))
+
+
+ONE_LITRE = Size(Decimal("1"), "l")
+
+
+def product_named(name: str) -> RawProduct:
+    return RawProduct("Auchan", name, None, None, Decimal("1"), None, "https://example.com")
+
+
+def rule(
+    name: str = "Regula",
+    include: tuple[str, ...] = (),
+    exclude: tuple[str, ...] = (),
+    any_of: tuple[str, ...] = (),
+    starts_with: tuple[str, ...] = (),
+    size: Size = ONE_LITRE,
+) -> LeafRule:
+    return LeafRule(
+        (name, name, "1 l"), include, exclude, size, (), any_of=any_of, starts_with=starts_with
+    )
+
+
+def classified(name: str, *rules: LeafRule) -> LeafRule | None:
+    return classify(product_named(name), ONE_LITRE, list(rules))
+
+
+def test_classify_puts_real_milk_in_its_leaf() -> None:
+    name = "Lapte integral Albalact, 3.5% grasime, 1 l"
+    size = parse_size(name)
+
+    assert size is not None
+    leaf = classify(product_named(name), size, load_tree(REAL_TREE))
+
+    assert leaf is not None
+    assert leaf.path == ("Lapte", "3.5%", "1 l")
+
+
+def test_classify_leaves_out_baby_cleansing_lotion() -> None:
+    name = "Lapte de curatare Pouce, 300ml"
+    size = parse_size(name)
+
+    assert size is not None
+    assert classify(product_named(name), size, load_tree(REAL_TREE)) is None
+
+
+def test_classify_needs_every_include_word() -> None:
+    needs_both = rule(include=("lapte", "3.5%"))
+
+    assert classified("Lapte integral, 3.5% grasime", needs_both) == needs_both
+    assert classified("Lapte integral", needs_both) is None
+
+
+def test_classify_rejects_an_exclude_word() -> None:
+    assert classified("Lapte de curatare", rule(include=("lapte",), exclude=("curatare",))) is None
+
+
+def test_classify_needs_one_any_of_word() -> None:
+    juice = rule(any_of=("suc", "sucuri"))
+
+    assert classified("Sucuri naturale", juice) == juice
+    assert classified("Apa plata", juice) is None
+
+
+def test_classify_needs_the_name_to_start_with_a_starts_with_entry() -> None:
+    butter = rule(include=("unt",), starts_with=("unt", "margarina"))
+
+    assert classified("Unt de masa Pilos", butter) == butter
+    assert classified("Sampon cu unt de shea", butter) is None
+
+
+def test_classify_accepts_a_starts_with_phrase() -> None:
+    meal = rule(starts_with=("pui cu",))
+
+    assert classified("Pui cu orez basmati", meal) == meal
+    assert classified("Pui intreg", meal) is None
+
+
+def test_classify_doesnt_treat_a_longer_word_as_a_starts_with_match() -> None:
+    assert classified("Untura de porc", rule(starts_with=("unt",))) is None
+
+
+def test_classify_matches_whole_words_only() -> None:
+    butter = rule(include=("unt",))
+
+    assert classified("Untura de porc", butter) is None
+    assert classified("Crema de unt", butter) == butter
+
+
+def test_classify_ignores_case_and_diacritics() -> None:
+    cheese = rule(include=("branza",))
+
+    assert classified("BRÂNZĂ de vaci", cheese) == cheese
+
+
+def test_classify_reads_a_comma_percentage() -> None:
+    milk = rule(include=("lapte", "3.5%"))
+
+    assert classified("Lapte integral 3,5% grasime", milk) == milk
+
+
+def test_classify_needs_the_leaf_size_to_match() -> None:
+    half_litre = rule(include=("lapte",), size=Size(Decimal("0.5"), "l"))
+
+    assert classified("Lapte integral", half_litre) is None
+
+
+def test_classify_treats_equal_sizes_with_different_decimals_as_the_same() -> None:
+    litre = rule(include=("lapte",))
+
+    assert classify(product_named("Lapte"), Size(Decimal("1.000"), "l"), [litre]) == litre
+
+
+def test_classify_takes_the_first_matching_rule() -> None:
+    chocolate = rule("Ciocolata", include=("ciocolata",))
+    milk = rule("Lapte", include=("lapte",))
+
+    assert classified("Ciocolata cu lapte", chocolate, milk) == chocolate
+
+
+def test_classify_keeps_a_chocolate_with_milk_out_of_the_milk_leaf() -> None:
+    name = "Ciocolata cu lapte Heidi, 100 g"
+    size = parse_size(name)
+
+    assert size is not None
+    leaf = classify(product_named(name), size, load_tree(REAL_TREE))
+
+    assert leaf is not None
+    assert leaf.path[0] == "Ciocolată"
 
 
 def test_category_nodes_turn_a_leaf_into_database_rows() -> None:

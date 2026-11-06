@@ -63,6 +63,14 @@ def parse_carrefour(html: str, source_url: str) -> list[RawProduct]:
     return products
 
 
+def read_raw_carrefour(raw_dir: Path) -> list[RawProduct]:
+    """Parse pages already saved in raw_dir, without sending any request."""
+    products = []
+    for raw_file in sorted(raw_dir.glob("carrefour_*.html")):
+        products += parse_carrefour(raw_file.read_text(encoding="utf-8"), _BASE)
+    return products
+
+
 def scrape_carrefour(
     client: Any, urls: list[str], raw_dir: Path, max_pages: int = MAX_PAGES
 ) -> list[RawProduct]:

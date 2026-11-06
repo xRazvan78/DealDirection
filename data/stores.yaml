@@ -1,1 +1,12 @@
 # Store colours and 2-3 locations in the demo city. Owner: Member 1, Task 5.
+#
+# Add locations once the team picks the demo city:
+#   - {address: "...", latitude: 44.43, longitude: 26.10}
+
+stores:
+  Auchan:
+    colour: "#d6001c"
+    locations: []
+  Carrefour:
+    colour: "#004e9f"
+    locations: []
