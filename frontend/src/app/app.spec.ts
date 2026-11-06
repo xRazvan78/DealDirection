@@ -18,6 +18,7 @@ describe('App', () => {
           { path: 'login', component: Blank },
           { path: 'browse', component: Blank },
           { path: 'lists', component: Blank },
+          { path: 'cart', component: Blank },
         ]),
       ],
     }).compileComponents();
@@ -77,6 +78,15 @@ describe('App', () => {
     await fixture.whenStable();
 
     scroll(page, 0);
+    await fixture.whenStable();
+
+    expect(page.querySelector('.scroll-top')).toBeNull();
+  });
+
+  it('never shows the button on the cart, where it would cover Scan receipt', async () => {
+    const page = await openAt('/cart');
+
+    scroll(page, 400);
     await fixture.whenStable();
 
     expect(page.querySelector('.scroll-top')).toBeNull();

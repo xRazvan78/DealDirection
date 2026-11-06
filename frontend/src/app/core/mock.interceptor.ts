@@ -103,15 +103,49 @@ const handlers: Record<string, Handler> = {
         generic: productsFor(sizeId).generic,
       }));
   },
+  'POST /api/imports': () => ({
+    items: [
+      { food: 'lapte', size_category_id: 100, path: pathOf(100), packs: 2 },
+      { food: 'paine', size_category_id: 200, path: pathOf(200), packs: 1 },
+    ],
+    unmapped: ['ghimbir'],
+  }),
 };
 
-const categoryProductsRoute = /^\/api\/categories\/(\d+)\/products$/;
+const routesWithIds: [RegExp, string, Handler][] = [
+  [/^\/api\/categories\/\d+\/products$/, 'GET', ({ url }) => productsFor(idIn(url))],
+  [
+    /^\/api\/stores\/\d+\/directions$/,
+    'GET',
+    () => ({
+      address: 'Adresă de test',
+      maps_url: 'https://www.google.com/maps/dir/?api=1&destination=44.4268,26.1025',
+    }),
+  ],
+  [
+    /^\/api\/lists\/\d+\/receipts$/,
+    'POST',
+    () => ({
+      matched: [{ name: 'Lapte 3.5% 1 l', line_total: '8.50' }],
+      unmatched_items: [],
+      estimate: '8.50',
+      paid: '8.50',
+      modifier: '1.00',
+      points: 85,
+    }),
+  ],
+];
+
+function idIn(url: string): number {
+  return Number(url.match(/\d+/)?.[0]);
+}
 
 export const mockInterceptor: HttpInterceptorFn = (request, next) => {
-  const sizeId = request.url.match(categoryProductsRoute)?.[1];
-  const handler = sizeId
-    ? () => productsFor(Number(sizeId))
-    : handlers[`${request.method} ${request.url}`];
+  const handler =
+    handlers[`${request.method} ${request.url}`] ??
+    routesWithIds.find(
+      ([route, method]) => method === request.method && route.test(request.url),
+    )?.[2];
   return handler
     ? of(new HttpResponse({ status: 200, body: handler(request) })).pipe(delay(300))
     : next(request);

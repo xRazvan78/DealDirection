@@ -149,9 +149,20 @@ svg {
 }
 
 .details {
-  grid-column: 1 / -1;
   color: var(--muted);
   font-size: 13px;
+}
+
+.add {
+  min-height: 36px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--accent);
+  color: var(--navy);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
 }
 
 .note {
