@@ -1166,11 +1166,17 @@ describe('Cart', () => {
       expect(button('.scan').disabled).toBe(false);
     });
 
-    it('opens the camera, with a file picker as fallback', () => {
+    // Without `capture`, the phone asks whether to take a photo or pick one from the gallery.
+    it('lets the phone offer the camera or the gallery', () => {
       const input = page.querySelector('.receipt-input');
 
       expect(input?.getAttribute('accept')).toBe('image/*');
-      expect(input?.getAttribute('capture')).toBe('environment');
+      expect(input?.hasAttribute('capture')).toBe(false);
+    });
+
+    it('has a single scan button', () => {
+      expect(buttons('.scan').length).toBe(1);
+      expect(page.querySelector('.gallery')).toBeNull();
     });
 
     it('sends the photo to be read', () => {
