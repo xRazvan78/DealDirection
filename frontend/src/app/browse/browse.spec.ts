@@ -1,7 +1,7 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { Router, provideRouter } from '@angular/router';
 import { CartService } from '../cart/cart.service';
 import { Category, CategoryProducts, Product, SearchResult, Wallet } from '../core/models';
 import { ro } from '../shared/ro';
@@ -38,7 +38,7 @@ describe('Browse', () => {
     localStorage.clear();
     await TestBed.configureTestingModule({
       imports: [Browse],
-      providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting()],
+      providers: [provideRouter([{ path: 'browse', children: [] }]), provideHttpClient(), provideHttpClientTesting()],
     }).compileComponents();
 
     http = TestBed.inject(HttpTestingController);
@@ -410,5 +410,52 @@ describe('Browse', () => {
     await loadHome();
 
     expect(page.querySelector('.seasonal')?.getAttribute('href')).toBe('/deals');
+  });
+  describe('pressing Acasă while already home', () => {
+    async function pressHome(): Promise<void> {
+      await TestBed.inject(Router).navigateByUrl('/browse');
+      await settle();
+    }
+
+    beforeEach(async () => {
+      await TestBed.inject(Router).navigateByUrl('/browse');
+    });
+
+    it('goes back to the first level from a category', async () => {
+      await loadHome();
+      rows()[0].click();
+      expectCategories(1).flush(types);
+      await settle();
+
+      await pressHome();
+      http.expectOne((request) => request.url === '/api/categories' && !request.params.has('parent_id')).flush(topLevel);
+      await settle();
+
+      expect(rows().map((row) => row.textContent?.trim())).toEqual(['Lapte', 'Pâine']);
+      expect(page.querySelector('.back')).toBeNull();
+    });
+
+    it('leaves the products and the search for the first level', async () => {
+      await openProducts();
+
+      await pressHome();
+      http.expectOne((request) => request.url === '/api/categories' && !request.params.has('parent_id')).flush(topLevel);
+      await settle();
+
+      expect(rows().map((row) => row.textContent?.trim())).toEqual(['Lapte', 'Pâine']);
+      expect(page.querySelector('.back')).toBeNull();
+    });
+
+    it('clears a search', async () => {
+      await loadHome();
+      await search('lapte');
+      http.expectOne((request) => request.url === '/api/search').flush(results);
+      await settle();
+
+      await pressHome();
+
+      expect(page.querySelector<HTMLInputElement>('.search input')!.value).toBe('');
+      expect(rows().map((row) => row.textContent?.trim())).toEqual(['Lapte', 'Pâine']);
+    });
   });
 });

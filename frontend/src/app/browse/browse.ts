@@ -9,8 +9,8 @@ import {
   viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { RouterLink } from '@angular/router';
-import { Observable, Subscription } from 'rxjs';
+import { NavigationSkipped, Router, RouterLink } from '@angular/router';
+import { Observable, Subscription, filter } from 'rxjs';
 import { CartService } from '../cart/cart.service';
 import { ApiService } from '../core/api';
 import { Category, CategoryProducts, Product, SearchResult } from '../core/models';
@@ -58,6 +58,16 @@ export class Browse {
         error: () => this.balance.set(null),
       });
     this.load(this.api.getCategories(), (categories) => this.categories.set(categories));
+
+    // Pressing Acasă while already here changes no URL, so the router skips it.
+    // Treat that skip as "go home": back to the first level of categories.
+    inject(Router)
+      .events.pipe(
+        filter((event) => event instanceof NavigationSkipped),
+        filter((event) => event.url.split(/[?#]/)[0] === '/browse'),
+        takeUntilDestroyed(),
+      )
+      .subscribe(() => this.goHome());
   }
 
   protected open(category: Category): void {
@@ -115,6 +125,20 @@ export class Browse {
       this.load(this.api.getCategories(trail.at(-1)?.id), (categories) => {
         this.categories.set(categories);
         this.trail.set(trail);
+      });
+    }
+  }
+
+  private goHome(): void {
+    this.scrollListToTop();
+    this.products.set(null);
+    this.results.set(null);
+    this.query.set('');
+    // Also reload when a choice is still loading, so its answer can't land after going home.
+    if (this.trail().length || this.loading()) {
+      this.load(this.api.getCategories(), (categories) => {
+        this.categories.set(categories);
+        this.trail.set([]);
       });
     }
   }
