@@ -1,7 +1,7 @@
 """The Point Shop: points balance, history, rewards and vouchers. Owner: Member 2, Task 13.
 
 Points live in points_ledger: receipts add them (Task 11), and redeeming a
-reward takes them off and creates a voucher. The balance is always the sum
+reward (a partner gift card, see rewards.py) takes them off and creates a voucher. The balance is always the sum
 of the ledger, so it can't drift from the history.
 
 Redeeming locks the user's row first (SELECT ... FOR UPDATE), so two quick
@@ -78,8 +78,8 @@ def get_wallet(user: CurrentUser, db: Db) -> WalletOut:
 
 @router.get("/rewards")
 def list_rewards(user: CurrentUser, db: Db) -> list[RewardOut]:
-    """Active rewards from the database, cheapest first."""
-    return [RewardOut(id=r.id, name=r.name, cost=r.cost, store_name=store) for r, store in active_rewards(db)]
+    """The partner gift cards on offer, from the database, cheapest first."""
+    return [RewardOut(id=c.id, name=c.name, cost=c.cost_points, store_name=shop) for c, shop in active_rewards(db)]
 
 
 @router.post("/rewards/{reward_id}/redeem", status_code=status.HTTP_201_CREATED)
@@ -94,23 +94,23 @@ def redeem_reward(reward_id: int, user: CurrentUser, db: Db) -> VoucherOut:
     balance = db.scalar(
         select(func.coalesce(func.sum(PointsLedger.amount), 0)).where(PointsLedger.user_id == user.id)
     )
-    if balance < reward.cost:  # nothing was written; the lock ends with the request
+    if balance < reward.cost_points:  # nothing was written; the lock ends with the request
         raise HTTPException(
             status.HTTP_409_CONFLICT,
-            detail=f"Nu ai destule puncte: ai {balance}, iar recompensa costă {reward.cost}.",
+            detail=f"Nu ai destule puncte: ai {balance}, iar recompensa costă {reward.cost_points}.",
         )
 
     now = datetime.now(UTC)
     voucher = Voucher(
         user_id=user.id,
-        reward_id=reward.id,
+        gift_card_id=reward.id,
         reward_name=reward.name,
         store_name=store_name,
         code=_new_code(db),
         expires_at=now + timedelta(days=get_settings().VOUCHER_VALID_DAYS),
     )
     db.add(voucher)
-    db.add(PointsLedger(user_id=user.id, amount=-reward.cost, reason=f"Voucher: {reward.name}"))
+    db.add(PointsLedger(user_id=user.id, amount=-reward.cost_points, reason=f"Voucher: {reward.name}"))
     try:
         db.flush()
         db.commit()

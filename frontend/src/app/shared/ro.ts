@@ -47,6 +47,7 @@ export const romanian = {
     noShops: 'Magazinele apar după ce adaugi produse găsite în catalog.',
     directions: 'Traseu',
     directionsFailed: 'Nu am putut deschide traseul. Încearcă din nou.',
+    openMaps: 'Deschide în Google Maps',
     routeNoAddress: 'Un magazin din coș nu are încă adresă, așa că nu am putut face traseul.',
     scan: 'Scanează bonul',
     scanning: 'Se citește bonul...',
@@ -108,7 +109,6 @@ export const romanian = {
     title: 'Point Shop',
     balance: 'Punctele tale',
     rewards: 'Recompense',
-    simulated: 'Exemple pentru demo: recompensele nu sunt reale.',
     points: 'puncte',
     usableAt: 'Valabil la',
     redeem: 'Folosește',
@@ -129,7 +129,7 @@ export const romanian = {
   },
   deals: {
     title: 'Oferte',
-    text: 'Ofertele de sezon și reducerile mari apar aici.',
+    text: 'Ofertele speciale și reducerile mari apar aici.',
   },
   browse: {
     points: 'Puncte',
@@ -146,7 +146,7 @@ export const romanian = {
     increase: 'Crește cantitatea',
     cheapest: 'Cea mai ieftină opțiune',
     updated: 'Actualizat',
-    seasonalTitle: 'Oferte de sezon',
+    seasonalTitle: 'Oferte speciale',
     seasonalText: 'Ofertele speciale apar aici.',
   },
   login: {

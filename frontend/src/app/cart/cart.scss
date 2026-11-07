@@ -397,6 +397,15 @@ input:not([type='file']):focus {
   color: var(--navy);
 }
 
+.maps-link {
+  display: grid;
+  place-items: center;
+  grid-column: 1 / -1;
+  background: var(--navy);
+  color: var(--on-navy);
+  text-decoration: none;
+}
+
 .scan {
   border-color: var(--accent);
   background: var(--accent);
