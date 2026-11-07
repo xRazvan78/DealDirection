@@ -110,6 +110,12 @@ python -m dealdata.load
 
 This also creates two test users, `ana@dealdirection.ro` and `mihai@dealdirection.ro`. Both log in with `SEED_PASSWORD`, which is in `.env.example`.
 
+**Load the coin shop partners:** run the SQL scripts in `data/sql/` (in name order, safe to re-run). They create the partner shops (Decathlon, Delfino, SuperBob) and their 50, 100 and 150 lei gift cards, at 100 points per leu. This is sample data.
+
+```bash
+python -m dealdata.run_sql
+```
+
 **Open it on a phone:** this needs `cloudflared` installed and the backend from step 2 running. The tunnel gives the app a public HTTPS address, which the phone's camera needs. Anyone with the link can reach your app while the tunnel is running.
 
 In a new terminal, build the frontend, because the backend serves that build. Do this again after any frontend change:
@@ -370,6 +376,8 @@ Each unit has one job, and can be tested without the others.
 | `receipt_lines`   | receipt, raw text, quantity, line total, matched list item                                                                                 |
 | `points_ledger`   | user, amount, reason, receipt, created_at                                                                                                  |
 | `vouchers`        | user, reward, store, code (unique), expires_at, used_at |
+| `partner_shops`   | name (unique), description, website, colour, logo, active, created_at; from `data/sql/` |
+| `partner_gift_cards` | shop, name, value_lei, cost_points, active; unique on shop and value; from `data/sql/` |
 | `loyalty_cards`   | user, brand, code text, code format, photo (only if no code was read); unique on user and brand                                            |
 
 Create tables with `Base.metadata.create_all`, since a hackathon doesn't need migrations.
