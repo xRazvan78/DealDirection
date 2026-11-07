@@ -33,17 +33,17 @@
       <article class="reward">
         <span class="name">{{ reward.name }}</span>
         <span class="shop">{{ ro.wallet.usableAt }} {{ reward.store_name }}</span>
-        <span class="cost">{{ reward.cost }} {{ ro.wallet.points }}</span>
+        @if (pointsShort(reward) > 0) {
+          <span class="short">{{ ro.wallet.short }} {{ pointsShort(reward) }}</span>
+        }
+        <!-- The price is the button: tapping it spends those points. -->
         <button
           type="button"
           [disabled]="pointsShort(reward) > 0 || redeemingId() !== null"
+          [attr.aria-label]="ro.wallet.redeem + ' ' + reward.name + ': ' + reward.cost + ' ' + ro.wallet.points"
           (click)="redeem(reward)"
         >
-          @if (pointsShort(reward) > 0) {
-            {{ ro.wallet.short }} {{ pointsShort(reward) }}
-          } @else {
-            {{ redeemingId() === reward.id ? ro.loading : ro.wallet.redeem }}
-          }
+          {{ redeemingId() === reward.id ? ro.loading : reward.cost + ' ' + ro.wallet.points }}
         </button>
       </article>
     } @empty {

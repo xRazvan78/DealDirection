@@ -402,6 +402,7 @@ All values live in backend config and can be changed without a code change.
 | `POINTS_PER_LEI`       | 10 (placeholder)              |
 | `MIN_SPLIT_SAVING_LEI` | 10 (placeholder)              |
 | `TRASH_RETENTION_DAYS` | 14                            |
+| `VOUCHER_VALID_DAYS`   | 30                            |
 | `OCR_ENGINE`           | `rapidocr` (or `tesseract`)   |
 | `OCR_RAPID_LANG`       | `ro`                          |
 | `OCR_LANG`             | `ron+eng` (Tesseract only)    |

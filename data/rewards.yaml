@@ -1,0 +1,20 @@
+# Point Shop rewards. SAMPLE DATA: spending points is simulated in the MVP.
+#
+# Loaded by `uv run python -m dealdata.load`, after the stores. `store` must be a
+# store in stores.yaml. Running the load again updates the cost; a reward taken
+# out of this file is hidden (marked inactive), not deleted, because vouchers
+# already redeemed point to it.
+
+rewards:
+  - name: "Cafea gratuită"
+    store: Auchan
+    cost: 500
+  - name: "Pâine albă gratuită"
+    store: Carrefour
+    cost: 300
+  - name: "Reducere de 10 lei"
+    store: Carrefour
+    cost: 1000
+  - name: "Reducere de 50 lei"
+    store: Auchan
+    cost: 5000

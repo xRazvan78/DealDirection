@@ -112,7 +112,19 @@ describe('Wallet (Point Shop)', () => {
 
     expect(affordable.disabled).toBe(false);
     expect(tooExpensive.disabled).toBe(true);
-    expect(tooExpensive.textContent).toContain('3750');
+    expect(tooExpensive.closest('.reward')!.querySelector('.short')!.textContent).toContain('3750');
+  });
+
+  it('puts the price on the button and the missing points under the name', async () => {
+    await load();
+    const [affordable, tooExpensive] = redeemButtons();
+    const [affordableCard, tooExpensiveCard] = [affordable, tooExpensive].map((b) => b.closest('.reward')!);
+
+    expect(affordable.textContent?.trim()).toBe(`500 ${ro.wallet.points}`);
+    expect(tooExpensive.textContent?.trim()).toBe(`5000 ${ro.wallet.points}`);
+    expect(affordableCard.querySelector('.short')).toBeNull();
+    expect(tooExpensiveCard.querySelector('.short')!.textContent).toContain(`${ro.wallet.short} 3750`);
+    expect(affordable.getAttribute('aria-label')).toContain(ro.wallet.redeem);
   });
 
   it('shows the history, newest as given, with signs and dates', async () => {
