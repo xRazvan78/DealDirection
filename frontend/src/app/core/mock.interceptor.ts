@@ -91,11 +91,15 @@ const wallet: Wallet = {
   history: [{ amount: 1250, reason: 'Puncte de test', created_at: '2026-11-02T09:00:00Z' }],
 };
 
-const rewards: Reward[] = [
-  { id: 1, name: 'Cafea gratuită', cost: 500, store_name: 'Auchan' },
-  { id: 2, name: 'Reducere de 10 lei', cost: 1000, store_name: 'Carrefour' },
-  { id: 3, name: 'Reducere de 50 lei', cost: 5000, store_name: 'Auchan' },
-];
+// The partner gift cards from data/sql/02_partner_shops_seed.sql, cheapest first like the API.
+const rewards: Reward[] = [50, 100, 150].flatMap((value, index) =>
+  ['Decathlon', 'Delfino', 'SuperBob'].map((shop, shopIndex) => ({
+    id: index * 3 + shopIndex + 1,
+    name: `Card cadou ${shop} ${value} lei`,
+    cost: value * 100,
+    store_name: shop,
+  })),
+);
 
 const vouchers: Voucher[] = [];
 

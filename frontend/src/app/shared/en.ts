@@ -114,7 +114,6 @@ export const en: Translations = {
     title: 'Point Shop',
     balance: 'Your points',
     rewards: 'Rewards',
-    simulated: "Demo examples: the rewards aren't real.",
     points: 'points',
     usableAt: 'Valid at',
     redeem: 'Use',

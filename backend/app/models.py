@@ -292,7 +292,9 @@ class PartnerGiftCard(Base):
 
 
 class Voucher(Base):
-    """A reward redeemed in the Point Shop. Its points were taken off in points_ledger.
+    """A partner gift card (or, before, a supermarket reward) redeemed in the Point Shop.
+
+    Its points were taken off in points_ledger.
 
     The reward's name and store are copied, so a voucher keeps what it was
     redeemed for even if the reward changes later. A voucher is shown until
@@ -300,10 +302,17 @@ class Voucher(Base):
     """
 
     __tablename__ = "vouchers"
+    __table_args__ = (
+        CheckConstraint(
+            "reward_id IS NOT NULL OR gift_card_id IS NOT NULL", name="has_reward_or_gift_card"
+        ),
+    )
 
     id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
-    reward_id: Mapped[int] = mapped_column(ForeignKey("rewards.id"))
+    # Old vouchers point to a supermarket reward; new ones to a partner gift card.
+    reward_id: Mapped[int | None] = mapped_column(ForeignKey("rewards.id"))
+    gift_card_id: Mapped[int | None] = mapped_column(ForeignKey("partner_gift_cards.id"))
     reward_name: Mapped[str] = mapped_column(String(200))
     store_name: Mapped[str] = mapped_column(String(100))
     code: Mapped[str] = mapped_column(String(20), unique=True)
