@@ -69,7 +69,7 @@ cd frontend
 ```
 
 ```bash
-npx ng serve --proxy-config proxy.conf.json
+npm start
 ```
 
 **4. Test it**
@@ -86,7 +86,7 @@ You'll need [cloudflared](https://developers.cloudflare.com/cloudflare-one/conne
 npm run mobile
 ```
 
-If the backend is off, login uses a demo account and all data is fake. PWA install isn't available this way, since it needs a production build.
+The app has no fake data, so the backend must be running for login and every screen. PWA install isn't available this way, since it needs a production build.
 
 **5. Terminal 3: activate `.venv` and run the automated tests from the repo root**
 
@@ -295,7 +295,7 @@ PostgreSQL  ◄── dealdata load ◄── data/snapshot/products.json ◄─
 
 The app has three parts, and each one can be worked on alone:
 
-- **`frontend/`** only talks to the backend through `/api`. Until a route is ready, a screen can use mock data.
+- **`frontend/`** only talks to the backend through `/api`. `ng serve` forwards `/api` to the backend on port 8000.
 - **`backend/`** has one folder per unit, as listed in [Backend units](#backend-units). Business rules stay in the pure `logic.py` files, so they can be tested without a database.
 - **`data/`** runs offline. The running app only reads what `dealdata.load` put in Postgres, so a blocked scraper can't break the demo.
 

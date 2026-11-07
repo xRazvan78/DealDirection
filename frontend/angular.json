@@ -65,7 +65,8 @@
         "serve": {
           "builder": "@angular/build:dev-server",
           "options": {
-            "allowedHosts": [".trycloudflare.com"]
+            "allowedHosts": [".trycloudflare.com"],
+            "proxyConfig": "proxy.conf.json"
           },
           "configurations": {
             "production": {
