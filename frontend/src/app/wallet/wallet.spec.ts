@@ -100,10 +100,10 @@ describe('Wallet (Point Shop)', () => {
     expect(shops[1]).toContain(`${ro.wallet.usableAt} Carrefour`);
   });
 
-  it('marks rewards as simulated', async () => {
+  it('shows no demo note above the rewards', async () => {
     await load();
 
-    expect(page.textContent).toContain(ro.wallet.simulated);
+    expect(page.textContent).not.toContain('Exemple pentru demo');
   });
 
   it('blocks rewards the client cannot afford, and shows the gap', async () => {

@@ -49,6 +49,27 @@ def drop_if_outdated_and_empty(conn: Connection, table: str, new_column: str) ->
     return True
 
 
+def upgrade_vouchers(conn: Connection) -> None:
+    """Let vouchers point to a partner gift card instead of a reward. Keeps every row.
+
+    Run after create_all, which makes partner_gift_cards but never alters vouchers.
+    """
+    conn.execute(text(
+        "ALTER TABLE vouchers ADD COLUMN IF NOT EXISTS gift_card_id INTEGER "
+        "REFERENCES partner_gift_cards (id)"
+    ))
+    conn.execute(text("ALTER TABLE vouchers ALTER COLUMN reward_id DROP NOT NULL"))
+    has_check = conn.scalar(text(
+        "SELECT 1 FROM pg_constraint "
+        "WHERE conname = 'has_reward_or_gift_card' AND conrelid = 'vouchers'::regclass"
+    ))
+    if not has_check:
+        conn.execute(text(
+            "ALTER TABLE vouchers ADD CONSTRAINT has_reward_or_gift_card "
+            "CHECK (reward_id IS NOT NULL OR gift_card_id IS NOT NULL)"
+        ))
+
+
 def init_db() -> None:
     ensure_database()
     engine = get_engine()
@@ -56,3 +77,5 @@ def init_db() -> None:
         for table, new_column in _UPGRADES.items():
             drop_if_outdated_and_empty(conn, table, new_column)
     Base.metadata.create_all(engine)
+    with engine.begin() as conn:
+        upgrade_vouchers(conn)

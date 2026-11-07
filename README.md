@@ -69,7 +69,7 @@ cd frontend
 ```
 
 ```bash
-npx ng serve --proxy-config proxy.conf.json
+npm start
 ```
 
 **4. Test it**
@@ -86,7 +86,7 @@ You'll need [cloudflared](https://developers.cloudflare.com/cloudflare-one/conne
 npm run mobile
 ```
 
-If the backend is off, login uses a demo account and all data is fake. PWA install isn't available this way, since it needs a production build.
+The app has no fake data, so the backend must be running for login and every screen. PWA install isn't available this way, since it needs a production build.
 
 **5. Terminal 3: activate `.venv` and run the automated tests from the repo root**
 
@@ -109,6 +109,12 @@ python -m dealdata.load
 ```
 
 This also creates two test users, `ana@dealdirection.ro` and `mihai@dealdirection.ro`. Both log in with `SEED_PASSWORD`, which is in `.env.example`.
+
+**Load the coin shop partners:** run the SQL scripts in `data/sql/` (in name order, safe to re-run). They create the partner shops (Decathlon, Delfino, SuperBob) and their 50, 100 and 150 lei gift cards, at 100 points per leu. This is sample data.
+
+```bash
+python -m dealdata.run_sql
+```
 
 **Open it on a phone:** this needs `cloudflared` installed and the backend from step 2 running. The tunnel gives the app a public HTTPS address, which the phone's camera needs. Anyone with the link can reach your app while the tunnel is running.
 
@@ -159,7 +165,7 @@ A presenter completes this loop live on a phone, using real scraped prices and a
 | **Must**      | Price data, product browsing, cart and optimiser, receipt scan with points, list import, store selection, saved lists, directions, simple login, demo user |
 | **Should**    | Loyalty card wallet                                                                                                                                        |
 | **Simulated** | Spending points, using a fake rewards page                                                                                                                 |
-| **Out**       | Admin dashboard, live scraping, real partner integrations, multiple cities, per-store pricing, password reset, social login               |
+| **Out**       | Admin dashboard, live scraping, real partner integrations, multiple cities, per-store pricing, password reset, social login                                |
 
 If the team falls behind, cut the card wallet first, then PDF import.
 
@@ -234,7 +240,7 @@ A deleted list goes to the trash for 2 weeks, and can be restored until then. Af
 
 | Part        | Technology                                                                 |
 | ----------- | -------------------------------------------------------------------------- |
-| Frontend    | Angular PWA, Romanian and English  |
+| Frontend    | Angular PWA, Romanian and English                                          |
 | Backend     | Python 3.12, FastAPI, SQLAlchemy                                           |
 | Database    | PostgreSQL                                                                 |
 | Data import | Python scripts, run offline                                                |
@@ -310,7 +316,7 @@ The app has three parts, and each one can be worked on alone:
 | An OCR engine change       | `backend/app/documents/ocr.py` only                                         |
 | A screen                   | Its folder in `frontend/src/app/`, plus one line in `app.routes.ts`         |
 | A call to the API          | One typed method in `frontend/src/app/core/api.ts`                          |
-| UI text                    | `frontend/src/app/shared/ro.ts` and `en.ts`  |
+| UI text                    | `frontend/src/app/shared/ro.ts` and `en.ts`                                 |
 
 Each placeholder file names its owner and task. Stay inside your own files where you can, because shared files like `models.py`, `api.ts`, `ro.ts` and `app.routes.ts` are the likeliest to conflict. Keep those changes small and merge them often.
 
@@ -356,21 +362,23 @@ Each unit has one job, and can be tested without the others.
 
 ### Database tables
 
-| Table             | Key fields                                                                                                                                 |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| `users`           | email, password hash, is_demo                                                                                                              |
-| `stores`          | name, colour, logo                                                                                                                         |
-| `store_locations` | store, address, latitude, longitude                                                                                                        |
-| `user_stores`     | user, store                                                                                                                                |
-| `categories`      | parent, name, level (category, type or size), size_amount, size_unit, aliases                                                              |
-| `store_products`  | store, size-level category, type category, name, brand, barcode, price, unit, image, source URL, search_text, updated_at                   |
-| `shopping_lists`  | user, name, state, suggestion_shown, extra_store_id, created_at, deleted_at                                                                |
-| `list_items`      | list, size-level category, chosen product (empty for generic), brand, quantity, assigned store, assigned product, estimated_price, removed |
-| `receipts`        | list, store, fingerprint, barcode (unique), unique_id (unique), fiscal_key (unique), purchased_at, total, estimate, paid, modifier, points; unique on list and store |
-| `receipt_lines`   | receipt, raw text, quantity, line total, matched list item                                                                                 |
-| `points_ledger`   | user, amount, reason, receipt, created_at                                                                                                  |
-| `vouchers`        | user, reward, store, code (unique), expires_at, used_at |
-| `loyalty_cards`   | user, brand, code text, code format, photo (only if no code was read); unique on user and brand                                            |
+| Table                | Key fields                                                                                                                                                           |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `users`              | email, password hash, is_demo                                                                                                                                        |
+| `stores`             | name, colour, logo                                                                                                                                                   |
+| `store_locations`    | store, address, latitude, longitude                                                                                                                                  |
+| `user_stores`        | user, store                                                                                                                                                          |
+| `categories`         | parent, name, level (category, type or size), size_amount, size_unit, aliases                                                                                        |
+| `store_products`     | store, size-level category, type category, name, brand, barcode, price, unit, image, source URL, search_text, updated_at                                             |
+| `shopping_lists`     | user, name, state, suggestion_shown, extra_store_id, created_at, deleted_at                                                                                          |
+| `list_items`         | list, size-level category, chosen product (empty for generic), brand, quantity, assigned store, assigned product, estimated_price, removed                           |
+| `receipts`           | list, store, fingerprint, barcode (unique), unique_id (unique), fiscal_key (unique), purchased_at, total, estimate, paid, modifier, points; unique on list and store |
+| `receipt_lines`      | receipt, raw text, quantity, line total, matched list item                                                                                                           |
+| `points_ledger`      | user, amount, reason, receipt, created_at                                                                                                                            |
+| `vouchers`           | user, reward, store, code (unique), expires_at, used_at                                                                                                              |
+| `partner_shops`      | name (unique), description, website, colour, logo, active, created_at; from `data/sql/`                                                                              |
+| `partner_gift_cards` | shop, name, value_lei, cost_points, active; unique on shop and value; from `data/sql/`                                                                               |
+| `loyalty_cards`      | user, brand, code text, code format, photo (only if no code was read); unique on user and brand                                                                      |
 
 Create tables with `Base.metadata.create_all`, since a hackathon doesn't need migrations.
 
@@ -378,21 +386,21 @@ Create tables with `Base.metadata.create_all`, since a hackathon doesn't need mi
 
 All routes are under `/api`.
 
-| Area       | Routes                                                                                                                 |
-| ---------- | ---------------------------------------------------------------------------------------------------------------------- |
-| Health     | `GET /health`                                                                                                          |
-| Login      | `POST /auth/register`, `POST /auth/login`, `POST /auth/demo`                                                           |
-| Stores     | `GET /stores`, `PUT /me/stores`, `GET /stores/{id}/directions?lat=&lng=`, `GET /stores/route?store_ids=&lat=&lng=`     |
-| Catalog    | `GET /categories?parent_id=`, `GET /categories/{id}/products?brand_q=`, `GET /search?q=`                               |
-| Saved lists | `GET /saved-lists`, `PUT /saved-lists/{id}`, `DELETE /saved-lists/{id}` (the same lists on every device)               |
-| Lists      | `POST /lists`, `GET /lists`, `GET /lists/{id}`, `PATCH /lists/{id}`, `DELETE /lists/{id}`, `POST /lists/{id}/complete` |
-| Trash      | `GET /lists/trash`, `POST /lists/{id}/restore`                                                                         |
-| List items | `POST /lists/{id}/items`, `PATCH /lists/{id}/items/{item_id}`, `DELETE /lists/{id}/items/{item_id}`                    |
-| Plans      | `POST /lists/{id}/plans`, `POST /lists/{id}/suggestion/accept`, `POST /lists/{id}/activate`, `GET /lists/{id}/parts`   |
-| Receipts   | `POST /lists/{id}/receipts?store_id=`, `POST /receipts/read` (reads only: saves nothing, gives no points), `POST /receipts/accept` (closes a list kept on the device and gives its points)              |
-| Import     | `POST /imports`, `POST /imports/confirm`                                                                               |
-| Wallet     | `GET /wallet`, `GET /rewards`, `POST /rewards/{id}/redeem`, `GET /vouchers` |
-| Cards      | `GET /card-brands`, `POST /cards/scan`, `GET /cards`, `POST /cards`, `DELETE /cards/{id}`                              |
+| Area        | Routes                                                                                                                                                                                     |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Health      | `GET /health`                                                                                                                                                                              |
+| Login       | `POST /auth/register`, `POST /auth/login`, `POST /auth/demo`                                                                                                                               |
+| Stores      | `GET /stores`, `PUT /me/stores`, `GET /stores/{id}/directions?lat=&lng=`, `GET /stores/route?store_ids=&lat=&lng=`                                                                         |
+| Catalog     | `GET /categories?parent_id=`, `GET /categories/{id}/products?brand_q=`, `GET /search?q=`                                                                                                   |
+| Saved lists | `GET /saved-lists`, `PUT /saved-lists/{id}`, `DELETE /saved-lists/{id}` (the same lists on every device)                                                                                   |
+| Lists       | `POST /lists`, `GET /lists`, `GET /lists/{id}`, `PATCH /lists/{id}`, `DELETE /lists/{id}`, `POST /lists/{id}/complete`                                                                     |
+| Trash       | `GET /lists/trash`, `POST /lists/{id}/restore`                                                                                                                                             |
+| List items  | `POST /lists/{id}/items`, `PATCH /lists/{id}/items/{item_id}`, `DELETE /lists/{id}/items/{item_id}`                                                                                        |
+| Plans       | `POST /lists/{id}/plans`, `POST /lists/{id}/suggestion/accept`, `POST /lists/{id}/activate`, `GET /lists/{id}/parts`                                                                       |
+| Receipts    | `POST /lists/{id}/receipts?store_id=`, `POST /receipts/read` (reads only: saves nothing, gives no points), `POST /receipts/accept` (closes a list kept on the device and gives its points) |
+| Import      | `POST /imports`, `POST /imports/confirm`                                                                                                                                                   |
+| Wallet      | `GET /wallet`, `GET /rewards`, `POST /rewards/{id}/redeem`, `GET /vouchers`                                                                                                                |
+| Cards       | `GET /card-brands`, `POST /cards/scan`, `GET /cards`, `POST /cards`, `DELETE /cards/{id}`                                                                                                  |
 
 ### Configuration
 
@@ -420,19 +428,19 @@ All values live in backend config and can be changed without a code change.
 
 All screens are in Romanian by default, and Settings switches them to English.
 
-| Screen         | Purpose                                                                      |
-| -------------- | ---------------------------------------------------------------------------- |
-| Login          | Simple login with minimal details, and a demo user entry                     |
-| Browse         | Category → type → size, generic price, brand search                          |
-| Deals          | Seasonal offers and large discounts, opened from the Home screen             |
+| Screen         | Purpose                                                                                                       |
+| -------------- | ------------------------------------------------------------------------------------------------------------- |
+| Login          | Simple login with minimal details, and a demo user entry                                                      |
+| Browse         | Category → type → size, generic price, brand search                                                           |
+| Deals          | Seasonal offers and large discounts, opened from the Home screen                                              |
 | Cart           | Items added by hand, from Home or by import, store comparison, total, points, shops, directions, receipt scan |
-| Plan           | Chosen plan by store, with directions and a receipt button per store         |
-| Import         | One button for a PDF, picture or text, the number of days, the review screen |
-| Lists          | Saved lists, opened and edited in the Cart, plus rename, delete and new list |
-| Receipt result | Matched and unmatched items, estimate, paid, modifier, points                |
-| Point Shop     | Points balance, simulated rewards, point history, at `/wallet`                 |
-| Cards          | Scan a card's code, pick its supermarket, and show a clean redrawn code at the till |
-| Settings       | Store selection, logout                                                      |
+| Plan           | Chosen plan by store, with directions and a receipt button per store                                          |
+| Import         | One button for a PDF, picture or text, the number of days, the review screen                                  |
+| Lists          | Saved lists, opened and edited in the Cart, plus rename, delete and new list                                  |
+| Receipt result | Matched and unmatched items, estimate, paid, modifier, points                                                 |
+| Point Shop     | Points balance, simulated rewards, point history, at `/wallet`                                                |
+| Cards          | Scan a card's code, pick its supermarket, and show a clean redrawn code at the till                           |
+| Settings       | Store selection, logout                                                                                       |
 
 ### Error handling
 

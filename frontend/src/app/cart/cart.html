@@ -170,80 +170,34 @@
     </form>
   }
 
-  <div class="edit-bar">
-    @if (editing()) {
-      <button type="button" class="cancel" (click)="editing.set(false)">
-        {{ ro.cart.cancel }}
-      </button>
-      <button type="button" class="save" (click)="saveEdits()">{{ ro.cart.save }}</button>
-    } @else {
-      <button type="button" class="edit" [disabled]="!cart.items().length" (click)="startEditing()">
-        {{ ro.cart.edit }}
-      </button>
-      <button
-        type="button"
-        class="save-list"
-        [disabled]="!lists.unsaved() || naming()"
-        (click)="saveList()"
-      >
-        {{ lists.current() && !lists.unsaved() ? ro.cart.saved : ro.cart.saveList }}
-      </button>
-    }
-  </div>
+  @if (lists.current() || cart.items().length) {
+    <div class="edit-bar">
+      @if (editing()) {
+        <button type="button" class="cancel" (click)="editing.set(false)">
+          {{ ro.cart.cancel }}
+        </button>
+        <button type="button" class="save" (click)="saveEdits()">{{ ro.cart.save }}</button>
+      } @else {
+        <button
+          type="button"
+          class="edit"
+          [disabled]="!cart.items().length"
+          (click)="startEditing()"
+        >
+          {{ ro.cart.edit }}
+        </button>
+        <button
+          type="button"
+          class="save-list"
+          [disabled]="!lists.unsaved() || naming()"
+          (click)="saveList()"
+        >
+          {{ lists.current() && !lists.unsaved() ? ro.cart.saved : ro.cart.saveList }}
+        </button>
+      }
+    </div>
+  }
 </section>
-
-<div class="import-bar" [class.open]="importOpen()">
-  <button
-    type="button"
-    class="import"
-    [attr.aria-expanded]="importOpen()"
-    [disabled]="importing()"
-    (click)="importOpen.set(!importOpen())"
-  >
-    {{ importing() ? ro.cart.reading : ro.cart.import }}
-  </button>
-  <div class="import-choices">
-    <button
-      type="button"
-      class="import-pdf"
-      [disabled]="importing()"
-      (click)="pdfInput.click()"
-    >
-      {{ ro.cart.pdf }}
-    </button>
-    <button
-      type="button"
-      class="import-image"
-      [disabled]="importing()"
-      (click)="imageInput.click()"
-    >
-      {{ ro.cart.image }}
-    </button>
-  </div>
-  <input
-    #pdfInput
-    hidden
-    type="file"
-    class="pdf-input"
-    accept="application/pdf"
-    (change)="importFile(pdfInput)"
-  />
-  <input
-    #imageInput
-    hidden
-    type="file"
-    class="image-input"
-    accept="image/*"
-    (change)="importFile(imageInput)"
-  />
-</div>
-
-@if (importError(); as message) {
-  <p class="error" role="alert">{{ message }}</p>
-}
-@if (importNote(); as message) {
-  <p class="note" role="status">{{ message }}</p>
-}
 
 @if (comparison(); as plans) {
   <section class="plans" [attr.aria-label]="ro.cart.plans">
@@ -300,15 +254,7 @@
     </div>
   </div>
 
-  <button
-    type="button"
-    class="directions"
-    [disabled]="!cart.stores().length"
-    (click)="openRoute()"
-  >
-    {{ ro.cart.directions }}
-  </button>
-  @if (route(); as trip) {
+  @if (trip(); as trip) {
     <ol class="route">
       @for (stop of trip.stops; track stop.store_id) {
         <li>
@@ -319,6 +265,18 @@
         </li>
       }
     </ol>
+    <a class="directions maps-link" [href]="trip.maps_url" target="_blank" rel="noopener">
+      {{ ro.cart.openMaps }}
+    </a>
+  } @else {
+    <button
+      type="button"
+      class="directions"
+      [disabled]="!cart.stores().length"
+      (click)="openRoute()"
+    >
+      {{ ro.cart.directions }}
+    </button>
   }
   <button type="button" class="scan" [disabled]="scanning()" (click)="receiptInput.click()">
     {{ scanning() ? ro.cart.scanning : ro.cart.scan }}
