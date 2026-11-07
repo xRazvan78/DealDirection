@@ -425,19 +425,20 @@ input:not([type='file']):focus {
 }
 
 .shop {
-  min-height: 32px;
-  padding: 0 14px;
+  padding: 6px 14px;
   border: 1.5px solid var(--border);
   border-radius: var(--radius-pill);
-  background: none;
   color: var(--navy);
   font-weight: 600;
 }
 
-.shop[aria-pressed='true'] {
-  border-color: var(--navy);
-  background: var(--navy);
-  color: var(--on-navy);
+.route {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding-left: 20px;
+  color: var(--navy);
+  font-size: 13px;
+  line-height: 1.6;
 }
 
 .directions,

@@ -192,7 +192,7 @@ The split only appears if it saves at least 10 lei (a placeholder). If a store d
 
 ### Directions
 
-Each store in a plan has a button that opens Google Maps at its nearest location.
+Each store in a plan has a button that opens Google Maps at its nearest location. The Coș "Traseu" button plans one trip through every store in the cart: it picks one branch of each store and the order with the shortest straight-line distance, then opens a single Google Maps link with the stores as stops (at most 4, the most Google Maps takes on a phone). No Google API key is needed.
 
 ### List import
 
@@ -382,7 +382,7 @@ All routes are under `/api`.
 | ---------- | ---------------------------------------------------------------------------------------------------------------------- |
 | Health     | `GET /health`                                                                                                          |
 | Login      | `POST /auth/register`, `POST /auth/login`, `POST /auth/demo`                                                           |
-| Stores     | `GET /stores`, `PUT /me/stores`, `GET /stores/{id}/directions?lat=&lng=`                                               |
+| Stores     | `GET /stores`, `PUT /me/stores`, `GET /stores/{id}/directions?lat=&lng=`, `GET /stores/route?store_ids=&lat=&lng=`     |
 | Catalog    | `GET /categories?parent_id=`, `GET /categories/{id}/products?brand_q=`, `GET /search?q=`                               |
 | Lists      | `POST /lists`, `GET /lists`, `GET /lists/{id}`, `PATCH /lists/{id}`, `DELETE /lists/{id}`, `POST /lists/{id}/complete` |
 | Trash      | `GET /lists/trash`, `POST /lists/{id}/restore`                                                                         |

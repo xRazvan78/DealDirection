@@ -1,4 +1,4 @@
-import { formatLei, formatQuantity, formatReceiptDate } from './format';
+import { formatKm, formatLei, formatQuantity, formatReceiptDate } from './format';
 
 describe('formatQuantity', () => {
   it('shows a whole count without decimals', () => {
@@ -34,5 +34,12 @@ describe('formatLei', () => {
 
   it('keeps prices too precise for a float', () => {
     expect(formatLei('12345678901234567.10')).toBe('12345678901234567,10 lei');
+  });
+});
+
+describe('formatKm', () => {
+  it('uses a decimal comma and the km suffix', () => {
+    expect(formatKm(0.8)).toBe('0,8 km');
+    expect(formatKm(12)).toBe('12 km');
   });
 });

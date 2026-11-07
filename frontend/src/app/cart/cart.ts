@@ -13,9 +13,9 @@ import {
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { Observable, catchError, finalize, forkJoin, map, of, switchMap } from 'rxjs';
 import { ApiService } from '../core/api';
-import { ImportPreview, Product, ReceiptReading } from '../core/models';
+import { ImportPreview, Product, ReceiptReading, ShoppingRoute } from '../core/models';
 import { SavedListsService } from '../lists/saved-lists.service';
-import { formatLei, formatQuantity, formatReceiptDate } from '../shared/format';
+import { formatKm, formatLei, formatQuantity, formatReceiptDate } from '../shared/format';
 import {
   addQuantities,
   decreaseQuantity,
@@ -54,6 +54,7 @@ export class Cart {
   protected readonly formatLei = formatLei;
   protected readonly formatQuantity = formatQuantity;
   protected readonly formatReceiptDate = formatReceiptDate;
+  protected readonly formatKm = formatKm;
 
   protected readonly adding = signal(false);
   protected readonly newName = signal('');
@@ -75,12 +76,6 @@ export class Cart {
   protected readonly importError = signal<string | null>(null);
   protected readonly importNote = signal<string | null>(null);
 
-  private readonly chosenStoreId = signal<number | null>(null);
-  protected readonly store = computed(() => {
-    const stores = this.cart.stores();
-    return stores.find(({ id }) => id === this.chosenStoreId()) ?? stores[0] ?? null;
-  });
-
   private readonly categoryKey = computed(() => {
     const ids = this.cart.items().flatMap(({ sizeCategoryId }) => sizeCategoryId ?? []);
     return [...new Set(ids)].sort((a, b) => a - b).join(',');
@@ -91,7 +86,8 @@ export class Cart {
   );
   protected readonly comparison = computed(() => comparePlans(this.cart.items(), this.offers()));
 
-  protected readonly directionsFailed = signal(false);
+  protected readonly route = signal<ShoppingRoute | null>(null);
+  protected readonly routeError = signal<string | null>(null);
   protected readonly scanning = signal(false);
   protected readonly receiptError = signal<string | null>(null);
   protected readonly receipt = signal<ReceiptReading | null>(null);
@@ -122,11 +118,7 @@ export class Cart {
 
   protected choosePlan(plan: CartPlan): void {
     this.cart.applyPlan(plan.lines);
-    this.chosenStoreId.set(null);
-  }
-
-  protected chooseStore(id: number): void {
-    this.chosenStoreId.set(id);
+    this.route.set(null);
   }
 
   protected startAdding(): void {
@@ -265,27 +257,32 @@ export class Cart {
       });
   }
 
-  protected openDirections(): void {
-    const store = this.store();
-    if (!store) {
+  // One Google Maps trip through every store in the cart, in the order the backend found shortest.
+  protected openRoute(): void {
+    const storeIds = this.cart.stores().map(({ id }) => id);
+    if (!storeIds.length) {
       return;
     }
     // Opened now, because browsers block pop-ups that aren't tied to the tap.
     const mapsWindow = window.open('', '_blank');
-    this.directionsFailed.set(false);
+    this.routeError.set(null);
+    this.route.set(null);
 
     const open = (location?: { lat: number; lng: number }): void => {
-      this.api.getDirections(store.id, location).subscribe({
-        next: ({ maps_url }) => {
+      this.api.getRoute(storeIds, location).subscribe({
+        next: (route) => {
+          this.route.set(route);
           if (mapsWindow) {
-            mapsWindow.location.href = maps_url;
+            mapsWindow.location.href = route.maps_url;
           } else {
-            window.location.href = maps_url;
+            window.location.href = route.maps_url;
           }
         },
-        error: () => {
+        error: (error: HttpErrorResponse) => {
           mapsWindow?.close();
-          this.directionsFailed.set(true);
+          this.routeError.set(
+            error.status === 404 ? ro.cart.routeNoAddress : ro.cart.directionsFailed,
+          );
         },
       });
     };

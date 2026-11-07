@@ -27,6 +27,24 @@ export interface Directions {
   maps_url: string;
 }
 
+// One branch of each store, in the order to visit them. `km` is the straight-line
+// distance from the stop before, or from the client; null for a first stop
+// when the location wasn't shared.
+export interface RouteStop {
+  store_id: number;
+  store_name: string;
+  address: string;
+  lat: number;
+  lng: number;
+  km: number | null;
+}
+
+export interface ShoppingRoute {
+  stops: RouteStop[];
+  total_km: number;
+  maps_url: string;
+}
+
 // Assumed.
 export interface Category {
   id: number;

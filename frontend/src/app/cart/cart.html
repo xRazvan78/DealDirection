@@ -293,23 +293,33 @@
     <span>{{ ro.cart.shops }}</span>
     <div class="shop-list">
       @for (shop of cart.stores(); track shop.id) {
-        <button
-          type="button"
-          class="shop"
-          [attr.aria-pressed]="shop.id === store()?.id"
-          (click)="chooseStore(shop.id)"
-        >
-          {{ shop.name }}
-        </button>
+        <span class="shop">{{ shop.name }}</span>
       } @empty {
         <small>{{ ro.cart.noShops }}</small>
       }
     </div>
   </div>
 
-  <button type="button" class="directions" [disabled]="!store()" (click)="openDirections()">
+  <button
+    type="button"
+    class="directions"
+    [disabled]="!cart.stores().length"
+    (click)="openRoute()"
+  >
     {{ ro.cart.directions }}
   </button>
+  @if (route(); as trip) {
+    <ol class="route">
+      @for (stop of trip.stops; track stop.store_id) {
+        <li>
+          <b>{{ stop.store_name }}</b> · {{ stop.address }}
+          @if (stop.km !== null) {
+            · {{ formatKm(stop.km) }}
+          }
+        </li>
+      }
+    </ol>
+  }
   <button type="button" class="scan" [disabled]="scanning()" (click)="receiptInput.click()">
     {{ scanning() ? ro.cart.scanning : ro.cart.scan }}
   </button>
@@ -324,8 +334,8 @@
   <!-- No capture attribute: the phone asks whether to take a photo or pick one from the gallery. -->
 </section>
 
-@if (directionsFailed()) {
-  <p class="error" role="alert">{{ ro.cart.directionsFailed }}</p>
+@if (routeError(); as message) {
+  <p class="error" role="alert">{{ message }}</p>
 }
 @if (receiptError(); as message) {
   <p class="error" role="alert">{{ message }}</p>

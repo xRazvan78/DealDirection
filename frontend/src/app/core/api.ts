@@ -9,6 +9,7 @@ import {
   CategoryProducts,
   Credentials,
   Directions,
+  ShoppingRoute,
   ImportConfirmation,
   ImportPreview,
   ListItem,
@@ -62,6 +63,11 @@ export class ApiService {
   getDirections(storeId: number, location?: { lat: number; lng: number }): Observable<Directions> {
     const params: Record<string, number> = location ? { ...location } : {};
     return this.http.get<Directions>(`/api/stores/${storeId}/directions`, { params });
+  }
+
+  getRoute(storeIds: number[], location?: { lat: number; lng: number }): Observable<ShoppingRoute> {
+    const params: Record<string, number | number[]> = { store_ids: storeIds, ...location };
+    return this.http.get<ShoppingRoute>('/api/stores/route', { params });
   }
 
   // Catalog
