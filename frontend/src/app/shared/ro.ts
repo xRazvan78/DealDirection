@@ -53,6 +53,7 @@ export const romanian = {
     noShops: 'Magazinele apar după ce adaugi produse găsite în catalog.',
     directions: 'Traseu',
     directionsFailed: 'Nu am putut deschide traseul. Încearcă din nou.',
+    openMaps: 'Deschide în Google Maps',
     routeNoAddress: 'Un magazin din coș nu are încă adresă, așa că nu am putut face traseul.',
     scan: 'Scanează bonul',
     scanning: 'Se citește bonul...',

@@ -300,15 +300,7 @@
     </div>
   </div>
 
-  <button
-    type="button"
-    class="directions"
-    [disabled]="!cart.stores().length"
-    (click)="openRoute()"
-  >
-    {{ ro.cart.directions }}
-  </button>
-  @if (route(); as trip) {
+  @if (trip(); as trip) {
     <ol class="route">
       @for (stop of trip.stops; track stop.store_id) {
         <li>
@@ -319,6 +311,18 @@
         </li>
       }
     </ol>
+    <a class="directions maps-link" [href]="trip.maps_url" target="_blank" rel="noopener">
+      {{ ro.cart.openMaps }}
+    </a>
+  } @else {
+    <button
+      type="button"
+      class="directions"
+      [disabled]="!cart.stores().length"
+      (click)="openRoute()"
+    >
+      {{ ro.cart.directions }}
+    </button>
   }
   <button type="button" class="scan" [disabled]="scanning()" (click)="receiptInput.click()">
     {{ scanning() ? ro.cart.scanning : ro.cart.scan }}
