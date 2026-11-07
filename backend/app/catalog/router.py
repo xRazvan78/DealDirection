@@ -118,7 +118,10 @@ def get_stores(db: Db, user: CurrentUser) -> list[StoreOut]:
             logo=store.logo,
             selected=store.id in selected,
         )
-        for store in db.scalars(select(Store).order_by(Store.name))
+        # A store added only because a receipt came from it has nothing to compare.
+        for store in db.scalars(
+            select(Store).where(select(StoreProduct.id).where(StoreProduct.store_id == Store.id).exists()).order_by(Store.name)
+        )
     ]
 
 

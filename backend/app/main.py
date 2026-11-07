@@ -18,6 +18,7 @@ from app.catalog.router import router as catalog_router
 from app.imports.router import router as imports_router
 from app.init_db import init_db
 from app.lists.router import router as lists_router
+from app.lists.saved import router as saved_lists_router
 from app.plans.router import router as plans_router
 from app.receipts.router import router as receipts_router
 from app.wallet.router import router as wallet_router
@@ -43,6 +44,7 @@ for router in (
     auth_router,
     catalog_router,
     lists_router,
+    saved_lists_router,
     plans_router,
     receipts_router,
     imports_router,

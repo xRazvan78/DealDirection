@@ -30,6 +30,10 @@ export class Lists {
   protected readonly deletingId = signal<number | null>(null);
   protected readonly viewing = signal<ReceiptReading | null>(null);
 
+  constructor() {
+    this.saved.sync();
+  }
+
   protected countOf(items: readonly unknown[]): string {
     return `${items.length} ${items.length === 1 ? ro.lists.product : ro.lists.products}`;
   }

@@ -25,6 +25,7 @@ class Settings(BaseSettings):
     MARGIN: Decimal = Decimal("0.05")
     MAX_MODIFIER: Decimal = Decimal("1.25")
     POINTS_PER_LEI: int = 10
+    POINTS_PER_UNLISTED_PRODUCT: int = 5
     MIN_SPLIT_SAVING_LEI: Decimal = Decimal("10")
     TRASH_RETENTION_DAYS: int = 14
     VOUCHER_VALID_DAYS: int = 30

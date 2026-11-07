@@ -202,7 +202,7 @@ The app scales the quantities, rounds up to real pack sizes, and shows a review 
 
 ### Receipts and points
 
-Each store's part of a list has its own receipt, price check and points, so a list split across two stores needs two receipts. Only matched items earn points, and each receipt can only be used once.
+Each store's part of a list has its own receipt, price check and points, so a list split across two stores needs two receipts. Only matched items earn points by the rule below, and each receipt can only be used once, except by the demo user, who can repeat a receipt for the live demo without blocking anyone else from using it. A list kept on the device is closed by accepting its scanned receipt: the photo is read again on the server, and the list can then only be viewed or deleted. Its prices come from the device, so its estimate is capped at the amount paid, and each product on the receipt that isn't on the list earns a flat 5 points (`POINTS_PER_UNLISTED_PRODUCT`).
 
 For the matched items on a receipt, with `E` as the app's estimate and `P` as the amount paid:
 
@@ -295,7 +295,7 @@ PostgreSQL  ◄── dealdata load ◄── data/snapshot/products.json ◄─
 
 The app has three parts, and each one can be worked on alone:
 
-- **`frontend/`** only talks to the backend through `/api`. Until a route is ready, a screen can use mock data.
+- **`frontend/`** only talks to the backend through `/api`. Run the backend alongside `ng serve`: `proxy.conf.json` sends `/api` to it.
 - **`backend/`** has one folder per unit, as listed in [Backend units](#backend-units). Business rules stay in the pure `logic.py` files, so they can be tested without a database.
 - **`data/`** runs offline. The running app only reads what `dealdata.load` put in Postgres, so a blocked scraper can't break the demo.
 
@@ -384,11 +384,12 @@ All routes are under `/api`.
 | Login      | `POST /auth/register`, `POST /auth/login`, `POST /auth/demo`                                                           |
 | Stores     | `GET /stores`, `PUT /me/stores`, `GET /stores/{id}/directions?lat=&lng=`, `GET /stores/route?store_ids=&lat=&lng=`     |
 | Catalog    | `GET /categories?parent_id=`, `GET /categories/{id}/products?brand_q=`, `GET /search?q=`                               |
+| Saved lists | `GET /saved-lists`, `PUT /saved-lists/{id}`, `DELETE /saved-lists/{id}` (the same lists on every device)               |
 | Lists      | `POST /lists`, `GET /lists`, `GET /lists/{id}`, `PATCH /lists/{id}`, `DELETE /lists/{id}`, `POST /lists/{id}/complete` |
 | Trash      | `GET /lists/trash`, `POST /lists/{id}/restore`                                                                         |
 | List items | `POST /lists/{id}/items`, `PATCH /lists/{id}/items/{item_id}`, `DELETE /lists/{id}/items/{item_id}`                    |
 | Plans      | `POST /lists/{id}/plans`, `POST /lists/{id}/suggestion/accept`, `POST /lists/{id}/activate`, `GET /lists/{id}/parts`   |
-| Receipts   | `POST /lists/{id}/receipts?store_id=`, `POST /receipts/read` (reads only: saves nothing, gives no points)              |
+| Receipts   | `POST /lists/{id}/receipts?store_id=`, `POST /receipts/read` (reads only: saves nothing, gives no points), `POST /receipts/accept` (closes a list kept on the device and gives its points)              |
 | Import     | `POST /imports`, `POST /imports/confirm`                                                                               |
 | Wallet     | `GET /wallet`, `GET /rewards`, `POST /rewards/{id}/redeem`, `GET /vouchers` |
 | Cards      | `GET /card-brands`, `POST /cards/scan`, `GET /cards`, `POST /cards`, `DELETE /cards/{id}`                              |

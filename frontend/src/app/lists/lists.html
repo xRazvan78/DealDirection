@@ -54,6 +54,9 @@
         <span class="details">
           {{ list.receipt ? (list.receipt.store_name ?? ro.cart.receiptNotRead) : countOf(list.items) }}
           · {{ totalOf(list) }} · {{ list.updatedAt | date: 'dd.MM.yyyy' }}
+          @if (list.receipt) {
+            · {{ list.points ?? 0 }} {{ ro.lists.points }}
+          }
         </span>
       </button>
 

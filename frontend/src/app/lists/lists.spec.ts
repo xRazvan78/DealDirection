@@ -1,3 +1,5 @@
+import { provideHttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { CartService } from '../cart/cart.service';
@@ -27,7 +29,7 @@ describe('Lists', () => {
     localStorage.clear();
     await TestBed.configureTestingModule({
       imports: [Lists],
-      providers: [provideRouter([])],
+      providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting()],
     }).compileComponents();
     cart = TestBed.inject(CartService);
     lists = TestBed.inject(SavedListsService);
@@ -56,6 +58,26 @@ describe('Lists', () => {
   function names(): (string | null | undefined)[] {
     return [...page.querySelectorAll('.list-card .name')].map((name) => name.textContent?.trim());
   }
+
+  it('picks up changes from other devices when opened', async () => {
+    await open();
+
+    TestBed.inject(HttpTestingController)
+      .expectOne('/api/saved-lists')
+      .flush([
+        {
+          id: 7,
+          name: 'De pe telefon',
+          items: [],
+          updated_at: '2026-11-07T10:00:00Z',
+          receipt: null,
+          points: null,
+        },
+      ]);
+    await fixture.whenStable();
+
+    expect(names()).toEqual(['De pe telefon']);
+  });
 
   it('explains when there are no lists', async () => {
     await open();
@@ -242,7 +264,7 @@ describe('Lists', () => {
   describe('with a receipt', () => {
     beforeEach(async () => {
       saveList('Prima');
-      lists.finish(receipt);
+      lists.finish(receipt, 1403);
       await open();
     });
 
@@ -252,6 +274,7 @@ describe('Lists', () => {
       expect(card).toContain(ro.lists.hasReceipt);
       expect(card).toContain('Kaufland');
       expect(card).toContain('140,39 lei');
+      expect(card).toContain(`1403 ${ro.lists.points}`);
     });
 
     it('shows the receipt instead of opening the cart', async () => {

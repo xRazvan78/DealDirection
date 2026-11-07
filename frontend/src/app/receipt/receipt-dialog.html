@@ -1,69 +1,100 @@
 @let receipt = reading();
-<div class="receipt-backdrop" (click)="dismissed.emit()"></div>
-<div
-  class="receipt-result"
-  role="dialog"
-  aria-modal="true"
-  [attr.aria-label]="ro.cart.receiptTitle"
->
-  <h2>{{ ro.cart.receiptTitle }}</h2>
-  <dl class="receipt-details">
-    <dt>{{ ro.cart.receiptStore }}</dt>
-    <dd class="receipt-store">{{ receipt.store_name ?? ro.cart.receiptNotRead }}</dd>
-    <dt>{{ ro.cart.receiptDate }}</dt>
-    <dd class="receipt-date">
-      {{ receipt.purchased_at ? formatReceiptDate(receipt.purchased_at) : ro.cart.receiptNotRead }}
-    </dd>
-    <dt>{{ ro.cart.receiptIdentifier }}</dt>
-    <dd class="receipt-identifier">
-      {{ receipt.identifier ?? ro.cart.receiptNotRead }}
-      @if (receipt.identifier && !receipt.identifier_printed) {
-        <small>({{ ro.cart.receiptIdentifierGenerated }})</small>
-      }
-    </dd>
-  </dl>
-  <div class="receipt-lines">
-    <table>
-      <thead>
-        <tr>
-          <th scope="col">{{ ro.cart.product }}</th>
-          <th scope="col">{{ ro.cart.quantity }}</th>
-          <th scope="col">{{ ro.cart.price }}</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (line of receipt.lines; track $index) {
-          <tr>
-            <td>{{ line.name }}</td>
-            <td>{{ formatQuantity(line.quantity) }}</td>
-            <td>{{ formatLei(line.line_total) }}</td>
-          </tr>
-        }
-      </tbody>
-    </table>
-  </div>
-  @if (receipt.deposits !== '0') {
-    <p class="receipt-deposits">
-      <span>{{ ro.cart.receiptDeposits }}</span>
-      <span>{{ formatLei(receipt.deposits) }}</span>
-    </p>
-  }
-  <p class="receipt-total">
-    <span>{{ ro.cart.total }}</span>
-    <strong>{{ receipt.total ? formatLei(receipt.total) : ro.cart.receiptNotRead }}</strong>
-  </p>
-  <div class="receipt-actions">
-    @if (deciding()) {
-      <button type="button" class="cancel-receipt" (click)="dismissed.emit()">
-        {{ ro.cart.cancel }}
-      </button>
-      <button type="button" class="accept-receipt" (click)="accepted.emit()">
-        {{ ro.cart.accept }}
-      </button>
-    } @else {
+<div class="receipt-backdrop" (click)="accepting() || dismissed.emit()"></div>
+@if (earned() !== null) {
+  <div
+    class="receipt-result points-result"
+    role="dialog"
+    aria-modal="true"
+    [attr.aria-label]="ro.cart.receiptAccepted"
+  >
+    <h2>{{ ro.cart.receiptAccepted }}</h2>
+    <p class="points-amount">+{{ earned() }}</p>
+    <p class="points-unit">{{ ro.lists.points }}</p>
+    <div class="receipt-actions">
       <button type="button" class="close-result" (click)="dismissed.emit()">
         {{ ro.cart.close }}
       </button>
-    }
+    </div>
   </div>
-</div>
+} @else {
+  <div
+    class="receipt-result"
+    role="dialog"
+    aria-modal="true"
+    [attr.aria-label]="ro.cart.receiptTitle"
+  >
+    <h2>{{ ro.cart.receiptTitle }}</h2>
+    <dl class="receipt-details">
+      <dt>{{ ro.cart.receiptStore }}</dt>
+      <dd class="receipt-store">{{ receipt.store_name ?? ro.cart.receiptNotRead }}</dd>
+      <dt>{{ ro.cart.receiptDate }}</dt>
+      <dd class="receipt-date">
+        {{ receipt.purchased_at ? formatReceiptDate(receipt.purchased_at) : ro.cart.receiptNotRead }}
+      </dd>
+      <dt>{{ ro.cart.receiptIdentifier }}</dt>
+      <dd class="receipt-identifier">
+        {{ receipt.identifier ?? ro.cart.receiptNotRead }}
+        @if (receipt.identifier && !receipt.identifier_printed) {
+          <small>({{ ro.cart.receiptIdentifierGenerated }})</small>
+        }
+      </dd>
+    </dl>
+    <div class="receipt-lines">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">{{ ro.cart.product }}</th>
+            <th scope="col">{{ ro.cart.quantity }}</th>
+            <th scope="col">{{ ro.cart.price }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (line of receipt.lines; track $index) {
+            <tr>
+              <td>{{ line.name }}</td>
+              <td>{{ formatQuantity(line.quantity) }}</td>
+              <td>{{ formatLei(line.line_total) }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    @if (receipt.deposits !== '0') {
+      <p class="receipt-deposits">
+        <span>{{ ro.cart.receiptDeposits }}</span>
+        <span>{{ formatLei(receipt.deposits) }}</span>
+      </p>
+    }
+    <p class="receipt-total">
+      <span>{{ ro.cart.total }}</span>
+      <strong>{{ receipt.total ? formatLei(receipt.total) : ro.cart.receiptNotRead }}</strong>
+    </p>
+    @if (error(); as message) {
+      <p class="receipt-error" role="alert">{{ message }}</p>
+    }
+    <div class="receipt-actions">
+      @if (deciding()) {
+        <button
+          type="button"
+          class="cancel-receipt"
+          [disabled]="accepting()"
+          (click)="dismissed.emit()"
+        >
+          {{ ro.cart.cancel }}
+        </button>
+        <button
+          type="button"
+          class="accept-receipt"
+          [disabled]="accepting()"
+          (click)="accepted.emit()"
+        >
+          {{ accepting() ? ro.cart.accepting : ro.cart.accept }}
+        </button>
+      } @else {
+        <button type="button" class="close-result" (click)="dismissed.emit()">
+          {{ ro.cart.close }}
+        </button>
+      }
+    </div>
+  </div>
+}

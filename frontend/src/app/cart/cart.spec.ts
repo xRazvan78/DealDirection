@@ -61,6 +61,7 @@ describe('Cart', () => {
 
   afterEach(() => {
     answerOffers(() => []);
+    http.match((request) => request.url.startsWith('/api/saved-lists'));
     http.verify();
   });
 
@@ -1328,13 +1329,79 @@ describe('Cart', () => {
       await read(receipt);
 
       button('.accept-receipt').click();
+      const request = http.expectOne('/api/receipts/accept');
+      const body = request.request.body as FormData;
+      expect(body.get('file')).toBe(photo);
+      expect(body.get('name')).toBe('Lista 1');
+      expect(JSON.parse(body.get('items') as string)).toEqual([
+        { name: 'Mere', quantity: '1', price: '5' },
+      ]);
+      request.flush({ points: 50 });
       await settle();
 
-      expect(page.querySelector('.receipt-result')).toBeNull();
       expect(cart.items()).toEqual([]);
       expect(lists.current()).toBeNull();
       expect(lists.lists()[0].items[0].name).toBe('Mere');
       expect(lists.lists()[0].receipt).toEqual(receipt);
+      expect(lists.lists()[0].points).toBe(50);
+    });
+
+    it('replaces the receipt with a popup of the points, then closes', async () => {
+      cart.add({ name: 'Mere', quantity: '1', price: '5' });
+      await read(receipt);
+      expect(page.querySelector('.points-result')).toBeNull();
+
+      button('.accept-receipt').click();
+      http.expectOne('/api/receipts/accept').flush({ points: 50 });
+      await settle();
+
+      const popup = page.querySelector('.points-result');
+      expect(popup?.textContent).toContain(ro.cart.receiptAccepted);
+      expect(popup?.querySelector('.points-amount')?.textContent).toBe('+50');
+      expect(page.querySelector('.receipt-lines')).toBeNull();
+      expect(page.querySelector('.accept-receipt')).toBeNull();
+
+      button('.close-result').click();
+      await settle();
+
+      expect(page.querySelector('.receipt-result')).toBeNull();
+    });
+
+    it('shows a reward of 0 points too', async () => {
+      await read(receipt);
+
+      button('.accept-receipt').click();
+      http.expectOne('/api/receipts/accept').flush({ points: 0 });
+      await settle();
+
+      expect(page.querySelector('.points-amount')?.textContent).toBe('+0');
+    });
+
+    it('keeps the list in the cart when the receipt is refused', async () => {
+      const lists = TestBed.inject(SavedListsService);
+      cart.add({ name: 'Mere', quantity: '1', price: '5' });
+      await read(receipt);
+
+      button('.accept-receipt').click();
+      http
+        .expectOne('/api/receipts/accept')
+        .flush({ detail: 'Acest bon a fost deja folosit.' }, { status: 409, statusText: 'Conflict' });
+      await settle();
+
+      expect(page.querySelector('.receipt-error')?.textContent).toContain('deja folosit');
+      expect(cart.items().length).toBe(1);
+      expect(lists.lists()).toEqual([]);
+    });
+
+    it('waits for the answer before another tap', async () => {
+      await read(receipt);
+
+      button('.accept-receipt').click();
+      await settle();
+
+      expect(button('.accept-receipt').disabled).toBe(true);
+      expect(button('.cancel-receipt').disabled).toBe(true);
+      http.expectOne('/api/receipts/accept').flush({ points: 1 });
     });
   });
 });

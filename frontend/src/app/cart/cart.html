@@ -345,7 +345,10 @@
   <app-receipt-dialog
     [reading]="reading"
     [deciding]="true"
+    [accepting]="accepting()"
+    [error]="acceptError()"
+    [earned]="earned()"
     (accepted)="acceptReceipt(reading)"
-    (dismissed)="receipt.set(null)"
+    (dismissed)="closeReceipt()"
   />
 }

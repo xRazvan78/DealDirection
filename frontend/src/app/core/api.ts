@@ -2,6 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import {
+  AcceptedItem,
   AuthResponse,
   CardBrand,
   CardScan,
@@ -24,6 +25,7 @@ import {
   SearchResult,
   ShoppingList,
   Store,
+  StoredList,
   Voucher,
   Wallet,
 } from './models';
@@ -112,6 +114,19 @@ export class ApiService {
     return this.http.post<ShoppingList>(`/api/lists/${listId}/complete`, null);
   }
 
+  // Saved lists, shared between the client's devices
+  getSavedLists(): Observable<StoredList[]> {
+    return this.http.get<StoredList[]>('/api/saved-lists');
+  }
+
+  putSavedList(list: StoredList): Observable<StoredList> {
+    return this.http.put<StoredList>(`/api/saved-lists/${list.id}`, list);
+  }
+
+  deleteSavedList(listId: number): Observable<void> {
+    return this.http.delete<void>(`/api/saved-lists/${listId}`);
+  }
+
   // List items
   addListItem(listId: number, item: NewListItem): Observable<ListItem> {
     return this.http.post<ListItem>(`/api/lists/${listId}/items`, item);
@@ -159,6 +174,19 @@ export class ApiService {
     const body = new FormData();
     body.append('file', photo);
     return this.http.post<ReceiptReading>('/api/receipts/read', body);
+  }
+
+  // Saves the receipt and gives its points, for a list kept on this device.
+  acceptReceipt(
+    photo: File,
+    name: string,
+    items: AcceptedItem[],
+  ): Observable<{ points: number }> {
+    const body = new FormData();
+    body.append('file', photo);
+    body.append('name', name);
+    body.append('items', JSON.stringify(items));
+    return this.http.post<{ points: number }>('/api/receipts/accept', body);
   }
 
   // Import: send exactly one of `file` or `text`

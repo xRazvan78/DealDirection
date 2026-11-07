@@ -21,7 +21,10 @@ describe('AuthService', () => {
   }
 
   beforeEach(() => localStorage.clear());
-  afterEach(() => http.verify());
+  afterEach(() => {
+    http.match((request) => request.url.startsWith('/api/saved-lists'));
+    http.verify();
+  });
 
   it('stores the token after login', () => {
     const auth = setup();

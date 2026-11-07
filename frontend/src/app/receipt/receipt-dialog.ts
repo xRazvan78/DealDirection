@@ -4,7 +4,7 @@ import { formatLei, formatQuantity, formatReceiptDate } from '../shared/format';
 import { ro } from '../shared/ro';
 
 // A receipt as it was read. While `deciding`, the client can accept or cancel it;
-// otherwise it's only shown, for a list that already has its receipt.
+// otherwise it's only shown. Once `earned` is set, the points replace the receipt.
 @Component({
   selector: 'app-receipt-dialog',
   styleUrl: './receipt-dialog.scss',
@@ -13,6 +13,9 @@ import { ro } from '../shared/ro';
 export class ReceiptDialog {
   readonly reading = input.required<ReceiptReading>();
   readonly deciding = input(false);
+  readonly accepting = input(false);
+  readonly error = input<string | null>(null);
+  readonly earned = input<number | null>(null);
   readonly accepted = output();
   readonly dismissed = output();
 
