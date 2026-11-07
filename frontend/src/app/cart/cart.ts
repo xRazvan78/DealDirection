@@ -318,7 +318,6 @@ export class Cart {
     this.editing.set(false);
     this.naming.set(false);
     this.route.set(null);
-    this.importNote.set(null);
   }
 
   private findStore(itemId: number, name: string): void {
