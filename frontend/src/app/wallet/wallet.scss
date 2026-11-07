@@ -144,7 +144,8 @@ h2 {
     font-size: 13px;
   }
 
-  .cost {
+  /* How many points are still missing, under the name; the price is on the button. */
+  .short {
     grid-row: 3;
     color: var(--muted);
     font-size: 13px;
