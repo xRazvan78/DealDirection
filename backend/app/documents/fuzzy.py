@@ -5,6 +5,10 @@ A receipt line is matched to a list item by
 Both parts are 0-100, so the score is 0-100. A brand item also needs its brand
 on the line. The weights and minimum score are starting values, tuned later on
 real receipts.
+
+Names are compared without their size, so "coca cola" on a list matches
+"COCA COLA 0.5L" on a receipt. Only when both state a size do the sizes have to
+agree: buying 0.5 l of something listed as 2 l costs SIZE_MISMATCH_PENALTY.
 """
 
 import re
@@ -19,16 +23,56 @@ from app.documents.text import fold
 NAME_WEIGHT = 0.7
 PRICE_WEIGHT = 0.3
 BRAND_MIN_PARTIAL = 80
+SIZE_MISMATCH_PENALTY = 30
+
+# "0.5 l", "500 ml", "6 x 330 ml", and glued to a word: "schokobon200 g".
+_SIZE = re.compile(r"(?:\d+\s*x\s*)?(\d+(?:\.\d+)?)\s*(kg|mg|gr|g|ml|cl|litri|litru|l)\b")
+_TO_BASE_UNIT = {
+    "mg": Decimal("0.001"),
+    "g": Decimal(1),
+    "gr": Decimal(1),
+    "kg": Decimal(1000),
+    "ml": Decimal(1),
+    "cl": Decimal(10),
+    "l": Decimal(1000),
+    "litri": Decimal(1000),
+    "litru": Decimal(1000),
+}
 
 
 def normalize(text: str, abbreviations: Mapping[str, str] | None = None) -> str:
-    """Fold, use "." in decimals, split "1L" into "1 l", and expand abbreviations."""
+    """Fold, use "." in decimals, split "1L" into "1 l", expand abbreviations, drop punctuation.
+
+    "Ciocolată-Nutela!" and "ciocolata nutela" come out the same. Only a dot
+    inside a number stays.
+    """
     text = fold(text)
     text = re.sub(r"(?<=\d),(?=\d)", ".", text)
     text = re.sub(r"(?<=\d)(?=[a-z])", " ", text)
     for short, full in sorted((abbreviations or {}).items(), key=lambda kv: -len(kv[0])):
         text = re.sub(rf"\b{re.escape(fold(short))}\b", fold(full), text)
+    text = re.sub(r"(?<!\d)\.|\.(?!\d)|[^a-z0-9.]", " ", text)
     return " ".join(text.split())
+
+
+def split_size(text: str) -> tuple[str, Decimal | None]:
+    """Take the size out of a normalized name: ("coca cola", 500) for "coca cola 0.5 l".
+
+    Sizes are in g or ml, so 0.5 l equals 500 ml. A name that is only a size stays as it is.
+    """
+    found = _SIZE.search(text)
+    if found is None:
+        return text, None
+    name = " ".join(_SIZE.sub(" ", text).split())
+    return name or text, Decimal(found[1]) * _TO_BASE_UNIT[found[2]]
+
+
+def name_similarity(first: str, second: str) -> float:
+    """0-100. Comparing without spaces too, "cocacola" still meets "coca cola"."""
+    return max(
+        fuzz.token_set_ratio(first, second),
+        fuzz.ratio(first.replace(" ", ""), second.replace(" ", "")),
+    )
 
 
 def price_closeness(line: ReceiptLine, expected_price: Decimal) -> float:
@@ -48,7 +92,11 @@ def score_line(line: ReceiptLine, item: Mapping, abbreviations: Mapping[str, str
     if brand and fuzz.partial_ratio(fold(brand), text) < BRAND_MIN_PARTIAL:
         return 0.0
 
-    name_score = fuzz.token_set_ratio(text, normalize(item["name"]))
+    line_name, line_size = split_size(text)
+    item_name, item_size = split_size(normalize(item["name"]))
+    name_score = name_similarity(line_name, item_name)
+    if line_size is not None and item_size is not None and line_size != item_size:
+        name_score = max(0.0, name_score - SIZE_MISMATCH_PENALTY)
     price_score = price_closeness(line, Decimal(item["expected_price"]))
     return NAME_WEIGHT * name_score + PRICE_WEIGHT * price_score
 

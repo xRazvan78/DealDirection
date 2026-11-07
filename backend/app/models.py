@@ -8,6 +8,8 @@ from datetime import datetime
 from decimal import Decimal
 
 from sqlalchemy import (
+    JSON,
+    BigInteger,
     Boolean,
     CheckConstraint,
     DateTime,
@@ -162,6 +164,27 @@ class ListItem(Base):
     )
     estimated_price: Mapped[Decimal | None] = mapped_column(Money)
     removed: Mapped[bool] = mapped_column(Boolean, server_default=text("false"))
+
+
+class SavedList(Base):
+    """A list the client saved from the cart, shared between their devices.
+
+    Separate from ShoppingList because its products are typed by hand, so they
+    have no catalog category. The device makes the id, so it can save offline.
+    JSON keeps the keys in order, which the cart relies on to notice changes.
+    """
+
+    __tablename__ = "saved_lists"
+
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), primary_key=True
+    )
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=False)
+    name: Mapped[str] = mapped_column(String(200))
+    items: Mapped[list] = mapped_column(JSON)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    receipt: Mapped[dict | None] = mapped_column(JSON(none_as_null=True))
+    points: Mapped[int | None] = mapped_column(Integer)
 
 
 class Receipt(Base):

@@ -171,6 +171,23 @@ export interface ReceiptReading {
   lines: { name: string; quantity: string; line_total: string }[];
 }
 
+// A list as the backend stores it. `items` and `receipt` are kept as the device sent them.
+export interface StoredList {
+  id: number;
+  name: string;
+  items: unknown[];
+  updated_at: string;
+  receipt: ReceiptReading | null;
+  points: number | null;
+}
+
+// The cart's products, sent with the photo when a receipt is accepted.
+export interface AcceptedItem {
+  name: string;
+  quantity: string;
+  price: string;
+}
+
 export interface ImportPreview {
   items: { food: string; size_category_id: number; path: string; packs: number }[];
   unmapped: string[];

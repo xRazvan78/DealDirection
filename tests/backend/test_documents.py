@@ -2,6 +2,7 @@
 
 from decimal import Decimal
 
+from app.documents import fuzzy
 from app.documents.fuzzy import map_foods, match_lines, score_line
 from app.documents.schemas import Food, LineMatch, ReceiptLine
 from app.documents.text import fold
@@ -579,3 +580,76 @@ def test_map_foods_tie_goes_to_the_first_leaf_given() -> None:
     ]
 
     assert map_foods([food("lapte")], leaves, MIN_SCORE)[0].size_category_id == 50
+
+
+# --- Normalizing names ------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    ("written", "expected"),
+    [
+        ("Ciocolată-Nutela", "ciocolata nutela"),
+        ("ciocolata   nutela!", "ciocolata nutela"),
+        ("Coca-Cola, 0,5L", "coca cola 0.5 l"),
+        ("Lapte 3.5% 1 l.", "lapte 3.5 1 l"),
+    ],
+)
+def test_normalize_ignores_punctuation_but_keeps_decimals(written: str, expected: str) -> None:
+    assert fuzzy.normalize(written) == expected
+
+
+@pytest.mark.parametrize(
+    ("text", "name", "size"),
+    [
+        ("coca cola 0.5 l", "coca cola", Decimal(500)),
+        ("coca cola 500 ml", "coca cola", Decimal(500)),
+        ("bere 6 x 330 ml", "bere", Decimal(330)),
+        ("kinder schokobon200 g", "kinder schokobon", Decimal(200)),
+        ("zahar 1 kg", "zahar", Decimal(1000)),
+        ("coca cola", "coca cola", None),
+        ("2 l", "2 l", Decimal(2000)),
+    ],
+)
+def test_split_size(text: str, name: str, size: Decimal | None) -> None:
+    assert fuzzy.split_size(text) == (name, size)
+
+
+def _score(receipt_text: str, listed: str, unit_price: str = "5.00", listed_price: str = "5.00") -> float:
+    line = ReceiptLine(raw_text=receipt_text, quantity=Decimal(1), line_total=Decimal(unit_price))
+    return fuzzy.score_line(line, {"name": listed, "brand": None, "expected_price": Decimal(listed_price)}, {})
+
+
+def test_punctuation_does_not_change_a_match() -> None:
+    assert _score("CIOCOLATA-NUTELA", "ciocolata nutela") == 100
+
+
+def test_a_list_without_a_size_matches_any_size() -> None:
+    assert _score("COCA COLA 0.5L", "coca cola") == 100
+
+
+def test_the_same_size_in_other_units_matches() -> None:
+    assert _score("COCA COLA 500ML", "Coca-Cola 0,5 l") == 100
+
+
+def test_names_written_together_match() -> None:
+    assert _score("COCA COLA 2.5L", "cocacola") == 100
+
+
+def test_a_different_size_only_matches_near_its_price() -> None:
+    assert _score("COCA COLA 0.5L", "coca cola 2l", "4.00", "12.00") < 70
+    assert _score("COCA COLA 0.5L", "coca cola 2l") >= 70
+
+
+def test_each_size_on_a_list_gets_its_own_line() -> None:
+    lines = [
+        ReceiptLine(raw_text="COCA COLA 2L", quantity=Decimal(1), line_total=Decimal("9.00")),
+        ReceiptLine(raw_text="COCA COLA 0.5L", quantity=Decimal(1), line_total=Decimal("9.00")),
+    ]
+    items = [
+        {"id": 1, "name": "coca cola 0.5l", "brand": None, "expected_price": Decimal("9.00")},
+        {"id": 2, "name": "coca cola 2l", "brand": None, "expected_price": Decimal("9.00")},
+    ]
+
+    matches = fuzzy.match_lines(lines, items, {}, 70)
+
+    assert {(m.line_index, m.item_id) for m in matches} == {(0, 2), (1, 1)}

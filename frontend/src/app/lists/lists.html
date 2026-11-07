@@ -48,9 +48,15 @@
         @if (list.id === saved.current()?.id) {
           <span class="badge">{{ ro.lists.openNow }}</span>
         }
+        @if (list.receipt) {
+          <span class="badge">{{ ro.lists.hasReceipt }}</span>
+        }
         <span class="details">
-          {{ countOf(list.items) }} · {{ totalOf(list) }} ·
-          {{ list.updatedAt | date: 'dd.MM.yyyy' }}
+          {{ list.receipt ? (list.receipt.store_name ?? ro.cart.receiptNotRead) : countOf(list.items) }}
+          · {{ totalOf(list) }} · {{ list.updatedAt | date: 'dd.MM.yyyy' }}
+          @if (list.receipt) {
+            · {{ list.points ?? 0 }} {{ ro.lists.points }}
+          }
         </span>
       </button>
 
@@ -66,9 +72,11 @@
         </div>
       } @else {
         <div class="actions">
-          <button type="button" class="rename" (click)="startRename(list)">
-            {{ ro.lists.rename }}
-          </button>
+          @if (!list.receipt) {
+            <button type="button" class="rename" (click)="startRename(list)">
+              {{ ro.lists.rename }}
+            </button>
+          }
           <button type="button" class="delete" (click)="deletingId.set(list.id)">
             {{ ro.lists.delete }}
           </button>
@@ -78,4 +86,8 @@
   </article>
 } @empty {
   <p class="note">{{ ro.lists.empty }}</p>
+}
+
+@if (viewing(); as reading) {
+  <app-receipt-dialog [reading]="reading" (dismissed)="viewing.set(null)" />
 }

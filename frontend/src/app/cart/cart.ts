@@ -15,7 +15,8 @@ import { Observable, catchError, finalize, forkJoin, map, of, switchMap } from '
 import { ApiService } from '../core/api';
 import { Product, ReceiptReading, ShoppingRoute } from '../core/models';
 import { SavedListsService } from '../lists/saved-lists.service';
-import { formatKm, formatLei, formatQuantity, formatReceiptDate } from '../shared/format';
+import { ReceiptDialog } from '../receipt/receipt-dialog';
+import { formatKm, formatLei } from '../shared/format';
 import {
   addQuantities,
   decreaseQuantity,
@@ -29,6 +30,7 @@ import { CartPlan, comparePlans } from './plans';
 
 @Component({
   host: { '(window:resize)': 'keepFieldInView()' },
+  imports: [ReceiptDialog],
   selector: 'app-cart',
   styleUrl: './cart.scss',
   templateUrl: './cart.html',
@@ -44,8 +46,6 @@ export class Cart {
 
   protected readonly ro = ro;
   protected readonly formatLei = formatLei;
-  protected readonly formatQuantity = formatQuantity;
-  protected readonly formatReceiptDate = formatReceiptDate;
   protected readonly formatKm = formatKm;
 
   protected readonly adding = signal(false);
@@ -85,6 +85,10 @@ export class Cart {
   protected readonly scanning = signal(false);
   protected readonly receiptError = signal<string | null>(null);
   protected readonly receipt = signal<ReceiptReading | null>(null);
+  protected readonly accepting = signal(false);
+  protected readonly acceptError = signal<string | null>(null);
+  protected readonly earned = signal<number | null>(null);
+  private receiptPhoto: File | null = null;
 
   // An open list already has a name, so only a new list asks for one.
   protected saveList(): void {
@@ -270,6 +274,9 @@ export class Cart {
     this.scanning.set(true);
     this.receiptError.set(null);
     this.receipt.set(null);
+    this.acceptError.set(null);
+    this.earned.set(null);
+    this.receiptPhoto = photo;
     this.api
       .readReceipt(photo)
       .pipe(finalize(() => this.scanning.set(false)))
@@ -277,6 +284,41 @@ export class Cart {
         next: (reading) => this.receipt.set(reading),
         error: (error: HttpErrorResponse) => this.receiptError.set(receiptMessage(error)),
       });
+  }
+
+  // The list leaves the cart for good: from now on it's only in the saved lists.
+  protected acceptReceipt(reading: ReceiptReading): void {
+    if (!this.receiptPhoto) {
+      return;
+    }
+    const name = this.lists.current()?.name ?? this.lists.nextDefaultName();
+    const items = this.cart.items().map(({ name, quantity, price }) => ({ name, quantity, price }));
+    this.accepting.set(true);
+    this.acceptError.set(null);
+    this.api
+      .acceptReceipt(this.receiptPhoto, name, items)
+      .pipe(finalize(() => this.accepting.set(false)))
+      .subscribe({
+        next: ({ points }) => this.closeList(reading, points),
+        error: (error: HttpErrorResponse) => this.acceptError.set(receiptMessage(error)),
+      });
+  }
+
+  protected closeReceipt(): void {
+    this.receipt.set(null);
+    this.earned.set(null);
+  }
+
+  private closeList(reading: ReceiptReading, points: number): void {
+    this.lists.finish(reading, points);
+    // The popup stays open, now showing what the receipt earned, until it's closed.
+    this.earned.set(points);
+    this.receiptPhoto = null;
+    this.adding.set(false);
+    this.editing.set(false);
+    this.naming.set(false);
+    this.route.set(null);
+    this.importNote.set(null);
   }
 
   private findStore(itemId: number, name: string): void {
@@ -335,7 +377,7 @@ function receiptMessage(error: HttpErrorResponse): string {
   if (isFileRejected(error)) {
     return ro.cart.fileRejected;
   }
-  if (error.status !== 422) {
+  if (error.status !== 422 && error.status !== 409) {
     return ro.cart.receiptFailed;
   }
   const detail: unknown = (error.error as { detail?: unknown } | null)?.detail;

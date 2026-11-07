@@ -4,6 +4,7 @@ The OCR reader is replaced by `fake_reader`, so no photos or OCR engine are
 needed. Each test runs in a transaction that's rolled back afterwards.
 """
 
+import json
 from dataclasses import dataclass
 from datetime import datetime
 from decimal import Decimal
@@ -32,7 +33,7 @@ from app.receipts.matching import receipt_code
 
 PHOTO = ("bon.jpg", b"fake jpeg bytes", "image/jpeg")
 DAY = datetime(2026, 10, 26, 11, 39)
-BARCODE = "9264209507286283375843983403"
+BARCODE = "9264209507286283375840000001"  # made up: tests share a database with real receipts
 OTHER_BARCODE = "9264238711852413082267699676"
 ID_UNIC = "60010827022026102612373602640061"
 OTHER_ID_UNIC = "60010827022026102612373602640062"
@@ -689,3 +690,148 @@ def test_result_says_whether_the_receipt_adds_up(active_list: ActiveList, fake_r
     fake_reader.matches = [LineMatch(line_index=0, item_id=milk.id)]
 
     assert upload(active_list, active_list.stores[0]).json()["adds_up"] is True
+
+
+# --- POST /api/receipts/accept ----------------------------------------------
+
+
+CART = [{"name": "Lapte Zuzu", "quantity": "1", "price": "10.00"}]
+SHOP = receipt(store="Kaufland", total="12.00", lines=[("LAPTE ZUZU", "1", "12.00")])
+
+
+def accept(client: TestClient, items=CART, file=PHOTO):
+    return client.post(
+        "/api/receipts/accept", data={"name": "Lista 1", "items": json.dumps(items)}, files={"file": file}
+    )
+
+
+def test_accepting_gives_points_for_the_matched_products(auth_client: TestClient, db: Session, fake_reader) -> None:
+    fake_reader.receipt = SHOP
+
+    response = accept(auth_client)
+
+    assert response.status_code == 200
+    assert response.json() == {"points": 120}  # 10 lei, paid 20% over: x1.20
+    saved = db.scalars(select(Receipt).where(Receipt.total == Decimal("12.00"))).one()
+    assert db.get(ShoppingList, saved.list_id).state == "completed"
+    assert db.scalars(select(PointsLedger).where(PointsLedger.amount == 120)).one().reason == "Bon Kaufland"
+
+
+def test_accepting_twice_is_rejected_and_gives_points_once(auth_client: TestClient, db: Session, fake_reader) -> None:
+    fake_reader.receipt = SHOP
+    accept(auth_client)
+
+    response = accept(auth_client)
+
+    assert response.status_code == 409
+    assert db.scalar(select(func.count()).select_from(PointsLedger).where(PointsLedger.amount == 120)) == 1
+
+
+def test_a_high_price_on_the_device_earns_no_more_than_was_paid(auth_client: TestClient, fake_reader) -> None:
+    fake_reader.receipt = SHOP
+
+    response = accept(auth_client, [{"name": "Lapte Zuzu", "quantity": "1", "price": "9000.00"}])
+
+    assert response.json() == {"points": 120}
+
+
+def test_each_unlisted_product_earns_five_points(auth_client: TestClient, fake_reader) -> None:
+    fake_reader.receipt = receipt(
+        store="Kaufland",
+        total="17.00",
+        lines=[("LAPTE ZUZU", "1", "10.00"), ("BOMBOANE", "2", "4.00"), ("SUC MERE", "1", "3.00")],
+    )
+
+    assert accept(auth_client).json() == {"points": 110}  # 100 for the milk, 5 for each of the others
+
+
+def test_a_receipt_with_nothing_on_the_list_earns_five_per_product(auth_client: TestClient, db: Session, fake_reader) -> None:
+    fake_reader.receipt = SHOP
+
+    response = accept(auth_client, [{"name": "Bicicleta", "quantity": "1", "price": "10.00"}])
+
+    assert response.json() == {"points": 5}
+    assert db.scalars(select(PointsLedger).where(PointsLedger.amount == 5)).one()
+
+
+def test_a_listed_product_without_a_price_counts_as_unlisted(auth_client: TestClient, fake_reader) -> None:
+    fake_reader.receipt = SHOP
+
+    assert accept(auth_client, [{"name": "Lapte Zuzu", "quantity": "1", "price": "0"}]).json() == {"points": 5}
+
+
+def test_accepting_needs_a_store_date_and_total(auth_client: TestClient, fake_reader) -> None:
+    fake_reader.receipt = receipt(store="", lines=[("LAPTE ZUZU", "1", "12.00")])
+
+    assert accept(auth_client).status_code == 422
+
+
+def test_accepting_rejects_malformed_items(auth_client: TestClient, fake_reader) -> None:
+    fake_reader.receipt = SHOP
+
+    assert accept(auth_client, [{"name": "Lapte", "quantity": "-1", "price": "1"}]).status_code == 422
+
+
+def test_a_store_added_by_a_receipt_is_not_offered_for_comparing(auth_client: TestClient, fake_reader) -> None:
+    fake_reader.receipt = SHOP
+    accept(auth_client)
+
+    assert "Kaufland" not in [store["name"] for store in auth_client.get("/api/stores").json()]
+
+
+def test_accepting_needs_a_login(client: TestClient, fake_reader) -> None:
+    assert accept(client).status_code == 401
+
+
+# --- The demo user ----------------------------------------------------------
+
+
+CODED_SHOP = ReceiptData(
+    store_name="Kaufland",
+    purchased_at=DAY,
+    total=Decimal("12.00"),
+    barcode=BARCODE,
+    unique_id=ID_UNIC,
+    fiscal_key=FISCAL_KEY,
+    lines=SHOP.lines,
+)
+
+
+def _demo_client(db: Session) -> TestClient:
+    user = _user(db, "demo-receipts@example.com")
+    user.is_demo = True
+    db.flush()
+    return _client(user)
+
+
+def test_the_demo_user_can_use_a_receipt_again_and_earn_again(client: TestClient, db: Session, fake_reader) -> None:
+    fake_reader.receipt = CODED_SHOP
+    demo = _demo_client(db)
+
+    assert accept(demo).status_code == 200
+    assert accept(demo).status_code == 200
+
+    assert demo.get("/api/wallet").json()["balance"] == 240
+
+
+def test_a_receipt_the_demo_user_used_stays_free_for_real_clients(auth_client: TestClient, db: Session, fake_reader) -> None:
+    fake_reader.receipt = CODED_SHOP
+    accept(_demo_client(db))
+
+    assert accept(auth_client).status_code == 200
+
+
+def test_the_demo_user_can_use_a_receipt_a_real_client_used(auth_client: TestClient, db: Session, fake_reader) -> None:
+    fake_reader.receipt = CODED_SHOP
+    accept(auth_client)
+
+    assert accept(_demo_client(db)).status_code == 200
+
+
+def test_a_real_client_cannot_use_a_receipt_twice_on_any_account(auth_client: TestClient, db: Session, fake_reader) -> None:
+    fake_reader.receipt = CODED_SHOP
+    accept(auth_client)
+    other = _client(_user(db, "other-receipts@example.com"))
+
+    assert accept(auth_client).status_code == 409
+    assert accept(other).status_code == 409
