@@ -252,6 +252,45 @@ class Reward(Base):
     active: Mapped[bool] = mapped_column(Boolean, server_default=text("true"))
 
 
+class PartnerShop(Base):
+    """A coin shop partner where points are spent, filled by data/sql/*.sql (SAMPLE DATA).
+
+    Same shape as data/sql/01_partner_shops_schema.sql: change both together.
+    Switched off with active, never deleted, because vouchers will point to it.
+    """
+
+    __tablename__ = "partner_shops"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(100), unique=True)
+    description: Mapped[str | None] = mapped_column(String(300))
+    website: Mapped[str | None] = mapped_column(String(300))
+    colour: Mapped[str] = mapped_column(String(7))
+    logo: Mapped[str | None] = mapped_column(String(500))
+    active: Mapped[bool] = mapped_column(Boolean, server_default=text("true"))
+    created_at: Mapped[datetime] = utc_timestamp()
+
+
+class PartnerGiftCard(Base):
+    """A gift card a partner shop offers in the coin shop, worth value_lei for cost_points."""
+
+    __tablename__ = "partner_gift_cards"
+    __table_args__ = (
+        UniqueConstraint("shop_id", "value_lei"),
+        CheckConstraint("value_lei > 0", name="value_positive"),
+        CheckConstraint("cost_points > 0", name="cost_positive"),
+    )
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    shop_id: Mapped[int] = mapped_column(
+        ForeignKey("partner_shops.id", ondelete="RESTRICT"), index=True
+    )
+    name: Mapped[str] = mapped_column(String(200))
+    value_lei: Mapped[Decimal] = mapped_column(Money)
+    cost_points: Mapped[int] = mapped_column(Integer)
+    active: Mapped[bool] = mapped_column(Boolean, server_default=text("true"))
+
+
 class Voucher(Base):
     """A reward redeemed in the Point Shop. Its points were taken off in points_ledger.
 
