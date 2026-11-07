@@ -157,13 +157,6 @@ img {
   }
 }
 
-  label {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    color: var(--muted);
-    font-size: 14px;
-    font-weight: 600;
 .code-text {
   margin: 0;
   overflow-wrap: anywhere;
@@ -202,15 +195,6 @@ img {
   cursor: pointer;
 
   input {
-    height: 46px;
-    padding: 0 12px;
-    border: 1.5px solid var(--border);
-    border-radius: var(--radius-sm);
-    background: var(--surface);
-    box-sizing: border-box;
-    color: var(--text);
-    font: inherit;
-    font-size: 16px;
     position: absolute;
     opacity: 0;
     pointer-events: none;
@@ -312,10 +296,9 @@ img {
 
   h2 {
     margin: 0;
-    color: var(--navy);
     font-size: 22px;
     padding: 12px;
-    border-radius: 12px;
+    border-radius: var(--radius-md);
     color: #fff;
     text-align: center;
   }
