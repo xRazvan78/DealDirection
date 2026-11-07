@@ -1,6 +1,8 @@
 """init_db's upgrade of an outdated, empty table. Postgres rolls DDL back, so nothing is left behind."""
 
+import pytest
 from sqlalchemy import inspect, text
+from sqlalchemy.exc import IntegrityError
 
 from app.db import get_engine
 from app.init_db import drop_if_outdated_and_empty
@@ -43,3 +45,23 @@ def test_loyalty_cards_has_the_new_columns_after_init() -> None:
 
     assert {"brand", "code_text", "code_format", "photo"} <= columns
     assert "store_id" not in columns
+
+
+def test_vouchers_can_point_to_a_gift_card_after_init() -> None:
+    columns = {c["name"]: c for c in inspect(get_engine()).get_columns("vouchers")}
+
+    assert "gift_card_id" in columns
+    assert columns["reward_id"]["nullable"] is True
+
+
+def test_a_voucher_needs_a_reward_or_a_gift_card() -> None:
+    with get_engine().connect() as conn, conn.begin() as tx:
+        user_id = conn.scalar(text(
+            "INSERT INTO users (email, password_hash) VALUES ('upgrade-probe@example.com', 'x') RETURNING id"
+        ))
+        with pytest.raises(IntegrityError):
+            conn.execute(text(
+                "INSERT INTO vouchers (user_id, reward_name, store_name, code, expires_at) "
+                "VALUES (:user, 'Nimic', 'Nicaieri', 'DD-NOTHING1', now())"
+            ), {"user": user_id})
+        tx.rollback()
