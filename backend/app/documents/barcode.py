@@ -10,6 +10,8 @@ import cv2
 import numpy as np
 import zxingcpp
 
+from app.documents.ocr import flatten
+
 # A code's bars can be too thin to read at the photo's size, or too blurred
 # once enlarged, so each size is tried. Which one works differs by photo.
 SCALES = (1, 2, 3)
@@ -31,18 +33,22 @@ def read_code(content: bytes) -> str | None:
     if image is None:
         return None
 
-    for scale in SCALES:
-        if scale == 1 or max(image.shape) * scale <= MAX_SIDE:
-            code = _decode(_resized(image, scale))
-            if code:
-                return code
+    # Dark or blue paper hides the bars until it's evened out.
+    versions = (image, flatten(image))
+    for version in versions:
+        for scale in SCALES:
+            if scale == 1 or max(version.shape) * scale <= MAX_SIDE:
+                code = _decode(_resized(version, scale))
+                if code:
+                    return code
 
-    level = _resized(image, TILT_SIDE / max(image.shape))
     give_up_at = time.monotonic() + TILT_SECONDS
-    for tilt in TILTS:
-        code = _decode(_turned(level, tilt))
-        if code or time.monotonic() > give_up_at:
-            return code
+    for version in versions:
+        level = _resized(version, TILT_SIDE / max(version.shape))
+        for tilt in TILTS:
+            code = _decode(_turned(level, tilt))
+            if code or time.monotonic() > give_up_at:
+                return code
     return None
 
 

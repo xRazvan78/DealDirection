@@ -237,10 +237,11 @@ FastAPI serves the Angular app and the `/api` routes from one HTTPS address.
 Scanning uses **no AI service**, and everything runs on the backend machine.
 
 1. **Crop the photo** with OpenCV: find the receipt, and straighten it when its corners are clear.
-2. **Read the text** with RapidOCR's Romanian model, which runs locally through `onnxruntime`. PDFs with text use `pypdf`, and scanned PDFs are turned into images first.
-3. **Parse the text** with regular expressions, using small rules per store.
-4. **Read the receipt's barcode or QR code** with `zxing-cpp`, which identifies the receipt more reliably than OCR on the `ID UNIC` line.
-5. **Match products** with `rapidfuzz`, scoring `0.7 × name similarity + 0.3 × price closeness`.
+2. **Flatten the paper**, dividing by its own brightness, so shadows and the blue of a worn receipt go and the ink stays. On real receipts this read better than thresholding or a contrast boost, which damaged faded print.
+3. **Read the text** with RapidOCR's Romanian model, which runs locally through `onnxruntime`. PDFs with text use `pypdf`, and scanned PDFs are turned into images first.
+4. **Parse the text** with regular expressions, using small rules per store. If a photo's products don't add up to its total, it's read once more without the crop.
+5. **Read the receipt's barcode or QR code** with `zxing-cpp`, which identifies the receipt more reliably than OCR on the `ID UNIC` line.
+6. **Match products** with `rapidfuzz`, scoring `0.7 × name similarity + 0.3 × price closeness`.
 
 The weights and the minimum score of 70 are starting values. On real, creased receipt photos, Tesseract read almost nothing while RapidOCR read the store, date, total and every item, so RapidOCR is the default. Set `OCR_ENGINE=tesseract` to switch back. To compare engines on your own photos, run `uv run python scripts/ocr_check.py "<photo folder>"`.
 

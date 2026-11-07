@@ -44,9 +44,9 @@ class LocalDocumentReader:
         self.abbreviations = dict(abbreviations)
 
     def read_receipt(self, content: bytes, media_type: str) -> ReceiptData:
-        data = parse_receipt(self._to_text(content, media_type, allow_text=False))
-        code = barcode.read_code(content) if media_type in IMAGE_TYPES else None
-        return data.model_copy(update={"barcode": code})
+        if media_type not in IMAGE_TYPES:
+            return parse_receipt(self._to_text(content, media_type, allow_text=False))
+        return self._read_receipt_photo(content).model_copy(update={"barcode": barcode.read_code(content)})
 
     def read_foods(self, content: bytes, media_type: str) -> FoodList:
         return parse_foods(self._to_text(content, media_type, allow_text=True))
@@ -56,6 +56,21 @@ class LocalDocumentReader:
 
     def map_foods(self, foods: Sequence[Food], leaves: Sequence[Mapping]) -> list[FoodMapping]:
         return fuzzy.map_foods(foods, leaves, self.settings.OCR_MIN_MATCH_SCORE)
+
+    def _read_receipt_photo(self, content: bytes) -> ReceiptData:
+        """Read the receipt, and read it again if its products don't add up.
+
+        A receipt checks itself, so a second look only costs time on a bad read.
+        That look skips the crop, which a shadow across the paper can cut short.
+        """
+        first = parse_receipt(ocr.image_to_text(content, self.settings, flattened=True))
+        if _adds_up(first):
+            return first
+        try:
+            second = parse_receipt(ocr.image_to_text(content, self.settings, flattened=True, cropped=False))
+        except DocumentError:
+            return first
+        return _better_reading(first, second)
 
     def _to_text(self, content: bytes, media_type: str, allow_text: bool) -> str:
         if media_type in IMAGE_TYPES:
@@ -68,6 +83,18 @@ class LocalDocumentReader:
             except UnicodeDecodeError as error:
                 raise DocumentError("The text isn't valid UTF-8") from error
         raise DocumentError(f"Unsupported file type: {media_type}")
+
+
+def _adds_up(data: ReceiptData) -> bool:
+    return bool(data.lines) and sum(line.line_total for line in data.lines) == data.total
+
+
+def _better_reading(first: ReceiptData, second: ReceiptData) -> ReceiptData:
+    """The reading that adds up, or else has more products, plus anything only the other found."""
+    use_second = _adds_up(second) or len(second.lines) > len(first.lines)
+    best, other = (second, first) if use_second else (first, second)
+    details = ("store_name", "purchased_at", "total", "identifier", "unique_id")
+    return best.model_copy(update={name: getattr(best, name) or getattr(other, name) for name in details})
 
 
 def load_abbreviations(path: Path = ABBREVIATIONS_PATH) -> dict[str, str]:

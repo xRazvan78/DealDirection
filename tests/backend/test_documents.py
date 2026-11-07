@@ -313,7 +313,10 @@ def test_fake_reader_records_calls_and_matches_for_real(fake_reader) -> None:
 
 # --- Finding the receipt in a photo -----------------------------------------
 
+import cv2  # noqa: E402
 import numpy as np  # noqa: E402
+
+from app.documents import reader as reader_module  # noqa: E402
 
 
 def receipt_on_wood() -> np.ndarray:
@@ -338,6 +341,131 @@ def test_photo_without_a_clear_receipt_is_kept_whole() -> None:
     plain = np.full((400, 300, 3), 128, dtype=np.uint8)
 
     assert ocr._find_receipt(plain).shape == plain.shape
+
+
+def test_dark_blue_receipt_is_cropped_out_of_a_dark_table() -> None:
+    photo = np.zeros((1600, 740, 3), dtype=np.uint8)
+    photo[:] = (30, 60, 95)  # BGR, a warm wood in low light
+    photo[550:1550, 100:550] = (110, 80, 60)  # too dim and too blue to pass as white paper
+
+    cropped = ocr._crop_to_paper(photo)
+
+    assert 950 <= cropped.shape[0] <= 1050
+    assert 420 <= cropped.shape[1] <= 480
+
+
+def test_colours_too_alike_to_tell_apart_keep_the_photo_whole() -> None:
+    photo = np.full((400, 300, 3), 70, dtype=np.uint8)
+    photo[:, :, 0] = np.tile(np.arange(70, 70 + 300) % 256, (400, 1))
+
+    assert ocr._crop_to_paper(photo).shape[0] >= 360
+
+
+def page_with_ink(brightness: np.ndarray) -> np.ndarray:
+    """A grey page lit by `brightness`, with a dark ink stroke at x=100."""
+    page = np.broadcast_to(brightness[:, None], (brightness.size, 300)).astype(np.float32).copy()
+    page[:, 100:104] *= 0.2
+    return cv2.cvtColor(page.astype(np.uint8), cv2.COLOR_GRAY2BGR)
+
+
+def test_flatten_removes_a_shadow_and_keeps_the_ink() -> None:
+    flat = ocr.flatten(page_with_ink(np.linspace(230, 70, 600)))
+    paper, ink = flat[:, 200], flat[:, 101]
+
+    assert paper.max() - paper.min() < 30  # was 160 across the page
+    assert (paper[100:500].astype(int) - ink[100:500].astype(int)).min() > 120
+
+
+def test_flatten_gives_a_blue_and_a_white_receipt_the_same_paper() -> None:
+    white = np.full((300, 300, 3), 235, dtype=np.uint8)
+    blue = np.full((300, 300, 3), (170, 120, 90), dtype=np.uint8)
+
+    assert abs(int(ocr.flatten(white).mean()) - int(ocr.flatten(blue).mean())) < 3
+
+
+def test_flatten_keeps_the_photos_size() -> None:
+    photo = np.full((3000, 2000), 200, dtype=np.uint8)
+
+    assert ocr.flatten(photo).shape == photo.shape
+
+
+# --- Reading a receipt photo twice if it doesn't add up ---------------------
+
+GOOD = "CHIPS 7,99 B\nSUC 2,00 A\nTOTAL 9,99"
+SHORT = "CHIPS 7,99 B\nTOTAL 9,99"
+
+
+def reads(monkeypatch, *texts: str) -> list[dict]:
+    """Make OCR return `texts` in turn. Returns the options of each call."""
+    calls: list[dict] = []
+    answers = iter(texts)
+
+    def fake(content, settings, **options):
+        calls.append(options)
+        return next(answers)
+
+    monkeypatch.setattr(ocr, "image_to_text", fake)
+    monkeypatch.setattr(reader_module.barcode, "read_code", lambda content: None)
+    return calls
+
+
+def test_a_receipt_that_adds_up_is_read_once(monkeypatch) -> None:
+    calls = reads(monkeypatch, GOOD)
+
+    data = local_reader().read_receipt(b"", "image/jpeg")
+
+    assert len(data.lines) == 2
+    assert calls == [{"flattened": True}]
+
+
+def test_a_receipt_that_does_not_add_up_is_read_again_without_the_crop(monkeypatch) -> None:
+    calls = reads(monkeypatch, SHORT, GOOD)
+
+    data = local_reader().read_receipt(b"", "image/jpeg")
+
+    assert [line.raw_text for line in data.lines] == ["CHIPS", "SUC"]
+    assert calls[1] == {"flattened": True, "cropped": False}
+
+
+def test_neither_reading_adds_up_keeps_the_one_with_more_products(monkeypatch) -> None:
+    reads(monkeypatch, "CHIPS 7,99 B\nSUC 2,00 A\nTOTAL 50,00", "CHIPS 7,99 B\nTOTAL 50,00")
+
+    assert len(local_reader().read_receipt(b"", "image/jpeg").lines) == 2
+
+
+def test_details_only_the_other_reading_found_are_kept(monkeypatch) -> None:
+    first = f"{SHORT}\nDATA:06/11/2026\nBF.00061\nID UNIC:60010827022026110612373602640061"
+    reads(monkeypatch, first, f"LIDL\n{GOOD}")
+
+    data = local_reader().read_receipt(b"", "image/jpeg")
+
+    assert (data.store_name, len(data.lines)) == ("Lidl", 2)
+    assert data.unique_id == "60010827022026110612373602640061"
+
+
+def test_a_failed_second_look_keeps_the_first_reading(monkeypatch) -> None:
+    answers = iter([SHORT])
+
+    def fake(content, settings, **options):
+        text = next(answers, None)
+        if text is None:
+            raise DocumentError("too slow")
+        return text
+
+    monkeypatch.setattr(ocr, "image_to_text", fake)
+    monkeypatch.setattr(reader_module.barcode, "read_code", lambda content: None)
+
+    assert len(local_reader().read_receipt(b"", "image/jpeg").lines) == 1
+
+
+def test_a_failed_first_look_is_an_error(monkeypatch) -> None:
+    def fake(content, settings, **options):
+        raise DocumentError("unreadable")
+
+    monkeypatch.setattr(ocr, "image_to_text", fake)
+
+    with pytest.raises(DocumentError):
+        local_reader().read_receipt(b"", "image/jpeg")
 
 
 @pytest.mark.parametrize("width", [450, 1600, 3300])

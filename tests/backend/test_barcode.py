@@ -4,9 +4,10 @@ from decimal import Decimal
 
 import cv2
 import numpy as np
+import pytest
 import zxingcpp
 
-from app.documents import barcode
+from app.documents import barcode, ocr
 from app.documents.reader import LocalDocumentReader
 from app.documents.schemas import ReceiptData, ReceiptLine
 
@@ -47,26 +48,33 @@ def test_bad_bytes_give_none() -> None:
     assert barcode.read_code(b"not an image") is None
 
 
-class _TextReader(LocalDocumentReader):
+@pytest.fixture
+def text_reader(monkeypatch) -> LocalDocumentReader:
     """Skips OCR, so only the choice of identifier is tested."""
-
-    def __init__(self) -> None:
-        pass
-
-    def _to_text(self, content, media_type, allow_text):
-        return "CHIPS 7,99 B\nTOTAL 7,99\nID UNIC: 12345678"
+    monkeypatch.setattr(ocr, "image_to_text", lambda *a, **k: "CHIPS 7,99 B\nTOTAL 7,99\nID UNIC: 12345678")
+    return LocalDocumentReader(None, {})
 
 
-def test_barcode_is_kept_beside_the_identifier_read_by_ocr() -> None:
-    data = _TextReader().read_receipt(photo_of(RECEIPT_CODE), "image/png")
+def test_barcode_is_kept_beside_the_identifier_read_by_ocr(text_reader) -> None:
+    data = text_reader.read_receipt(photo_of(RECEIPT_CODE), "image/png")
 
     assert (data.barcode, data.identifier) == (RECEIPT_CODE, "12345678")
 
 
-def test_no_barcode_leaves_it_empty() -> None:
-    data = _TextReader().read_receipt(blank_photo(), "image/png")
+def test_no_barcode_leaves_it_empty(text_reader) -> None:
+    data = text_reader.read_receipt(blank_photo(), "image/png")
 
     assert (data.barcode, data.identifier) == (None, "12345678")
+
+
+def test_a_code_hidden_by_dark_paper_is_read(monkeypatch) -> None:
+    # Only the evened-out version decodes, as on a dark blue receipt.
+    even = np.full((100, 100), 7, dtype=np.uint8)
+    monkeypatch.setattr(barcode, "flatten", lambda image: even)
+    monkeypatch.setattr(barcode, "_resized", lambda image, scale: image)
+    monkeypatch.setattr(barcode, "_decode", lambda image: RECEIPT_CODE if image is even else None)
+
+    assert barcode.read_code(blank_photo()) == RECEIPT_CODE
 
 
 def test_a_tilted_code_is_read(monkeypatch) -> None:
@@ -88,8 +96,8 @@ def test_trying_angles_stops_after_the_time_limit(monkeypatch) -> None:
     assert len(turned) == 1
 
 
-def test_receipt_data_is_otherwise_unchanged() -> None:
-    data = _TextReader().read_receipt(photo_of(RECEIPT_CODE), "image/png")
+def test_receipt_data_is_otherwise_unchanged(text_reader) -> None:
+    data = text_reader.read_receipt(photo_of(RECEIPT_CODE), "image/png")
 
     assert data.lines == [ReceiptLine(raw_text="CHIPS", quantity=Decimal(1), line_total=Decimal("7.99"))]
     assert isinstance(data, ReceiptData)
