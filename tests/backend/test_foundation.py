@@ -23,11 +23,19 @@ def make_list(db: Session) -> ShoppingList:
     return shopping_list
 
 
-def make_receipt(list_id: int, store_id: int, fingerprint: str) -> Receipt:
+def make_receipt(
+    list_id: int,
+    store_id: int,
+    fingerprint: str,
+    barcode: str | None = None,
+    unique_id: str | None = None,
+) -> Receipt:
     return Receipt(
         list_id=list_id,
         store_id=store_id,
         fingerprint=fingerprint,
+        barcode=barcode,
+        unique_id=unique_id,
         purchased_at=datetime(2026, 11, 6, 12, 0, tzinfo=UTC),
         total=Decimal("100.00"),
         estimate=Decimal("100.00"),
@@ -92,14 +100,32 @@ def test_data_is_rolled_back_after_each_test(db):
     assert leftovers == 0
 
 
-def test_repeated_receipt_fingerprint_raises(db, sample):
+def test_repeated_barcode_raises(db, sample):
     shopping_list = make_list(db)
-    db.add(make_receipt(shopping_list.id, sample.stores[0].id, "same"))
+    db.add(make_receipt(shopping_list.id, sample.stores[0].id, "first", barcode="same"))
     db.flush()
 
-    db.add(make_receipt(shopping_list.id, sample.stores[1].id, "same"))
+    db.add(make_receipt(shopping_list.id, sample.stores[1].id, "second", barcode="same"))
     with pytest.raises(IntegrityError):
         db.flush()
+
+
+def test_repeated_unique_id_raises(db, sample):
+    shopping_list = make_list(db)
+    db.add(make_receipt(shopping_list.id, sample.stores[0].id, "first", unique_id="same"))
+    db.flush()
+
+    db.add(make_receipt(shopping_list.id, sample.stores[1].id, "second", unique_id="same"))
+    with pytest.raises(IntegrityError):
+        db.flush()
+
+
+def test_receipts_may_share_a_fingerprint_and_have_no_codes(db, sample):
+    # The same shopping twice in one day. The route decides, not the database.
+    shopping_list = make_list(db)
+    db.add(make_receipt(shopping_list.id, sample.stores[0].id, "same"))
+    db.add(make_receipt(shopping_list.id, sample.stores[1].id, "same"))
+    db.flush()
 
 
 def test_one_receipt_per_list_and_store(db, sample):
@@ -123,7 +149,7 @@ def test_new_list_is_a_draft_outside_the_trash(db):
 
 def test_soft_deleted_list_keeps_receipt_and_points(db, sample):
     shopping_list = make_list(db)
-    receipt = make_receipt(shopping_list.id, sample.stores[0].id, "kept")
+    receipt = make_receipt(shopping_list.id, sample.stores[0].id, "kept", barcode="kept")
     db.add(receipt)
     db.flush()
     db.add(
@@ -139,7 +165,7 @@ def test_soft_deleted_list_keeps_receipt_and_points(db, sample):
     db.commit()
 
     assert db.get(Receipt, receipt.id).list_id == shopping_list.id
-    db.add(make_receipt(shopping_list.id, sample.stores[1].id, "kept"))
+    db.add(make_receipt(shopping_list.id, sample.stores[1].id, "kept", barcode="kept"))
     with pytest.raises(IntegrityError):
         db.flush()
 

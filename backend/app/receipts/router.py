@@ -19,7 +19,7 @@ from zoneinfo import ZoneInfo
 
 from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, status
 from pydantic import BaseModel
-from sqlalchemy import func, select
+from sqlalchemy import func, or_, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -88,7 +88,7 @@ class ReceiptReading(BaseModel):
 
     store_name: str | None
     purchased_at: datetime | None
-    identifier: str | None
+    identifier: str | None  # the barcode if it could be read, else the printed ID
     identifier_printed: bool  # False: none could be read, so the app generated this one
     total: Decimal | None
     lines: list[ReadLine]
@@ -112,11 +112,12 @@ def read_receipt(file: UploadFile, user: CurrentUser, reader: Reader) -> Receipt
     if not data.lines:
         raise _reject(422, UNREADABLE)
 
+    shown = data.barcode or data.unique_id or data.identifier
     return ReceiptReading(
         store_name=data.store_name or None,
         purchased_at=data.purchased_at,
-        identifier=data.identifier or _generated_identifier(data),
-        identifier_printed=data.identifier is not None,
+        identifier=shown or _generated_identifier(data),
+        identifier_printed=shown is not None,
         total=data.total,
         lines=[
             ReadLine(name=line.raw_text, quantity=line.quantity, line_total=line.line_total)
@@ -166,7 +167,7 @@ def upload_receipt(
 
     purchased_at = data.purchased_at.replace(tzinfo=RECEIPT_TIMEZONE)
     print_ = fingerprint(store.id, purchased_at, data.total)
-    if db.scalar(select(Receipt.id).where(Receipt.fingerprint == print_)) is not None:
+    if _used_before(db, print_, data):
         raise _reject(status.HTTP_409_CONFLICT, "Acest bon a fost deja folosit.")
 
     # The reader matches on expected_price; score_matches prices with estimated_price.
@@ -195,6 +196,8 @@ def upload_receipt(
         list_id=list_id,
         store_id=store.id,
         fingerprint=print_,
+        barcode=data.barcode,
+        unique_id=data.unique_id,
         purchased_at=purchased_at,
         total=data.total,
         estimate=estimate,
@@ -246,6 +249,30 @@ def upload_receipt(
         modifier=modifier,
         points=result.points,
     )
+
+
+def _used_before(db: Session, print_: str, data: ReceiptData) -> bool:
+    """Has this paper receipt been saved before?
+
+    A scan may read the barcode, the ID UNIC, both or neither, and they can't be
+    converted into each other. So a match on either means the same receipt, and
+    a receipt with the same store, day and total is also the same one, unless a
+    code read on both scans shows they differ: that's two real, identical shops.
+    """
+    codes = []
+    if data.barcode:
+        codes.append(Receipt.barcode == data.barcode)
+    if data.unique_id:
+        codes.append(Receipt.unique_id == data.unique_id)
+    if codes and db.scalar(select(Receipt.id).where(or_(*codes))) is not None:
+        return True
+
+    similar = db.execute(select(Receipt.barcode, Receipt.unique_id).where(Receipt.fingerprint == print_)).all()
+    return any(not _shown_different(row.barcode, data.barcode, row.unique_id, data.unique_id) for row in similar)
+
+
+def _shown_different(barcode: str | None, new_barcode: str | None, unique_id: str | None, new_id: str | None) -> bool:
+    return bool(barcode and new_barcode and barcode != new_barcode) or bool(unique_id and new_id and unique_id != new_id)
 
 
 def _generated_identifier(data: ReceiptData) -> str | None:

@@ -38,6 +38,10 @@ _QUANTITY_LINE = re.compile(
 # A discount's amount may also start with a minus: "-4,32".
 _ITEM_LINE = re.compile(rf"^(?P<name>.*[a-z].*?)\s+-?(?P<total>{_AMOUNT})[\s.-]*[a-z]?$")
 _TRAILING_AMOUNT = re.compile(rf"\s+-?{_AMOUNT}[\s.-]*[A-Za-z]?\s*$")
+# A price that OCR put on its own line, with at most its VAT letter: "7.99 B", "B 7,99".
+_PRICE_ALONE = re.compile(rf"^\W*[a-z]?\W*(?P<total>{_AMOUNT})[\s.-]*[a-z]?\W*$")
+# A product's name has a real word in it, which a VAT letter or stray mark doesn't.
+_NAME_WORD = re.compile(r"[a-z]{3,}")
 # A price OCR garbled beyond reading, like "6.993" (6.99 B) or "35:99t" (35,99 A).
 _GARBLED_PRICE = re.compile(r"\s+\d+[.,:]\d{2}\S*\s*$")
 # Up to a few stray characters between TOTAL and the amount: "TOTAL. 42.98", "TOTAL LEI: 42,98".
@@ -55,6 +59,8 @@ _DATE_YMD = re.compile(r"(\d{4})-(\d{2})-(\d{2})(?:[ t](\d{2}):(\d{2})(?::(\d{2}
 
 # A code printed to identify the receipt on its own: "ID BF: 8f31a2", "COD UNIC 1234".
 _RECEIPT_ID = re.compile(r"\b(?:id\W{0,2}(?:bf|bon|unic)|cod\s+unic)\b\W{0,3}(?P<id>(?=[a-z-]*\d)[0-9a-z-]{4,})")
+_ID_UNIC = re.compile(r"\bid\W{0,2}unic\b\W{0,3}(?P<id>\d+)")
+UNIQUE_ID_LENGTH = 32
 # A receipt number: "BF: 0025", "NR. BON 25", "BON FISCAL NR. 25".
 _BON_NUMBER = re.compile(
     r"\b(?:bf|bon\s*(?:fiscal\s*)?(?:nr|numar)|(?:nr|numar)\W{0,2}bon(?:\s*fiscal)?)\b\W{0,3}(?P<number>\d+)\b"
@@ -65,12 +71,14 @@ _Z_NUMBER = re.compile(r"\bz\b\W{0,3}(?P<number>\d+)\b")
 def parse_receipt(text: str) -> ReceiptData:
     raw_lines = [line.strip() for line in text.splitlines() if line.strip()]
     folded = [fold(line) for line in raw_lines]
+    purchased_at = _purchased_at(folded)
     return ReceiptData(
         store_name=_store_name(folded),
-        purchased_at=_purchased_at(folded),
+        purchased_at=purchased_at,
         total=_total(folded),
         lines=_items(raw_lines, folded),
         identifier=_identifier(folded),
+        unique_id=_unique_id(folded, purchased_at),
     )
 
 
@@ -126,6 +134,24 @@ def _identifier(folded: list[str]) -> str | None:
     return f"Z {z_number} / BF {number}" if z_number else f"BF {number}"
 
 
+def _unique_id(folded: list[str], purchased_at: datetime | None) -> str | None:
+    """The ID UNIC, only if it agrees with itself and the rest of the receipt.
+
+    It's built from the receipt's other details, so a misread is catchable:
+    10 digits of RL, the date, the time, 4 unknown digits, then the BF number.
+    Duplicate checks rely on it, and a misread would let a receipt through twice.
+    """
+    code = _first_match(_ID_UNIC, folded, "id")
+    if code is None or len(code) != UNIQUE_ID_LENGTH:
+        return None
+    if purchased_at and code[10:18] != purchased_at.strftime("%Y%m%d"):
+        return None
+    number = _first_match(_BON_NUMBER, folded, "number")
+    if number and int(code[-4:]) != int(number[-4:]):
+        return None
+    return code
+
+
 def _first_match(pattern: re.Pattern[str], folded: list[str], group: str) -> str | None:
     return next((match.group(group) for match in map(pattern.search, folded) if match), None)
 
@@ -149,7 +175,14 @@ def _items(raw_lines: list[str], folded: list[str]) -> list[ReceiptLine]:
                 pending_total = (pending_qty * _decimal(quantity.group("price"))).quantize(_CENT, ROUND_HALF_UP)
             continue
 
-        if line.startswith(_NOT_ITEMS):
+        if line.startswith(_NOT_ITEMS) or line == "lei":
+            continue
+
+        price = _PRICE_ALONE.match(line)
+        if price:
+            # Its name is on another line. The printed price beats a computed one.
+            if pending_qty is not None:
+                pending_total = _decimal(price.group("total"))
             continue
 
         item = _ITEM_LINE.match(line)
@@ -162,11 +195,14 @@ def _items(raw_lines: list[str], folded: list[str]) -> list[ReceiptLine]:
         if item:
             name = _TRAILING_AMOUNT.sub("", raw)
             total = _decimal(item.group("total"))
-        elif pending_total is not None and re.search(r"[a-z]", line):
+        elif pending_total is not None:
             # No readable price on the name line: take it from the quantity line.
             name, total = _GARBLED_PRICE.sub("", raw), pending_total
         else:
             continue
+
+        if not _NAME_WORD.search(fold(name)):
+            continue  # stray OCR marks; the real name may still be on the next line
 
         items.append(ReceiptLine(raw_text=name, quantity=pending_qty or Decimal(1), line_total=total))
         pending_qty = pending_total = None

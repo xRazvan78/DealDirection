@@ -29,7 +29,9 @@ class ReceiptData(_Frozen):
     purchased_at: datetime | None
     total: Decimal | None
     lines: list[ReceiptLine]
-    identifier: str | None = None  # the receipt's barcode, or else its printed number
+    identifier: str | None = None  # the best printed number OCR read, checked or not
+    barcode: str | None = None  # the decoded barcode or QR code
+    unique_id: str | None = None  # the ID UNIC, only if it passed its checks
 
 
 class Food(_Frozen):

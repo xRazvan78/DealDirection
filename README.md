@@ -355,7 +355,7 @@ Each unit has one job, and can be tested without the others.
 | `store_products`  | store, size-level category, type category, name, brand, barcode, price, unit, image, source URL, search_text, updated_at                   |
 | `shopping_lists`  | user, name, state, suggestion_shown, extra_store_id, created_at, deleted_at                                                                |
 | `list_items`      | list, size-level category, chosen product (empty for generic), brand, quantity, assigned store, assigned product, estimated_price, removed |
-| `receipts`        | list, store, fingerprint (unique), purchased_at, total, estimate, paid, modifier, points; unique on list and store                         |
+| `receipts`        | list, store, fingerprint, barcode (unique), unique_id (unique), purchased_at, total, estimate, paid, modifier, points; unique on list and store |
 | `receipt_lines`   | receipt, raw text, quantity, line total, matched list item                                                                                 |
 | `points_ledger`   | user, amount, reason, receipt, created_at                                                                                                  |
 | `vouchers`        | user, reward, store, code (unique), expires_at, used_at |

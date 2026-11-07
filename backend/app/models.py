@@ -171,7 +171,10 @@ class Receipt(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     list_id: Mapped[int] = mapped_column(ForeignKey("shopping_lists.id"))
     store_id: Mapped[int] = mapped_column(ForeignKey("stores.id"))
-    fingerprint: Mapped[str] = mapped_column(String(64), unique=True)
+    # Not unique: two receipts can share a store, day and total. See receipts/router.py.
+    fingerprint: Mapped[str] = mapped_column(String(64), index=True)
+    barcode: Mapped[str | None] = mapped_column(String(500), unique=True)
+    unique_id: Mapped[str | None] = mapped_column(String(32), unique=True)
     purchased_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     total: Mapped[Decimal] = mapped_column(Money)
     estimate: Mapped[Decimal] = mapped_column(Money)

@@ -57,12 +57,35 @@ class _TextReader(LocalDocumentReader):
         return "CHIPS 7,99 B\nTOTAL 7,99\nID UNIC: 12345678"
 
 
-def test_barcode_replaces_the_identifier_read_by_ocr() -> None:
-    assert _TextReader().read_receipt(photo_of(RECEIPT_CODE), "image/png").identifier == RECEIPT_CODE
+def test_barcode_is_kept_beside_the_identifier_read_by_ocr() -> None:
+    data = _TextReader().read_receipt(photo_of(RECEIPT_CODE), "image/png")
+
+    assert (data.barcode, data.identifier) == (RECEIPT_CODE, "12345678")
 
 
-def test_ocr_identifier_stays_when_there_is_no_barcode() -> None:
-    assert _TextReader().read_receipt(blank_photo(), "image/png").identifier == "12345678"
+def test_no_barcode_leaves_it_empty() -> None:
+    data = _TextReader().read_receipt(blank_photo(), "image/png")
+
+    assert (data.barcode, data.identifier) == (None, "12345678")
+
+
+def test_a_tilted_code_is_read(monkeypatch) -> None:
+    # Only a level code decodes here, as on a creased receipt.
+    level = cv2.imdecode(np.frombuffer(photo_of(RECEIPT_CODE), np.uint8), cv2.IMREAD_GRAYSCALE)
+    monkeypatch.setattr(barcode, "_decode", lambda image: RECEIPT_CODE if image is level else None)
+    monkeypatch.setattr(barcode, "_turned", lambda image, tilt: level if tilt == -3 else image)
+
+    assert barcode.read_code(photo_of(RECEIPT_CODE)) == RECEIPT_CODE
+
+
+def test_trying_angles_stops_after_the_time_limit(monkeypatch) -> None:
+    turned = []
+    monkeypatch.setattr(barcode, "_decode", lambda image: None)
+    monkeypatch.setattr(barcode, "_turned", lambda image, tilt: turned.append(tilt) or image)
+    monkeypatch.setattr(barcode, "TILT_SECONDS", -1)
+
+    assert barcode.read_code(blank_photo()) is None
+    assert len(turned) == 1
 
 
 def test_receipt_data_is_otherwise_unchanged() -> None:

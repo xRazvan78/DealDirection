@@ -32,6 +32,10 @@ from app.receipts.matching import receipt_code
 
 PHOTO = ("bon.jpg", b"fake jpeg bytes", "image/jpeg")
 DAY = datetime(2026, 10, 26, 11, 39)
+BARCODE = "9264209507286283375843983403"
+OTHER_BARCODE = "9264238711852413082267699676"
+ID_UNIC = "60010827022026102612373602640061"
+OTHER_ID_UNIC = "60010827022026102612373602640062"
 
 
 # --- Fixtures ---------------------------------------------------------------
@@ -277,6 +281,61 @@ def test_same_receipt_on_another_account_is_rejected(db: Session, active_list: A
     assert points_of(db, other.owner) == 0
 
 
+def scan_twice(db: Session, active_list: ActiveList, fake_reader, first: dict, second: dict, total: str = "10.00") -> int:
+    """Upload a receipt for one list, then one for another. Returns the second status."""
+    milk = active_list.items["Lapte integral Albalact 1 l"]
+    fake_reader.receipt = receipt(total="10.00", lines=[("LAPTE", "1", "10.00")]).model_copy(update=first)
+    fake_reader.matches = [LineMatch(line_index=0, item_id=milk.id)]
+    assert upload(active_list, active_list.stores[0]).status_code == 200
+
+    other = _make_list(db, _user(db, "receipts-twice@example.com"), {active_list.stores[0]: [("Lapte integral Albalact 1 l", "10.00", "1")]})
+    fake_reader.receipt = receipt(total=total, lines=[("LAPTE", "1", total)]).model_copy(update=second)
+    fake_reader.matches = [LineMatch(line_index=0, item_id=other.items["Lapte integral Albalact 1 l"].id)]
+    return upload(other, active_list.stores[0]).status_code
+
+
+def test_same_barcode_is_rejected_even_if_the_total_was_misread(db: Session, active_list: ActiveList, fake_reader) -> None:
+    status = scan_twice(db, active_list, fake_reader, {"barcode": BARCODE}, {"barcode": BARCODE}, total="19.00")
+
+    assert status == 409
+
+
+def test_same_id_unic_is_rejected_even_if_the_total_was_misread(db: Session, active_list: ActiveList, fake_reader) -> None:
+    status = scan_twice(db, active_list, fake_reader, {"unique_id": ID_UNIC}, {"unique_id": ID_UNIC}, total="19.00")
+
+    assert status == 409
+
+
+def test_barcode_on_one_scan_and_id_unic_on_the_other_is_rejected(db: Session, active_list: ActiveList, fake_reader) -> None:
+    assert scan_twice(db, active_list, fake_reader, {"barcode": BARCODE}, {"unique_id": ID_UNIC}) == 409
+
+
+def test_a_shared_code_counts_when_the_other_code_differs(db: Session, active_list: ActiveList, fake_reader) -> None:
+    first = {"barcode": BARCODE, "unique_id": ID_UNIC}
+    second = {"barcode": BARCODE, "unique_id": OTHER_ID_UNIC}
+
+    assert scan_twice(db, active_list, fake_reader, first, second) == 409
+
+
+def test_identical_shopping_with_different_barcodes_is_allowed(db: Session, active_list: ActiveList, fake_reader) -> None:
+    assert scan_twice(db, active_list, fake_reader, {"barcode": BARCODE}, {"barcode": OTHER_BARCODE}) == 200
+
+
+def test_identical_shopping_with_different_id_unic_is_allowed(db: Session, active_list: ActiveList, fake_reader) -> None:
+    assert scan_twice(db, active_list, fake_reader, {"unique_id": ID_UNIC}, {"unique_id": OTHER_ID_UNIC}) == 200
+
+
+def test_both_identifiers_are_saved(db: Session, active_list: ActiveList, fake_reader) -> None:
+    milk = active_list.items["Lapte integral Albalact 1 l"]
+    codes = {"barcode": BARCODE, "unique_id": ID_UNIC}
+    fake_reader.receipt = receipt(total="10.00", lines=[("LAPTE", "1", "10.00")]).model_copy(update=codes)
+    fake_reader.matches = [LineMatch(line_index=0, item_id=milk.id)]
+
+    assert upload(active_list, active_list.stores[0]).status_code == 200
+    saved = db.scalars(select(Receipt).where(Receipt.list_id == active_list.id)).one()
+    assert (saved.barcode, saved.unique_id) == (BARCODE, ID_UNIC)
+
+
 def test_second_receipt_for_the_same_part_is_rejected(db: Session, active_list: ActiveList, fake_reader) -> None:
     milk = active_list.items["Lapte integral Albalact 1 l"]
     fake_reader.receipt = receipt(total="10.00", lines=[("LAPTE", "1", "10.00")])
@@ -292,13 +351,14 @@ def test_second_receipt_for_the_same_part_is_rejected(db: Session, active_list: 
 
 def test_simultaneous_duplicate_adds_points_once(db: Session, active_list: ActiveList, fake_reader, monkeypatch) -> None:
     # Two uploads that both pass the early checks: the database's unique
-    # fingerprint stops the second, and its transaction is rolled back.
+    # barcode stops the second, and its transaction is rolled back.
     milk = active_list.items["Lapte integral Albalact 1 l"]
-    fake_reader.receipt = receipt(total="10.00", lines=[("LAPTE", "1", "10.00")])
+    fake_reader.receipt = receipt(total="10.00", lines=[("LAPTE", "1", "10.00")]).model_copy(update={"barcode": BARCODE})
     fake_reader.matches = [LineMatch(line_index=0, item_id=milk.id)]
     assert upload(active_list, active_list.stores[0]).status_code == 200
 
     monkeypatch.setattr(receipts_router, "_already_used", lambda *args: None)
+    monkeypatch.setattr(receipts_router, "_used_before", lambda *args: False)
     other = _make_list(db, _user(db, "receipts-race@example.com"), {active_list.stores[0]: [("Lapte integral Albalact 1 l", "10.00", "1")]})
     fake_reader.matches = [LineMatch(line_index=0, item_id=other.items["Lapte integral Albalact 1 l"].id)]
 
@@ -502,6 +562,27 @@ def test_generated_identifier_ignores_ocr_differences_in_a_rescan() -> None:
 
     assert first == receipt_code("LIDL", datetime(2026, 10, 26), Decimal("25.970"))
     assert first != receipt_code("Lidl", datetime(2026, 10, 26), Decimal("25.98"))
+
+
+def test_reading_shows_the_barcode_first(auth_client: TestClient, fake_reader) -> None:
+    line = ReceiptLine(raw_text="Chips", quantity=Decimal(1), line_total=Decimal("7.99"))
+    fake_reader.receipt = ReceiptData(
+        store_name="Lidl", purchased_at=DAY, total=Decimal("7.99"), lines=[line],
+        identifier="BF 1", unique_id=ID_UNIC, barcode=BARCODE,
+    )
+
+    assert read(auth_client).json()["identifier"] == BARCODE
+
+
+def test_reading_prefers_a_checked_id_unic_to_other_numbers(auth_client: TestClient, fake_reader) -> None:
+    line = ReceiptLine(raw_text="Chips", quantity=Decimal(1), line_total=Decimal("7.99"))
+    fake_reader.receipt = ReceiptData(
+        store_name="Lidl", purchased_at=DAY, total=Decimal("7.99"), lines=[line], identifier="BF 1", unique_id=ID_UNIC,
+    )
+
+    body = read(auth_client).json()
+
+    assert (body["identifier"], body["identifier_printed"]) == (ID_UNIC, True)
 
 
 def test_reading_leaves_unread_fields_empty(auth_client: TestClient, fake_reader) -> None:

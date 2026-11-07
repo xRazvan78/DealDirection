@@ -46,7 +46,7 @@ class LocalDocumentReader:
     def read_receipt(self, content: bytes, media_type: str) -> ReceiptData:
         data = parse_receipt(self._to_text(content, media_type, allow_text=False))
         code = barcode.read_code(content) if media_type in IMAGE_TYPES else None
-        return data.model_copy(update={"identifier": code}) if code else data
+        return data.model_copy(update={"barcode": code})
 
     def read_foods(self, content: bytes, media_type: str) -> FoodList:
         return parse_foods(self._to_text(content, media_type, allow_text=True))

@@ -326,6 +326,44 @@ def test_misread_time_keeps_the_date() -> None:
     assert parse_receipt("DATA:06/11/2026  ORA:71-36-05").purchased_at == datetime(2026, 11, 6)
 
 
+def test_price_on_its_own_line_is_not_a_name() -> None:
+    for price in ("7.99 B", "7,99-B", "B 7.99", "7.99.B"):
+        lines = parse_receipt(f"1.000 BUC X 7.99\n{price}\nChips preparate\nTOTAL 7,99").lines
+
+        assert [(l.raw_text, l.quantity, l.line_total) for l in lines] == [
+            ("Chips preparate", Decimal("1.000"), Decimal("7.99")),
+        ]
+
+
+def test_price_after_its_name_is_not_another_product() -> None:
+    lines = parse_receipt("1.000 BUC X 7.99\nChips preparate\n7.99 B\nTOTAL 7,99").lines
+
+    assert [l.raw_text for l in lines] == ["Chips preparate"]
+
+
+def test_printed_price_on_its_own_line_beats_the_computed_one() -> None:
+    # The unit price was misread, but the line's own price wasn't.
+    lines = parse_receipt("1.000 BUC X 7.89\n7.99 B\nChips preparate\nTOTAL 7,99").lines
+
+    assert lines[0].line_total == Decimal("7.99")
+
+
+def test_lei_heading_is_not_a_product() -> None:
+    lines = parse_receipt("1.000 BUC X 7.99\nLei\nChips preparate  7.99 B\nTOTAL 7,99").lines
+
+    assert [(l.raw_text, l.quantity) for l in lines] == [("Chips preparate", Decimal("1.000"))]
+
+
+def test_stray_marks_are_not_products() -> None:
+    lines = parse_receipt("1.000 BUC X 7.99\n* ?\nab\nChips preparate\nTOTAL 7,99").lines
+
+    assert [l.raw_text for l in lines] == ["Chips preparate"]
+
+
+def test_short_real_names_stay() -> None:
+    assert [l.raw_text for l in parse_receipt("UNT  8,50 A\nTOTAL 8,50").lines] == ["UNT"]
+
+
 def test_real_kaufland_receipt_with_a_discount_adds_up() -> None:
     receipt = fixture_receipt("kaufland_rapidocr_1.txt")
 
@@ -343,6 +381,48 @@ def test_real_kaufland_receipt_with_a_discount_adds_up() -> None:
         ("7D CROIS ARAHID 80G", Decimal("1.000"), Decimal("3.45")),
     ]
     assert sum(l.line_total for l in receipt.lines) == receipt.total
+
+
+ID_UNIC = "60010827022026110612373602640061"
+PRINTED = "BF.00061  DATA:06/11/2026  ORA:12-37-36"
+
+
+def test_a_correct_id_unic_is_kept() -> None:
+    assert parse_receipt(f"ID UNIC:{ID_UNIC}\n{PRINTED}").unique_id == ID_UNIC
+
+
+def test_id_unic_missing_digits_is_rejected() -> None:
+    # Read from a real Kaufland photo: OCR lost two zeros.
+    receipt = parse_receipt("ID UNIC:300772082026110621360524480289\nBF.00289  DATA:06/11/2026")
+
+    assert receipt.unique_id is None
+    assert receipt.identifier == "300772082026110621360524480289"
+
+
+def test_id_unic_with_another_date_is_rejected() -> None:
+    assert parse_receipt(f"ID UNIC:{ID_UNIC}\nBF.00061  DATA:07/11/2026").unique_id is None
+
+
+def test_id_unic_with_another_receipt_number_is_rejected() -> None:
+    assert parse_receipt(f"ID UNIC:{ID_UNIC}\nBF.00062  DATA:06/11/2026").unique_id is None
+
+
+def test_real_receipts_give_a_checked_id_unic_only_when_read_in_full() -> None:
+    assert fixture_receipt("kaufland_rapidocr_1.txt").unique_id is None
+    assert fixture_receipt("kaufland_rapidocr_2.txt").unique_id == "70000766432026110621373028760293"
+    assert fixture_receipt("kaufland_rapidocr_3.txt").unique_id == ID_UNIC
+    assert fixture_receipt("lidl_rapidocr_3.txt").unique_id is None
+
+
+def test_real_receipt_with_card_discounts_and_every_product() -> None:
+    # OCR read this photo's first discount as "0.00-0", so it can't add up, but
+    # the second is subtracted, and no discount line became a product.
+    receipt = fixture_receipt("kaufland_rapidocr_3.txt")
+
+    assert receipt.total == Decimal("140.39")
+    assert len(receipt.lines) == 14
+    assert not any("DISCOUNT" in l.raw_text or "XTRA" in l.raw_text for l in receipt.lines)
+    assert [l.line_total for l in receipt.lines if l.raw_text == "STAR PURPLE90 G"] == [Decimal("5.79")]
 
 
 def test_real_single_product_kaufland_receipt() -> None:
