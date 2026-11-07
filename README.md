@@ -1,7 +1,5 @@
 # DealDirection
 
-Dale Mexic Dale
-
 DealDirection is a Romanian-language mobile app that helps shoppers **save money on their whole grocery cart**. It gathers offers from supermarkets, builds the cheapest shopping plan, guides the client to the store, and rewards them with points when a scanned receipt confirms the purchase.
 
 **Status:** planning is finished, and the project skeleton is in place with no features built yet. This is the MVP for a 24-hour hackathon, built by a team of 4.
