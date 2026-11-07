@@ -1,3 +1,29 @@
+<ng-template #quantityControl let-product>
+  @if (quantityOf(product); as quantity) {
+    <div class="counter">
+      <button
+        type="button"
+        class="decrease"
+        [attr.aria-label]="ro.browse.decrease"
+        (click)="decrease(product)"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12" /></svg>
+      </button>
+      <span class="count" aria-live="polite">{{ quantity }}</span>
+      <button
+        type="button"
+        class="increase"
+        [attr.aria-label]="ro.browse.increase"
+        (click)="addToCart(product)"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6v12M6 12h12" /></svg>
+      </button>
+    </div>
+  } @else {
+    <button type="button" class="add" (click)="addToCart(product)">{{ ro.browse.add }}</button>
+  }
+</ng-template>
+
 <div class="points-row">
   <a class="points" routerLink="/wallet">
     {{ ro.browse.points }}: <strong>{{ balance() ?? '–' }}</strong>
@@ -47,9 +73,11 @@
             {{ generic.store_name }} · {{ ro.browse.updated }}
             {{ generic.updated_at | date: 'dd.MM.yyyy' }}
           </span>
-          <button type="button" class="add" (click)="addToCart(generic)">
-            {{ addedId() === generic.id ? ro.browse.added : ro.browse.add }}
-          </button>
+          <ng-container
+            [ngTemplateOutlet]="quantityControl"
+            [ngTemplateOutletContext]="{ $implicit: generic }"
+          />
+
         </article>
       }
       @for (product of found.products; track product.id) {
@@ -60,9 +88,11 @@
             {{ product.store_name }} · {{ ro.browse.updated }}
             {{ product.updated_at | date: 'dd.MM.yyyy' }}
           </span>
-          <button type="button" class="add" (click)="addToCart(product)">
-            {{ addedId() === product.id ? ro.browse.added : ro.browse.add }}
-          </button>
+          <ng-container
+            [ngTemplateOutlet]="quantityControl"
+            [ngTemplateOutletContext]="{ $implicit: product }"
+          />
+
         </article>
       } @empty {
         <p class="note">{{ ro.browse.empty }}</p>
@@ -85,7 +115,14 @@
     }
   } @else {
     @for (category of categories(); track category.id) {
-      <button type="button" class="row" (click)="open(category)">{{ category.name }}</button>
+      <button
+        type="button"
+        class="row"
+        [attr.data-initial]="category.name.charAt(0)"
+        (click)="open(category)"
+      >
+        {{ category.name }}
+      </button>
     } @empty {
       @if (!failed()) {
         <p class="note">{{ ro.browse.empty }}</p>

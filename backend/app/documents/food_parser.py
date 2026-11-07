@@ -36,6 +36,9 @@ _FOOD = re.compile(
     r"\s*(?:de\s+)?(?P<rest>.*)",
     re.IGNORECASE,
 )
+# A bare count is pieces: "2 oua zilnic". Day and meal numbers aren't foods.
+_COUNT = re.compile(r"(?<![\d.,:])(?P<amount>\d+)\s+(?P<rest>[a-z].*)")
+_NOT_FOODS = {"zi", "zile", "ziua", "zilei", "masa", "mese", "mesele", "ori", "saptamana", "saptamani", "luni", "x"}
 _DAILY = re.compile(r"\b(?:zilnic|pe zi)\b", re.IGNORECASE)
 _PLAN_DAYS = re.compile(r"\b(\d+)\s*zile\b")
 _PLAN_PHRASE = re.compile(r"\b(?:timp de|pentru)?\s*\d+\s*zile\b", re.IGNORECASE)
@@ -53,9 +56,13 @@ def parse_foods(text: str) -> FoodList:
 
 def _parse_part(part: str) -> Food | None:
     # Fold only for finding the amount and unit; the name keeps its diacritics.
-    match = _FOOD.search(fold(part))
+    folded = fold(part)
+    match = _FOOD.search(folded)
+    unit = _UNITS[match.group("unit").lower()] if match else "buc"
     if not match:
-        return None
+        match = _COUNT.search(folded)
+        if not match or match.group("rest").split()[0].strip(_EDGE_PUNCTUATION) in _NOT_FOODS:
+            return None
 
     original_rest = _original_tail(part, len(match.group("rest")))
     per_day = bool(_DAILY.search(original_rest))
@@ -68,7 +75,7 @@ def _parse_part(part: str) -> Food | None:
     return Food(
         name=name,
         amount=Decimal(match.group("amount").replace(",", ".")),
-        unit=_UNITS[match.group("unit").lower()],
+        unit=unit,
         per_day=per_day,
     )
 

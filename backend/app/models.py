@@ -175,6 +175,7 @@ class Receipt(Base):
     fingerprint: Mapped[str] = mapped_column(String(64), index=True)
     barcode: Mapped[str | None] = mapped_column(String(500), unique=True)
     unique_id: Mapped[str | None] = mapped_column(String(32), unique=True)
+    fiscal_key: Mapped[str | None] = mapped_column(String(64), unique=True)
     purchased_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     total: Mapped[Decimal] = mapped_column(Money)
     estimate: Mapped[Decimal] = mapped_column(Money)
@@ -210,11 +211,63 @@ class PointsLedger(Base):
 
 
 class LoyaltyCard(Base):
+    """A loyalty card: one per brand per user, for any supermarket in app.cards.brands.
+
+    The code read from the card's photo is kept and redrawn cleanly at the till.
+    The photo itself is only kept when no code could be read from it.
+    """
+
     __tablename__ = "loyalty_cards"
-    __table_args__ = (UniqueConstraint("user_id", "store_id"),)
+    __table_args__ = (
+        UniqueConstraint("user_id", "brand"),
+        CheckConstraint("code_text IS NOT NULL OR photo IS NOT NULL", name="has_code_or_photo"),
+    )
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
-    store_id: Mapped[int] = mapped_column(ForeignKey("stores.id"))
-    code_image: Mapped[bytes] = mapped_column(LargeBinary)
-    image_media_type: Mapped[str] = mapped_column(String(50))
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    brand: Mapped[str] = mapped_column(String(30))
+    code_text: Mapped[str | None] = mapped_column(String(500))
+    code_format: Mapped[str | None] = mapped_column(String(20))
+    photo: Mapped[bytes | None] = mapped_column(LargeBinary)
+    created_at: Mapped[datetime] = utc_timestamp()
+
+
+class Reward(Base):
+    """A Point Shop reward, loaded from data/rewards.yaml (SAMPLE DATA: spending is simulated).
+
+    A reward taken out of the file is marked inactive, not deleted, because
+    vouchers already redeemed point to it.
+    """
+
+    __tablename__ = "rewards"
+    __table_args__ = (
+        UniqueConstraint("store_id", "name"),
+        CheckConstraint("cost > 0", name="cost_positive"),
+    )
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    store_id: Mapped[int] = mapped_column(ForeignKey("stores.id"), index=True)
+    name: Mapped[str] = mapped_column(String(200))
+    cost: Mapped[int] = mapped_column(Integer)
+    active: Mapped[bool] = mapped_column(Boolean, server_default=text("true"))
+
+
+class Voucher(Base):
+    """A reward redeemed in the Point Shop. Its points were taken off in points_ledger.
+
+    The reward's name and store are copied, so a voucher keeps what it was
+    redeemed for even if the reward changes later. A voucher is shown until
+    it's used or it expires.
+    """
+
+    __tablename__ = "vouchers"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    reward_id: Mapped[int] = mapped_column(ForeignKey("rewards.id"))
+    reward_name: Mapped[str] = mapped_column(String(200))
+    store_name: Mapped[str] = mapped_column(String(100))
+    code: Mapped[str] = mapped_column(String(20), unique=True)
+    created_at: Mapped[datetime] = utc_timestamp()
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    used_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))

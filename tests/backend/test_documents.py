@@ -418,6 +418,15 @@ def test_a_receipt_that_adds_up_is_read_once(monkeypatch) -> None:
     assert calls == [{"flattened": True}]
 
 
+def test_bottle_deposits_count_towards_adding_up(monkeypatch) -> None:
+    # The deposit isn't a product, but it's in the total, so one read is enough.
+    calls = reads(monkeypatch, "CHIPS 7,99 B\nGARANTIE AMBALAJ 0,50 D\nTOTAL 8,49")
+
+    data = local_reader().read_receipt(b"", "image/jpeg")
+
+    assert (len(data.lines), len(calls)) == (1, 1)
+
+
 def test_a_receipt_that_does_not_add_up_is_read_again_without_the_crop(monkeypatch) -> None:
     calls = reads(monkeypatch, SHORT, GOOD)
 
@@ -560,3 +569,13 @@ def test_settings_default_to_rapidocr(monkeypatch: pytest.MonkeyPatch) -> None:
     settings = Settings(_env_file=None)
 
     assert (settings.OCR_ENGINE, settings.OCR_RAPID_LANG) == ("rapidocr", "ro")
+
+
+def test_map_foods_tie_goes_to_the_first_leaf_given() -> None:
+    # Callers list the most common type first; a tie must not fall back to the lowest id.
+    leaves = [
+        {"id": 50, "path": ["Lapte", "3.5%"], "aliases": ["lapte"]},
+        {"id": 7, "path": ["Lapte", "Alte tipuri"], "aliases": ["lapte"]},
+    ]
+
+    assert map_foods([food("lapte")], leaves, MIN_SCORE)[0].size_category_id == 50

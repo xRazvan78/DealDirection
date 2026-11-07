@@ -78,6 +78,16 @@ npx ng serve --proxy-config proxy.conf.json
 - http://localhost:4200/api/health should show the same, which proves the frontend reaches the backend.
 - http://localhost:4200 should open the app.
 
+**Open the app on a phone (optional)**
+
+You'll need [cloudflared](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/). From `frontend`, this serves the app over HTTPS and prints a QR code to scan. Anyone with the address can open the app until you press Ctrl+C.
+
+```bash
+npm run mobile
+```
+
+If the backend is off, login uses a demo account and all data is fake. PWA install isn't available this way, since it needs a production build.
+
 **5. Terminal 3: activate `.venv` and run the automated tests from the repo root**
 
 ```bash
@@ -149,7 +159,7 @@ A presenter completes this loop live on a phone, using real scraped prices and a
 | **Must**      | Price data, product browsing, cart and optimiser, receipt scan with points, list import, store selection, saved lists, directions, simple login, demo user |
 | **Should**    | Loyalty card wallet                                                                                                                                        |
 | **Simulated** | Spending points, using a fake rewards page                                                                                                                 |
-| **Out**       | Admin dashboard, live scraping, real partner integrations, multiple cities, per-store pricing, password reset, social login, other languages               |
+| **Out**       | Admin dashboard, live scraping, real partner integrations, multiple cities, per-store pricing, password reset, social login               |
 
 If the team falls behind, cut the card wallet first, then PDF import.
 
@@ -212,7 +222,7 @@ Points can be spent on specific products at partner stores, online or in person.
 
 ### Loyalty cards
 
-The client uploads a photo of a card and crops it to the barcode or QR code. The app shows that code on a generic card, in a colour unique to the store, with its name or logo clearly visible.
+The client photographs a card's QR code or barcode, and the backend reads it (QR, EAN-13, EAN-8, UPC-A, Code 128, Code 39). The client then picks the card's supermarket from a fixed list (Lidl, Kaufland, Auchan, Carrefour, Mega Image, Profi, Penny), with the brand suggested when its name is printed on the card or inside the code. The app saves the code, not the photo, and redraws it sharply on a card in the brand's colour, because a till reads a clean code far better than a photo. If no code can be read, the photo itself can be saved instead. Each account keeps one card per brand: to replace a card, delete it first. Card brands are separate from the price-comparison stores.
 
 ### Lists
 
@@ -224,7 +234,7 @@ A deleted list goes to the trash for 2 weeks, and can be restored until then. Af
 
 | Part        | Technology                                                                 |
 | ----------- | -------------------------------------------------------------------------- |
-| Frontend    | Angular PWA, Romanian only                                                 |
+| Frontend    | Angular PWA, Romanian and English  |
 | Backend     | Python 3.12, FastAPI, SQLAlchemy                                           |
 | Database    | PostgreSQL                                                                 |
 | Data import | Python scripts, run offline                                                |
@@ -300,7 +310,7 @@ The app has three parts, and each one can be worked on alone:
 | An OCR engine change       | `backend/app/documents/ocr.py` only                                         |
 | A screen                   | Its folder in `frontend/src/app/`, plus one line in `app.routes.ts`         |
 | A call to the API          | One typed method in `frontend/src/app/core/api.ts`                          |
-| Romanian text              | `frontend/src/app/shared/ro.ts`                                             |
+| UI text                    | `frontend/src/app/shared/ro.ts` and `en.ts`  |
 
 Each placeholder file names its owner and task. Stay inside your own files where you can, because shared files like `models.py`, `api.ts`, `ro.ts` and `app.routes.ts` are the likeliest to conflict. Keep those changes small and merge them often.
 
@@ -356,11 +366,11 @@ Each unit has one job, and can be tested without the others.
 | `store_products`  | store, size-level category, type category, name, brand, barcode, price, unit, image, source URL, search_text, updated_at                   |
 | `shopping_lists`  | user, name, state, suggestion_shown, extra_store_id, created_at, deleted_at                                                                |
 | `list_items`      | list, size-level category, chosen product (empty for generic), brand, quantity, assigned store, assigned product, estimated_price, removed |
-| `receipts`        | list, store, fingerprint, barcode (unique), unique_id (unique), purchased_at, total, estimate, paid, modifier, points; unique on list and store |
+| `receipts`        | list, store, fingerprint, barcode (unique), unique_id (unique), fiscal_key (unique), purchased_at, total, estimate, paid, modifier, points; unique on list and store |
 | `receipt_lines`   | receipt, raw text, quantity, line total, matched list item                                                                                 |
 | `points_ledger`   | user, amount, reason, receipt, created_at                                                                                                  |
 | `vouchers`        | user, reward, store, code (unique), expires_at, used_at |
-| `loyalty_cards`   | user, store, code image; unique on user and store                                                                                          |
+| `loyalty_cards`   | user, brand, code text, code format, photo (only if no code was read); unique on user and brand                                            |
 
 Create tables with `Base.metadata.create_all`, since a hackathon doesn't need migrations.
 
@@ -381,7 +391,7 @@ All routes are under `/api`.
 | Receipts   | `POST /lists/{id}/receipts?store_id=`, `POST /receipts/read` (reads only: saves nothing, gives no points)              |
 | Import     | `POST /imports`, `POST /imports/confirm`                                                                               |
 | Wallet     | `GET /wallet`, `GET /rewards`, `POST /rewards/{id}/redeem`, `GET /vouchers` |
-| Cards          | Saved cards with a typed label, added from a photo or the camera, and a large code view |
+| Cards      | `GET /card-brands`, `POST /cards/scan`, `GET /cards`, `POST /cards`, `DELETE /cards/{id}`                              |
 
 ### Configuration
 
@@ -394,6 +404,7 @@ All values live in backend config and can be changed without a code change.
 | `POINTS_PER_LEI`       | 10 (placeholder)              |
 | `MIN_SPLIT_SAVING_LEI` | 10 (placeholder)              |
 | `TRASH_RETENTION_DAYS` | 14                            |
+| `VOUCHER_VALID_DAYS`   | 30                            |
 | `OCR_ENGINE`           | `rapidocr` (or `tesseract`)   |
 | `OCR_RAPID_LANG`       | `ro`                          |
 | `OCR_LANG`             | `ron+eng` (Tesseract only)    |
@@ -406,7 +417,7 @@ All values live in backend config and can be changed without a code change.
 
 ### Screens
 
-All screens are in Romanian.
+All screens are in Romanian by default, and Settings switches them to English.
 
 | Screen         | Purpose                                                                      |
 | -------------- | ---------------------------------------------------------------------------- |
@@ -416,10 +427,10 @@ All screens are in Romanian.
 | Cart           | Items added by hand, from Home or by import, store comparison, total, points, shops, directions, receipt scan |
 | Plan           | Chosen plan by store, with directions and a receipt button per store         |
 | Import         | One button for a PDF, picture or text, the number of days, the review screen |
-| Lists          | Saved lists: view, edit, delete                                              |
+| Lists          | Saved lists, opened and edited in the Cart, plus rename, delete and new list |
 | Receipt result | Matched and unmatched items, estimate, paid, modifier, points                |
 | Point Shop     | Points balance, simulated rewards, point history, at `/wallet`                 |
-| Cards          | Saved cards with a typed label, added from a photo or the camera, and a large code view |
+| Cards          | Scan a card's code, pick its supermarket, and show a clean redrawn code at the till |
 | Settings       | Store selection, logout                                                      |
 
 ### Error handling
@@ -441,7 +452,7 @@ All screens are in Romanian.
 
 ### Development rules
 
-- All UI text is Romanian, kept in `frontend/src/app/shared/ro.ts`. Product names stay as published.
+- All UI text lives in `frontend/src/app/shared/ro.ts` (Romanian) and `en.ts` (English), and every string needs both. Product names stay as published.
 - Money and quantities use `Decimal` in Python and `NUMERIC` in Postgres, never floats.
 - Config values are never hardcoded.
 - Never store or log receipt images.

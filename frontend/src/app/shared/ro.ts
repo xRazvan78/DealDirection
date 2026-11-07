@@ -1,5 +1,8 @@
-// All Romanian UI text lives here. Group new strings by screen.
-export const ro = {
+import { en } from './en';
+import { Language, language } from './language';
+
+// The Romanian UI text. Group new strings by screen, and add each one to en.ts too.
+export const romanian = {
   appName: 'DealDirection',
   loading: 'Se încarcă...',
   nav: {
@@ -8,7 +11,6 @@ export const ro = {
     cards: 'Carduri',
     lists: 'Liste',
     wallet: 'Point Shop',
-    import: 'Importă o listă',
     settings: 'Setări',
     menu: 'Meniu',
     closeMenu: 'Închide meniul',
@@ -24,6 +26,11 @@ export const ro = {
     invalidRow: 'Completează numele, o cantitate peste 0 și un preț valid.',
     cancel: 'Anulează',
     edit: 'Editează lista',
+    increase: 'Crește cantitatea la',
+    decrease: 'Scade cantitatea la',
+    saveList: 'Salvează lista',
+    saved: 'Salvat',
+    listName: 'Numele listei',
     save: 'Salvează',
     remove: 'Șterge',
     import: 'Importă',
@@ -54,29 +61,53 @@ export const ro = {
     receiptIdentifier: 'Identificator',
     receiptIdentifierGenerated: 'generat de aplicație',
     receiptNotRead: 'Necitit',
+    receiptDeposits: 'Garanție ambalaje',
     receiptUnreadable: 'Nu am putut citi bonul. Fă o poză nouă, cu lumină bună.',
     receiptFailed: 'Nu am putut trimite bonul. Verifică internetul și încearcă din nou.',
     close: 'Închide',
   },
   cards: {
     title: 'Cardurile mele',
-    empty: 'Nu ai niciun card. Apasă + pentru a adăuga unul.',
+    empty: 'Nu ai niciun card. Apasă + și fotografiază codul de pe card.',
     add: 'Adaugă un card',
     choosePhoto: 'Alege o poză',
-    scanCard: 'Scanează cardul',
+    scanCard: 'Fotografiază codul',
+    reading: 'Citesc codul…',
     preview: 'Poza cardului',
-    label: 'Numele cardului',
-    labelRequired: 'Scrie un nume pentru card.',
+    whichStore: 'De la ce magazin este cardul?',
+    alreadySaved: 'ai deja',
+    brandRequired: 'Alege magazinul cardului.',
+    photoOnly: 'Nu am găsit un cod, așa că păstrăm poza cardului.',
+    savePhotoInstead: 'Salvează poza oricum',
+    noCode: 'Nu am găsit niciun cod pe poză. Încearcă din nou, mai de aproape.',
+    saveFailed: 'Nu am putut salva cardul. Încearcă din nou.',
+    deleteFailed: 'Nu am putut șterge cardul. Încearcă din nou.',
     cancel: 'Anulează',
     save: 'Salvează',
     wrongFile: 'Alege o poză de cel mult 10 MB.',
-    readFailed: 'Nu am putut citi poza. Încearcă din nou.',
-    noRoom: 'Nu mai este loc pe telefon. Șterge un card și încearcă din nou.',
     code: 'Codul cardului',
     delete: 'Șterge',
     keep: 'Păstrează',
-    confirmDelete: 'Sigur vrei să ștergi acest card?',
+    confirmDelete: 'Sigur vrei să ștergi acest card? Ca să-l schimbi, șterge-l și adaugă-l din nou.',
     close: 'Închide',
+  },
+  lists: {
+    title: 'Listele mele',
+    newList: 'Listă nouă',
+    empty: 'Nu ai liste salvate. Salvează una din coș.',
+    defaultName: 'Lista',
+    product: 'produs',
+    products: 'produse',
+    openNow: 'Deschisă',
+    unsavedCart: 'Coșul curent, nesalvat',
+    unsavedWarning: 'Ai modificări nesalvate în coș.',
+    saveFirst: 'Salvează, apoi continuă',
+    discard: 'Renunță la ele',
+    rename: 'Redenumește',
+    delete: 'Șterge',
+    confirmDelete: 'Sigur vrei să ștergi această listă?',
+    cancel: 'Anulează',
+    save: 'Salvează',
   },
   wallet: {
     title: 'Point Shop',
@@ -116,7 +147,8 @@ export const ro = {
     empty: 'Nu sunt produse aici încă.',
     loadFailed: 'Nu am putut încărca datele. Încearcă din nou.',
     add: 'Adaugă',
-    added: 'Adăugat',
+    decrease: 'Scade cantitatea',
+    increase: 'Crește cantitatea',
     cheapest: 'Cea mai ieftină opțiune',
     updated: 'Actualizat',
     seasonalTitle: 'Oferte de sezon',
@@ -141,8 +173,28 @@ export const ro = {
     title: 'Setări',
     stores: 'Magazinele tale',
     storesHint: 'Doar aceste magazine sunt folosite la calcule.',
+    language: 'Limbă',
     loadFailed: 'Nu am putut încărca magazinele. Încearcă din nou.',
     saveFailed: 'Nu am putut salva modificarea. Încearcă din nou.',
     logout: 'Ieși din cont',
   },
-} as const;
+};
+
+export type Translations = typeof romanian;
+
+const dictionaries: Record<Language, Translations> = { ro: romanian, en };
+
+// Screens read text through this object, always in the current language. Reading it
+// follows the language signal, so a template updates by itself when the language changes.
+function translated<T extends object>(read: (dictionary: Translations) => T): T {
+  return new Proxy({} as T, {
+    get(_, key) {
+      const value = read(dictionaries[language()])[key as keyof T];
+      return typeof value === 'object' && value !== null
+        ? translated((dictionary) => read(dictionary)[key as keyof T] as object)
+        : value;
+    },
+  });
+}
+
+export const ro = translated((dictionary) => dictionary);

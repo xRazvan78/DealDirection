@@ -36,6 +36,7 @@ BARCODE = "9264209507286283375843983403"
 OTHER_BARCODE = "9264238711852413082267699676"
 ID_UNIC = "60010827022026102612373602640061"
 OTHER_ID_UNIC = "60010827022026102612373602640062"
+FISCAL_KEY = "6001082702|20261026|1237|61"
 
 
 # --- Fixtures ---------------------------------------------------------------
@@ -310,6 +311,24 @@ def test_barcode_on_one_scan_and_id_unic_on_the_other_is_rejected(db: Session, a
     assert scan_twice(db, active_list, fake_reader, {"barcode": BARCODE}, {"unique_id": ID_UNIC}) == 409
 
 
+def test_fiscal_key_on_one_scan_and_none_on_the_other_is_rejected(db: Session, active_list: ActiveList, fake_reader) -> None:
+    # The second scan missed the time, so it has no key, but it's the same paper.
+    assert scan_twice(db, active_list, fake_reader, {"fiscal_key": FISCAL_KEY}, {}) == 409
+
+
+def test_barcode_on_one_scan_and_fiscal_key_on_the_other_is_rejected(db: Session, active_list: ActiveList, fake_reader) -> None:
+    assert scan_twice(db, active_list, fake_reader, {"barcode": BARCODE}, {"fiscal_key": FISCAL_KEY}) == 409
+
+
+def test_the_fiscal_key_is_saved(db: Session, active_list: ActiveList, fake_reader) -> None:
+    milk = active_list.items["Lapte integral Albalact 1 l"]
+    fake_reader.receipt = receipt(total="10.00", lines=[("LAPTE", "1", "10.00")]).model_copy(update={"fiscal_key": FISCAL_KEY})
+    fake_reader.matches = [LineMatch(line_index=0, item_id=milk.id)]
+
+    assert upload(active_list, active_list.stores[0]).status_code == 200
+    assert db.scalars(select(Receipt).where(Receipt.list_id == active_list.id)).one().fiscal_key == FISCAL_KEY
+
+
 def test_a_shared_code_counts_when_the_other_code_differs(db: Session, active_list: ActiveList, fake_reader) -> None:
     first = {"barcode": BARCODE, "unique_id": ID_UNIC}
     second = {"barcode": BARCODE, "unique_id": OTHER_ID_UNIC}
@@ -535,6 +554,7 @@ def test_reading_returns_what_the_receipt_says(auth_client: TestClient, db: Sess
         "identifier": "Z 0347 / BF 0025",
         "identifier_printed": True,
         "total": "25.97",
+        "deposits": "0",
         "lines": [
             {"name": "Chips", "quantity": "2.000", "line_total": "15.98"},
             {"name": "Suc", "quantity": "1.000", "line_total": "9.99"},
@@ -562,6 +582,17 @@ def test_generated_identifier_ignores_ocr_differences_in_a_rescan() -> None:
 
     assert first == receipt_code("LIDL", datetime(2026, 10, 26), Decimal("25.970"))
     assert first != receipt_code("Lidl", datetime(2026, 10, 26), Decimal("25.98"))
+
+
+def test_reading_returns_bottle_deposits_apart_from_the_products(auth_client: TestClient, fake_reader) -> None:
+    line = ReceiptLine(raw_text="Suc", quantity=Decimal(1), line_total=Decimal("7.99"))
+    fake_reader.receipt = ReceiptData(
+        store_name="Lidl", purchased_at=DAY, total=Decimal("8.49"), lines=[line], deposits=Decimal("0.50"),
+    )
+
+    body = read(auth_client).json()
+
+    assert (body["deposits"], len(body["lines"])) == ("0.50", 1)
 
 
 def test_reading_shows_the_barcode_first(auth_client: TestClient, fake_reader) -> None:
@@ -621,3 +652,40 @@ def test_reading_rejects_files_that_are_not_photos(auth_client: TestClient, fake
 
 def test_reading_needs_a_login(client: TestClient, fake_reader) -> None:
     assert read(client).status_code == 401
+
+
+# --- Fiscal key and the total check -----------------------------------------
+
+
+def test_two_receipts_with_the_same_total_and_day_but_different_fiscal_ids_both_count(db: Session, active_list: ActiveList, stores, fake_reader) -> None:
+    milk = active_list.items["Lapte integral Albalact 1 l"]
+    fake_reader.receipt = receipt(total="10.00", lines=[("LAPTE", "1", "10.00")]).model_copy(update={"fiscal_key": "111|20261026|1139|240"})
+    fake_reader.matches = [LineMatch(line_index=0, item_id=milk.id)]
+    assert upload(active_list, stores[0]).status_code == 200
+
+    other = _make_list(db, _user(db, "receipts-fiscal@example.com"), {stores[0]: [("Lapte integral Albalact 1 l", "10.00", "1")]})
+    fake_reader.receipt = fake_reader.receipt.model_copy(update={"fiscal_key": "111|20261026|1141|241"})
+    fake_reader.matches = [LineMatch(line_index=0, item_id=other.items["Lapte integral Albalact 1 l"].id)]
+
+    assert upload(other, stores[0]).status_code == 200
+
+
+def test_same_fiscal_id_with_a_misread_total_is_still_a_duplicate(db: Session, active_list: ActiveList, stores, fake_reader) -> None:
+    milk = active_list.items["Lapte integral Albalact 1 l"]
+    fake_reader.receipt = receipt(total="10.00", lines=[("LAPTE", "1", "10.00")]).model_copy(update={"fiscal_key": "111|20261026|1139|240"})
+    fake_reader.matches = [LineMatch(line_index=0, item_id=milk.id)]
+    assert upload(active_list, stores[0]).status_code == 200
+
+    other = _make_list(db, _user(db, "receipts-misread@example.com"), {stores[0]: [("Lapte integral Albalact 1 l", "10.00", "1")]})
+    fake_reader.receipt = receipt(total="16.00", lines=[("LAPTE", "1", "10.00")]).model_copy(update={"fiscal_key": "111|20261026|1139|240"})
+    fake_reader.matches = [LineMatch(line_index=0, item_id=other.items["Lapte integral Albalact 1 l"].id)]
+
+    assert upload(other, stores[0]).status_code == 409
+
+
+def test_result_says_whether_the_receipt_adds_up(active_list: ActiveList, fake_reader) -> None:
+    milk = active_list.items["Lapte integral Albalact 1 l"]
+    fake_reader.receipt = receipt(total="10.00", lines=[("LAPTE", "1", "10.00")]).model_copy(update={"adds_up": True})
+    fake_reader.matches = [LineMatch(line_index=0, item_id=milk.id)]
+
+    assert upload(active_list, active_list.stores[0]).json()["adds_up"] is True

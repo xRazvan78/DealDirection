@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { Product } from '../core/models';
-import { CartService } from './cart.service';
+import { CartItem, CartService } from './cart.service';
 
 const product: Product = {
   id: 5,
@@ -83,6 +83,77 @@ describe('CartService', () => {
       storeName: 'Auchan',
     });
     expect(cart.items()[1]).toEqual(other);
+  });
+
+  it('lowers an item by one', () => {
+    const cart = create();
+    const item = cart.add({ name: 'Mere', quantity: '2', price: '1' });
+
+    cart.decreaseItem(item.id);
+
+    expect(cart.items()[0].quantity).toBe('1');
+  });
+
+  it('removes an item that runs out', () => {
+    const cart = create();
+    const item = cart.add({ name: 'Mere', quantity: '1', price: '1' });
+
+    cart.decreaseItem(item.id);
+
+    expect(cart.items()).toEqual([]);
+  });
+
+  it('reports how much of a product is in the cart', () => {
+    const cart = create();
+    expect(cart.quantityOf(product)).toBeNull();
+
+    cart.addProduct(product);
+    cart.addProduct(product);
+
+    expect(cart.quantityOf(product)).toBe('2');
+  });
+
+  it('lowers a product by one', () => {
+    const cart = create();
+    cart.addProduct(product);
+    cart.addProduct(product);
+
+    cart.decreaseProduct(product);
+
+    expect(cart.quantityOf(product)).toBe('1');
+  });
+
+  it('removes a product when its quantity runs out', () => {
+    const cart = create();
+    cart.addProduct(product);
+
+    cart.decreaseProduct(product);
+
+    expect(cart.items()).toEqual([]);
+  });
+
+  it('keeps the count when a plan moves a product to another store', () => {
+    const cart = create();
+    cart.addProduct(product);
+    const other = { ...product, id: 9, store_id: 2, store_name: 'Carrefour', name: 'Alt nume' };
+
+    cart.applyPlan([{ itemId: cart.items()[0].id, offer: other }]);
+
+    expect(cart.quantityOf(other)).toBe('1');
+    expect(cart.quantityOf(product)).toBeNull();
+  });
+
+  it('still finds items saved before products had an id', () => {
+    const cart = create();
+    const { productId: _unused, ...oldItem } = cart.add({
+      name: product.name,
+      quantity: '3',
+      price: '1',
+      store: { id: product.store_id, name: product.store_name },
+    });
+    cart.replace([oldItem as CartItem]);
+
+    expect(cart.quantityOf(product)).toBe('3');
   });
 
   it('adds a catalog product with its store', () => {

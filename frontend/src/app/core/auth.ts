@@ -2,6 +2,7 @@ import { Injectable, inject, signal } from '@angular/core';
 import { Observable, tap } from 'rxjs';
 import { CardsService } from '../cards/cards.service';
 import { CartService } from '../cart/cart.service';
+import { SavedListsService } from '../lists/saved-lists.service';
 import { ApiService } from './api';
 import { AuthResponse, Credentials } from './models';
 
@@ -12,6 +13,7 @@ export class AuthService {
   private readonly api = inject(ApiService);
   private readonly cart = inject(CartService);
   private readonly cards = inject(CardsService);
+  private readonly lists = inject(SavedListsService);
 
   readonly token = signal<string | null>(localStorage.getItem(TOKEN_KEY));
 
@@ -32,6 +34,7 @@ export class AuthService {
     this.token.set(null);
     this.cart.clear();
     this.cards.clear();
+    this.lists.clear();
   }
 
   private save(token: string): void {

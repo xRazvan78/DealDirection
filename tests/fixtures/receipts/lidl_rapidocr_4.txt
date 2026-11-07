@@ -1,0 +1,29 @@
+DTSUUUNI
+JUD= SIBIU
+Cod FIscal C.I.F.  R022891860
+1.000  Lei
+BUC X 7.99
+Chips preparate manual  7.99 B
+1.000 BUC X 9.99
+Cocktail fructe suc prop  9.998
+1.000  BUC X 7.99  7.99.B
+Chips preparate manual
+SUBTOTAL  25.97
+TOTAL  25,97
+TOTAL TVA  2.57
+TVA B 11.00%  2.57
+CASH  106.00
+Rest
+CASH  80.03
+Descarcati aplicatia Lidl Plus
+si puteti economisi
+la urmatoarele cumparaturi
+Va mul tumim
+pentru cumparaturile
+facute la Lidi
+Casa:1  as
+Mg  TZ/Cas/POS
+0271  727056/12 /01
+EJTRZ:00240
+BF.00240  ID UNIC:8000700393202610261139101811
+DATA:26/10/2026

@@ -3,6 +3,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { TestBed } from '@angular/core/testing';
 import { CardsService } from '../cards/cards.service';
 import { CartService } from '../cart/cart.service';
+import { SavedListsService } from '../lists/saved-lists.service';
 import { AuthService } from './auth';
 
 // Built in code, so secret scanners have no literal to flag. Not a real password.
@@ -71,11 +72,29 @@ describe('AuthService', () => {
   it('removes saved cards on logout, so the next user does not see them', () => {
     const auth = setup();
     const cards = TestBed.inject(CardsService);
-    cards.add('Auchan', 'data:image/jpeg;base64,AAAA');
+    cards.load();
+    http.expectOne('/api/card-brands').flush([]);
+    http.expectOne('/api/cards').flush([
+      { id: 1, brand: 'lidl', name: 'Lidl', colour: '#0050aa', code_text: '123', code_format: 'qr', image: 'data:x' },
+    ]);
+    expect(cards.cards().length).toBe(1);
 
     auth.logout();
 
     expect(cards.cards()).toEqual([]);
+  });
+
+  it('removes saved lists on logout, so the next user does not see them', () => {
+    const auth = setup();
+    const cart = TestBed.inject(CartService);
+    const lists = TestBed.inject(SavedListsService);
+    cart.add({ name: 'Mere', quantity: '1', price: '1' });
+    lists.saveCurrent('Privată');
+
+    auth.logout();
+
+    expect(lists.lists()).toEqual([]);
+    expect(cart.currentListId()).toBeNull();
   });
 
   it('clears the token on logout', () => {

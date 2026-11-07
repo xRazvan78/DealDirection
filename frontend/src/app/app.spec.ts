@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { App } from './app';
+import { setLanguage } from './shared/language';
 import { CartService } from './cart/cart.service';
 import { ro } from './shared/ro';
 
@@ -117,6 +118,20 @@ describe('App', () => {
     ]);
   });
 
+  it('translates the tabs and menu when the language changes', async () => {
+    const page = await openAt('/browse');
+    await openMenu(page);
+
+    setLanguage('en');
+    await fixture.whenStable();
+    const tabs = [...page.querySelectorAll('.bottom-nav a')].map((a) => a.textContent?.trim());
+    const menu = [...page.querySelectorAll('.side-menu a')].map((a) => a.textContent?.trim());
+    setLanguage('ro');
+
+    expect(tabs).toEqual(['Home', 'Cart', 'Cards']);
+    expect(menu).toEqual(['Lists', 'Point Shop', 'Settings']);
+  });
+
   it('shows no count on the cart tab while the cart is empty', async () => {
     const page = await openAt('/browse');
 
@@ -162,13 +177,13 @@ describe('App', () => {
     expect(page.querySelector('.menu-button')?.getAttribute('aria-expanded')).toBe('false');
   });
 
-  it('opens the menu with lists, import, points and settings', async () => {
+  it('opens the menu with lists, Point Shop and settings', async () => {
     const page = await openAt('/browse');
 
     await openMenu(page);
     const links = [...page.querySelectorAll('.side-menu a')].map((a) => a.getAttribute('href'));
 
-    expect(links).toEqual(['/lists', '/import', '/wallet', '/settings']);
+    expect(links).toEqual(['/lists', '/wallet', '/settings']);
     expect(page.querySelector('.menu-button')?.getAttribute('aria-expanded')).toBe('true');
   });
 

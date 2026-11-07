@@ -48,6 +48,7 @@ router = APIRouter(tags=["receipts"])
 IMAGE_TYPES = {"image/jpeg", "image/png", "image/webp"}
 RECEIPT_TIMEZONE = ZoneInfo("Europe/Bucharest")  # receipts print local time
 UNREADABLE = "Nu am putut citi bonul. Fă o poză nouă, cu lumină bună."
+_CODES = ("barcode", "unique_id", "fiscal_key")  # what identifies one paper receipt
 
 Db = Annotated[Session, Depends(get_db)]
 CurrentUser = Annotated[User, Depends(current_user)]
@@ -75,6 +76,8 @@ class ReceiptResult(BaseModel):
     paid: Decimal
     modifier: Decimal
     points: int
+    # Products + deposits matched the printed TOTAL; False suggests a misread line.
+    adds_up: bool | None = None
 
 
 class ReadLine(BaseModel):
@@ -91,6 +94,7 @@ class ReceiptReading(BaseModel):
     identifier: str | None  # the barcode if it could be read, else the printed ID
     identifier_printed: bool  # False: none could be read, so the app generated this one
     total: Decimal | None
+    deposits: Decimal  # bottle deposits: part of the total, but not products
     lines: list[ReadLine]
 
 
@@ -119,6 +123,7 @@ def read_receipt(file: UploadFile, user: CurrentUser, reader: Reader) -> Receipt
         identifier=shown or _generated_identifier(data),
         identifier_printed=shown is not None,
         total=data.total,
+        deposits=data.deposits,
         lines=[
             ReadLine(name=line.raw_text, quantity=line.quantity, line_total=line.line_total)
             for line in merge_repeated_lines(data.lines)
@@ -198,6 +203,7 @@ def upload_receipt(
         fingerprint=print_,
         barcode=data.barcode,
         unique_id=data.unique_id,
+        fiscal_key=data.fiscal_key,
         purchased_at=purchased_at,
         total=data.total,
         estimate=estimate,
@@ -248,31 +254,32 @@ def upload_receipt(
         paid=paid,
         modifier=modifier,
         points=result.points,
+        adds_up=data.adds_up,
     )
 
 
 def _used_before(db: Session, print_: str, data: ReceiptData) -> bool:
     """Has this paper receipt been saved before?
 
-    A scan may read the barcode, the ID UNIC, both or neither, and they can't be
-    converted into each other. So a match on either means the same receipt, and
-    a receipt with the same store, day and total is also the same one, unless a
-    code read on both scans shows they differ: that's two real, identical shops.
+    A scan may read any mix of the barcode, the ID UNIC and the fiscal key, and
+    they can't be converted into each other. So a match on any one means the
+    same receipt, and a receipt with the same store, day and total is also the
+    same one, unless a code read on both scans shows they differ: that's two
+    real, identical shops.
     """
-    codes = []
-    if data.barcode:
-        codes.append(Receipt.barcode == data.barcode)
-    if data.unique_id:
-        codes.append(Receipt.unique_id == data.unique_id)
+    codes = [getattr(Receipt, name) == getattr(data, name) for name in _CODES if getattr(data, name)]
     if codes and db.scalar(select(Receipt.id).where(or_(*codes))) is not None:
         return True
 
-    similar = db.execute(select(Receipt.barcode, Receipt.unique_id).where(Receipt.fingerprint == print_)).all()
-    return any(not _shown_different(row.barcode, data.barcode, row.unique_id, data.unique_id) for row in similar)
+    columns = [getattr(Receipt, name) for name in _CODES]
+    similar = db.execute(select(*columns).where(Receipt.fingerprint == print_)).all()
+    return any(not _shown_different(row, data) for row in similar)
 
 
-def _shown_different(barcode: str | None, new_barcode: str | None, unique_id: str | None, new_id: str | None) -> bool:
-    return bool(barcode and new_barcode and barcode != new_barcode) or bool(unique_id and new_id and unique_id != new_id)
+def _shown_different(row, data: ReceiptData) -> bool:
+    return any(
+        getattr(row, name) and getattr(data, name) and getattr(row, name) != getattr(data, name) for name in _CODES
+    )
 
 
 def _generated_identifier(data: ReceiptData) -> str | None:

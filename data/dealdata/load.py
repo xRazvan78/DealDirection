@@ -1,7 +1,7 @@
 """Entry point: uv run python -m dealdata.load. Re-runnable. Owner: Member 1, Task 5.
 
 Loads data/snapshot/products.json, the categories it uses, the stores and the demo
-and test users into Postgres. Running it again updates rows, never adds duplicates, and removes
+and test users into Postgres, then the Point Shop rewards from data/rewards.yaml. Running it again updates rows, never adds duplicates, and removes
 products and categories gone from the snapshot, unless a shopping list uses them.
 """
 
@@ -19,6 +19,7 @@ from app.init_db import init_db
 from app.models import (
     Category,
     ListItem,
+    Reward,
     Store,
     StoreLocation,
     StoreProduct,
@@ -193,16 +194,48 @@ def _load_seed_users(db: Session, store_ids: dict[str, int]) -> None:
         db.add_all(UserStore(user_id=user.id, store_id=store_id) for store_id in store_ids.values())
 
 
+def load_rewards(db: Session, rewards: list[dict]) -> None:
+    """Save the Point Shop rewards. The caller commits. Run after the stores exist.
+
+    Each reward is {name, store, cost}. Loading again updates the cost and keeps
+    the id; a reward no longer listed is marked inactive, not deleted, because
+    redeemed vouchers point to it.
+    """
+    store_ids = {store.name: store.id for store in db.scalars(select(Store))}
+    saved = {(reward.store_id, reward.name): reward for reward in db.scalars(select(Reward))}
+    listed = set()
+    for entry in rewards:
+        store_id = store_ids.get(entry["store"])
+        if store_id is None:
+            raise ValueError(f"Reward {entry['name']!r} names an unknown store: {entry['store']}")
+        cost = entry["cost"]
+        if not isinstance(cost, int) or isinstance(cost, bool) or cost <= 0:
+            raise ValueError(f"Reward {entry['name']!r} needs a positive whole number of points, not {cost!r}")
+        key = (store_id, entry["name"])
+        reward = saved.get(key) or Reward(store_id=store_id, name=entry["name"])
+        reward.cost = cost
+        reward.active = True
+        db.add(reward)
+        listed.add(key)
+    for key, reward in saved.items():
+        if key not in listed:
+            reward.active = False
+    db.flush()
+
+
 def main() -> None:
     products = json.loads((DATA_DIR / "snapshot" / "products.json").read_text(encoding="utf-8"))
     stores = yaml.safe_load((DATA_DIR / "stores.yaml").read_text(encoding="utf-8"))["stores"]
     rules = load_tree(DATA_DIR / "tree.yaml")
 
+    rewards = yaml.safe_load((DATA_DIR / "rewards.yaml").read_text(encoding="utf-8"))["rewards"]
+
     init_db()
     with Session(get_engine()) as db:
         load_snapshot(db, products, stores, rules)
+        load_rewards(db, rewards)
         db.commit()
-    print(f"Loaded {len(products)} products from {len(stores)} stores")
+    print(f"Loaded {len(products)} products from {len(stores)} stores, and {len(rewards)} rewards")
 
 
 if __name__ == "__main__":

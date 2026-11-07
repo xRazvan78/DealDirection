@@ -1,45 +1,110 @@
+/* The page has no top bar or tabs, so it fills the screen edge to edge. */
 :host {
   display: flex;
+  flex: 1;
   flex-direction: column;
-  gap: 16px;
-  max-width: 400px;
-  margin: 0 auto;
+  gap: 12px;
+  justify-content: center;
+  margin: -16px;
+  padding: 32px 20px;
+  background:
+    radial-gradient(circle at 100% 0, var(--navy-soft), transparent 60%), var(--navy);
 }
 
 h1,
+h2,
+form,
+.switch-mode,
+.demo {
+  width: 100%;
+  max-width: 400px;
+  margin-inline: auto;
+  box-sizing: border-box;
+}
+
+h1 {
+  margin-block: 0;
+  color: var(--on-navy);
+  font-size: 36px;
+  line-height: 1.1;
+}
+
 h2 {
-  margin: 0;
+  margin-block: 0 12px;
+  color: var(--on-navy-muted);
+  font-family: var(--font-body);
+  font-size: 18px;
+  font-weight: 500;
 }
 
 form {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
+  padding: 20px;
+  border-radius: var(--radius-lg);
+  background: var(--card);
+  box-shadow: var(--shadow-float);
 }
 
 label {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-}
-
-input,
-button {
-  min-height: 44px;
-  font: inherit;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 600;
 }
 
 input {
-  padding: 0 12px;
+  min-height: 48px;
+  padding: 0 14px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  box-sizing: border-box;
+  color: var(--text);
+  font: inherit;
+  font-size: 16px;
+}
+
+input:focus {
+  border-color: var(--navy);
+  outline: none;
+}
+
+button {
+  min-height: 50px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  font: inherit;
+  font-weight: 700;
+}
+
+button:disabled {
+  opacity: 0.6;
+}
+
+button[type='submit'] {
+  background: var(--navy);
+  color: var(--on-navy);
 }
 
 .error {
   margin: 0;
-  color: #b00020;
+  color: var(--danger);
+  font-size: 14px;
 }
 
 .switch-mode {
-  border: 0;
+  min-height: 44px;
   background: none;
+  color: var(--on-navy);
+  font-weight: 500;
   text-decoration: underline;
+}
+
+.demo {
+  background: var(--accent);
+  color: var(--navy);
 }

@@ -1,25 +1,86 @@
 :host {
   display: block;
+  width: 100%;
   max-width: 480px;
   margin: 0 auto;
 }
 
+h1 {
+  margin: 0 0 16px;
+  color: var(--navy);
+  font-size: 26px;
+}
+
+h2 {
+  margin: 0;
+  color: var(--navy);
+  font-size: 17px;
+}
+
+p {
+  margin: 4px 0 12px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
 ul {
   margin: 0 0 24px;
-  padding: 0;
+  padding: 4px 16px;
+  border-radius: var(--radius-md);
+  background: var(--card);
+  box-shadow: var(--shadow-card);
   list-style: none;
+}
+
+li + li {
+  border-top: 1px solid var(--border);
 }
 
 label {
   display: flex;
   align-items: center;
   gap: 12px;
-  min-height: 44px;
+  min-height: 52px;
+  font-weight: 600;
 }
 
+/* The checkbox stays a real checkbox, drawn as a switch on the right. */
 input {
-  width: 20px;
-  height: 20px;
+  position: relative;
+  order: 2;
+  flex-shrink: 0;
+  width: 46px;
+  height: 28px;
+  margin: 0 0 0 auto;
+  border-radius: var(--radius-pill);
+  background: var(--border);
+  appearance: none;
+  transition: background-color 0.18s var(--ease);
+}
+
+input::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgb(11 37 69 / 30%);
+  transition: transform 0.18s var(--ease);
+}
+
+input:checked {
+  background: var(--navy);
+}
+
+input:checked::after {
+  transform: translateX(18px);
+}
+
+input:disabled {
+  opacity: 0.6;
 }
 
 .dot {
@@ -29,11 +90,42 @@ input {
 }
 
 .error {
-  color: #b00020;
+  color: var(--danger);
+}
+
+.languages {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  margin: 8px 0 24px;
+  padding: 4px;
+  border-radius: var(--radius-pill);
+  background: var(--card);
+  box-shadow: var(--shadow-card);
+
+  button {
+    min-height: 44px;
+    border: 0;
+    border-radius: var(--radius-pill);
+    background: none;
+    color: var(--navy);
+    font: inherit;
+    font-weight: 600;
+  }
+
+  button[aria-pressed='true'] {
+    background: var(--navy);
+    color: var(--on-navy);
+  }
 }
 
 .logout {
   width: 100%;
-  min-height: 44px;
+  min-height: 50px;
+  border: 1.5px solid var(--danger);
+  border-radius: var(--radius-pill);
+  background: none;
+  color: var(--danger);
   font: inherit;
+  font-weight: 700;
 }

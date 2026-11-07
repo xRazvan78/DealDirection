@@ -4,6 +4,7 @@ Pure logic: no database or HTTP, so the receipt rules are testable alone.
 """
 
 import hashlib
+import re
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from datetime import datetime
@@ -14,6 +15,7 @@ from app.textutil import fold
 
 CENT = Decimal("0.01")
 CODE_LENGTH = 12
+_ZERO_IN_WORD = re.compile(r"(?<=[a-z])0|0(?=[a-z])")  # a zero touching letters is a misread "o"
 
 
 @dataclass(frozen=True)
@@ -26,11 +28,12 @@ class MatchedLine:
 
 
 def fingerprint(store_id: int, purchased_at: datetime, total: Decimal) -> str:
-    """Identify a paper receipt, so it can only earn points once.
+    """What every scan of a paper receipt shares: its store, date and total.
 
-    Uses the store, the purchase date and the total. The time of day is left
-    out on purpose: OCR reads it on one scan and misses it on the next, and a
-    rescan of the same paper must still count as the same receipt.
+    The receipt's own codes tell apart two identical shops on one day, but a
+    scan may not read them, so this stays the same whichever ones it did read.
+    The time of day is left out on purpose: OCR reads it on one scan and misses
+    it on the next. See _used_before() in router.py.
     """
     key = f"{store_id}|{purchased_at.date().isoformat()}|{total.quantize(CENT)}"
     return hashlib.sha256(key.encode()).hexdigest()
@@ -55,8 +58,8 @@ def merge_repeated_lines(lines: Sequence[ReceiptLine]) -> list[ReceiptLine]:
     """
     merged: dict[str, ReceiptLine] = {}
     for line in lines:
-        # OCR varies the spacing between lines, and reads "HOOPS" as "H0OPS".
-        key = " ".join(fold(line.raw_text).replace("0", "o").split())
+        key = " ".join(fold(line.raw_text).split())  # OCR spacing varies between lines
+        key = _ZERO_IN_WORD.sub("o", key)  # OCR reads "HOOPS" as "H0OPS"
         seen = merged.get(key)
         merged[key] = (
             line

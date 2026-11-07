@@ -86,14 +86,24 @@ class LocalDocumentReader:
 
 
 def _adds_up(data: ReceiptData) -> bool:
-    return bool(data.lines) and sum(line.line_total for line in data.lines) == data.total
+    return bool(data.lines and data.adds_up)
 
 
 def _better_reading(first: ReceiptData, second: ReceiptData) -> ReceiptData:
     """The reading that adds up, or else has more products, plus anything only the other found."""
     use_second = _adds_up(second) or len(second.lines) > len(first.lines)
     best, other = (second, first) if use_second else (first, second)
-    details = ("store_name", "purchased_at", "total", "identifier", "unique_id")
+    details = (
+        "store_name",
+        "purchased_at",
+        "total",
+        "identifier",
+        "unique_id",
+        "receipt_id",
+        "register_id",
+        "receipt_number",
+        "fiscal_key",
+    )
     return best.model_copy(update={name: getattr(best, name) or getattr(other, name) for name in details})
 
 

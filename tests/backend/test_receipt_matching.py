@@ -141,3 +141,14 @@ def test_a_zero_misread_for_the_letter_o_still_merges() -> None:
 
 def test_different_lines_stay_apart() -> None:
     assert len(merge_repeated_lines([line("LAPTE 1L", "7.99"), line("LAPTE 2L", "12.99")])) == 2
+
+
+def test_zero_and_letter_o_are_the_same_when_merging() -> None:
+    # OCR read one "HOOPS" with a zero: "H0OPS". Digits in sizes stay digits.
+    merged = merge_repeated_lines([line("CHIO HULA H0OPS70G", "9.58", "2"), line("CHIO HULA HOOPS70G", "4.79")])
+
+    assert [(l.raw_text, l.quantity, l.line_total) for l in merged] == [("CHIO HULA H0OPS70G", Decimal("3"), Decimal("14.37"))]
+
+
+def test_zero_in_a_size_is_not_a_letter() -> None:
+    assert len(merge_repeated_lines([line("APA 0,5L", "2.00"), line("APA O,5L", "2.00")])) == 2
