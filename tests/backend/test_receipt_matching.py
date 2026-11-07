@@ -133,5 +133,11 @@ def test_merged_lines_count_for_a_bigger_list_quantity() -> None:
     assert (estimate, paid) == (Decimal("15.98"), Decimal("15.98"))
 
 
+def test_a_zero_misread_for_the_letter_o_still_merges() -> None:
+    merged = merge_repeated_lines([line("CHIO HULA H0OPS70G", "9.58"), line("CHIO HULA HOOPS70G", "4.79")])
+
+    assert [(m.quantity, m.line_total) for m in merged] == [(Decimal(2), Decimal("14.37"))]
+
+
 def test_different_lines_stay_apart() -> None:
     assert len(merge_repeated_lines([line("LAPTE 1L", "7.99"), line("LAPTE 2L", "12.99")])) == 2

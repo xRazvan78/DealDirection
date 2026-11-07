@@ -13,6 +13,7 @@ from app.documents.schemas import LineMatch, ReceiptLine
 from app.textutil import fold
 
 CENT = Decimal("0.01")
+CODE_LENGTH = 12
 
 
 @dataclass(frozen=True)
@@ -35,6 +36,16 @@ def fingerprint(store_id: int, purchased_at: datetime, total: Decimal) -> str:
     return hashlib.sha256(key.encode()).hexdigest()
 
 
+def receipt_code(store_name: str, purchased_at: datetime, total: Decimal) -> str:
+    """A short code for a receipt with no readable printed identifier.
+
+    Works for any shop, even one that isn't in the database, and rescanning
+    the same paper gives the same code, for the reasons given in fingerprint().
+    """
+    key = f"{fold(store_name)}|{purchased_at.date().isoformat()}|{total.quantize(CENT)}"
+    return hashlib.sha256(key.encode()).hexdigest()[:CODE_LENGTH].upper()
+
+
 def merge_repeated_lines(lines: Sequence[ReceiptLine]) -> list[ReceiptLine]:
     """Combine lines for the same product into one, in first-seen order.
 
@@ -44,7 +55,8 @@ def merge_repeated_lines(lines: Sequence[ReceiptLine]) -> list[ReceiptLine]:
     """
     merged: dict[str, ReceiptLine] = {}
     for line in lines:
-        key = " ".join(fold(line.raw_text).split())  # OCR spacing varies between lines
+        # OCR varies the spacing between lines, and reads "HOOPS" as "H0OPS".
+        key = " ".join(fold(line.raw_text).replace("0", "o").split())
         seen = merged.get(key)
         merged[key] = (
             line

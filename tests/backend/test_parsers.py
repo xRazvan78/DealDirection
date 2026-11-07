@@ -248,3 +248,118 @@ def test_second_real_lidl_receipt_read_by_rapidocr() -> None:
         ("Paine Durum", Decimal("6.99")),
         ("Nutella Crema cacão alun", Decimal("35.99")),
     ]
+
+
+# --- The receipt's identifier -----------------------------------------------
+
+
+def test_printed_receipt_code_is_the_identifier() -> None:
+    assert parse_receipt("DATA:26/10/2026\nID BF: 8f31a2c9\nBF: 25").identifier == "8F31A2C9"
+    assert parse_receipt("COD UNIC 12345678").identifier == "12345678"
+
+
+def test_receipt_number_is_kept_with_its_z_number() -> None:
+    assert parse_receipt("BF: 0025\nZ: 0347").identifier == "Z 0347 / BF 0025"
+    assert parse_receipt("Z 0347   BF 0025").identifier == "Z 0347 / BF 0025"
+
+
+def test_other_ways_of_printing_the_receipt_number() -> None:
+    assert parse_receipt("NR. BON: 123").identifier == "BF 123"
+    assert parse_receipt("BON FISCAL NR. 123").identifier == "BF 123"
+
+
+def test_fiscal_code_is_not_the_identifier() -> None:
+    text = (FIXTURES / "lidl_rapidocr_1.txt").read_text(encoding="utf-8")
+
+    assert parse_receipt(text).identifier is None
+
+
+# --- Quantity lines, discounts and times from real phone photos -------------
+
+
+def fixture_receipt(name: str):
+    return parse_receipt((FIXTURES / name).read_text(encoding="utf-8"))
+
+
+def test_real_multiplication_sign_is_a_quantity_line() -> None:
+    lines = parse_receipt("1.000 BUC × 6.49\nFUZETEA 1,5L  6.49 B\nTOTAL 6,49").lines
+
+    assert [(l.raw_text, l.quantity) for l in lines] == [("FUZETEA 1,5L", Decimal("1.000"))]
+
+
+def test_quantity_line_split_by_the_lei_heading() -> None:
+    lines = parse_receipt("1.000  Lei\nBUC X 7.99\nChips  7.99 B\nTOTAL 7,99").lines
+
+    assert [(l.raw_text, l.quantity, l.line_total) for l in lines] == [("Chips", Decimal(1), Decimal("7.99"))]
+
+
+def test_vat_letter_after_a_dot() -> None:
+    lines = parse_receipt("1.000  BUC X 7.99  7.99.B\nChips\nTOTAL 7,99").lines
+
+    assert [(l.raw_text, l.line_total) for l in lines] == [("Chips", Decimal("7.99"))]
+
+
+def test_discount_lowers_the_product_above_it() -> None:
+    text = "CHIPS 14.39 C\nPromotie\nDISCOUNT  4,32-C\nSUC 3.45 B\nTOTAL 13,52"
+
+    assert [(l.raw_text, l.line_total) for l in parse_receipt(text).lines] == [
+        ("CHIPS", Decimal("10.07")),
+        ("SUC", Decimal("3.45")),
+    ]
+
+
+def test_discount_with_a_leading_minus() -> None:
+    lines = parse_receipt("CHIPS 14.39 C\nREDUCERE -4,32\nTOTAL 10,07").lines
+
+    assert [(l.raw_text, l.line_total) for l in lines] == [("CHIPS", Decimal("10.07"))]
+
+
+def test_discount_before_any_product_is_not_a_product() -> None:
+    assert parse_receipt("DISCOUNT 4,32\nTOTAL 0,00").lines == []
+
+
+def test_time_after_ora_with_dashes() -> None:
+    assert parse_receipt("DATA:06/11/2026  ORA:21-36-05").purchased_at == datetime(2026, 11, 6, 21, 36, 5)
+
+
+def test_misread_time_keeps_the_date() -> None:
+    assert parse_receipt("DATA:06/11/2026  ORA:71-36-05").purchased_at == datetime(2026, 11, 6)
+
+
+def test_real_kaufland_receipt_with_a_discount_adds_up() -> None:
+    receipt = fixture_receipt("kaufland_rapidocr_1.txt")
+
+    assert (receipt.store_name, receipt.total) == ("Kaufland", Decimal("53.66"))
+    assert receipt.purchased_at == datetime(2026, 11, 6, 21, 36, 5)
+    assert [(l.raw_text, l.quantity, l.line_total) for l in receipt.lines] == [
+        ("TRONGBOW CIDRUO,33L", Decimal("1.000"), Decimal("6.49")),
+        ("GARANTIE AMBALAJ *", Decimal("1.000"), Decimal("0.50")),
+        ("FUZETEA 1,5L", Decimal("1.000"), Decimal("9.09")),
+        ("GARANTIE AMBALAJ *", Decimal("1.000"), Decimal("0.50")),
+        ("ALFERS NAP. GLAZ180G", Decimal("1.000"), Decimal("9.19")),
+        ("CHIO CHIPS 240G", Decimal("1.000"), Decimal("10.07")),
+        ("CHIO HULA H0OPS70G", Decimal("2.000"), Decimal("9.58")),
+        ("CHIO HULA HOOPS70G", Decimal("1.000"), Decimal("4.79")),
+        ("7D CROIS ARAHID 80G", Decimal("1.000"), Decimal("3.45")),
+    ]
+    assert sum(l.line_total for l in receipt.lines) == receipt.total
+
+
+def test_real_single_product_kaufland_receipt() -> None:
+    receipt = fixture_receipt("kaufland_rapidocr_2.txt")
+
+    assert [(l.raw_text, l.quantity, l.line_total) for l in receipt.lines] == [
+        ("ORBIT SPEARMING 64G", Decimal("1.000"), Decimal("12.99")),
+    ]
+    assert receipt.total == Decimal("12.99")
+
+
+def test_real_lidl_photo_has_no_quantity_rows_as_products() -> None:
+    receipt = fixture_receipt("lidl_rapidocr_3.txt")
+
+    assert [(l.raw_text, l.line_total) for l in receipt.lines] == [
+        ("Chips preparate manual", Decimal("7.99")),
+        ("Cocktail fructe suc prop", Decimal("9.99")),
+        ("Chips preparate manual", Decimal("7.99")),
+    ]
+    assert sum(l.line_total for l in receipt.lines) == receipt.total

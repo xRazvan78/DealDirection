@@ -12,7 +12,7 @@ from typing import Protocol, runtime_checkable
 import yaml
 
 from app.config import get_settings
-from app.documents import fuzzy, ocr
+from app.documents import barcode, fuzzy, ocr
 from app.documents.food_parser import parse_foods
 from app.documents.receipt_parser import parse_receipt
 from app.documents.schemas import DocumentError, Food, FoodList, FoodMapping, LineMatch, ReceiptData, ReceiptLine
@@ -44,7 +44,9 @@ class LocalDocumentReader:
         self.abbreviations = dict(abbreviations)
 
     def read_receipt(self, content: bytes, media_type: str) -> ReceiptData:
-        return parse_receipt(self._to_text(content, media_type, allow_text=False))
+        data = parse_receipt(self._to_text(content, media_type, allow_text=False))
+        code = barcode.read_code(content) if media_type in IMAGE_TYPES else None
+        return data.model_copy(update={"identifier": code}) if code else data
 
     def read_foods(self, content: bytes, media_type: str) -> FoodList:
         return parse_foods(self._to_text(content, media_type, allow_text=True))

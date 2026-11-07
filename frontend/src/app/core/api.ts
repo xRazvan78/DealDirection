@@ -14,6 +14,7 @@ import {
   LoyaltyCard,
   NewListItem,
   PlanResult,
+  ReceiptReading,
   ReceiptResult,
   Resolution,
   Reward,
@@ -144,6 +145,12 @@ export class ApiService {
     return this.http.post<ReceiptResult>(`/api/lists/${listId}/receipts`, body, {
       params: { store_id: storeId },
     });
+  }
+
+  readReceipt(photo: File): Observable<ReceiptReading> {
+    const body = new FormData();
+    body.append('file', photo);
+    return this.http.post<ReceiptReading>('/api/receipts/read', body);
   }
 
   // Import: send exactly one of `file` or `text`

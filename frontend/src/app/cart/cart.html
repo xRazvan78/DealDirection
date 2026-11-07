@@ -245,12 +245,7 @@
   <button type="button" class="directions" [disabled]="!store()" (click)="openDirections()">
     {{ ro.cart.directions }}
   </button>
-  <button
-    type="button"
-    class="scan"
-    [disabled]="!store() || scanning()"
-    (click)="receiptInput.click()"
-  >
+  <button type="button" class="scan" [disabled]="scanning()" (click)="receiptInput.click()">
     {{ scanning() ? ro.cart.scanning : ro.cart.scan }}
   </button>
   <input
@@ -271,13 +266,55 @@
   <p class="error" role="alert">{{ message }}</p>
 }
 
-@if (receiptResult(); as result) {
-  <div class="receipt-result" role="dialog" [attr.aria-label]="ro.cart.receiptValid">
-    <h2>{{ ro.cart.receiptValid }}</h2>
-    <p class="earned-points">+{{ result.points }} {{ ro.cart.pointsSuffix }}</p>
-    <p>{{ ro.cart.estimate }}: {{ formatLei(result.estimate) }}</p>
-    <p>{{ ro.cart.paid }}: {{ formatLei(result.paid) }}</p>
-    <button type="button" class="close-result" (click)="receiptResult.set(null)">
+@if (receipt(); as reading) {
+  <div class="receipt-backdrop" (click)="receipt.set(null)"></div>
+  <div
+    class="receipt-result"
+    role="dialog"
+    aria-modal="true"
+    [attr.aria-label]="ro.cart.receiptTitle"
+  >
+    <h2>{{ ro.cart.receiptTitle }}</h2>
+    <dl class="receipt-details">
+      <dt>{{ ro.cart.receiptStore }}</dt>
+      <dd class="receipt-store">{{ reading.store_name ?? ro.cart.receiptNotRead }}</dd>
+      <dt>{{ ro.cart.receiptDate }}</dt>
+      <dd class="receipt-date">
+        {{ reading.purchased_at ? formatReceiptDate(reading.purchased_at) : ro.cart.receiptNotRead }}
+      </dd>
+      <dt>{{ ro.cart.receiptIdentifier }}</dt>
+      <dd class="receipt-identifier">
+        {{ reading.identifier ?? ro.cart.receiptNotRead }}
+        @if (reading.identifier && !reading.identifier_printed) {
+          <small>({{ ro.cart.receiptIdentifierGenerated }})</small>
+        }
+      </dd>
+    </dl>
+    <div class="receipt-lines">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">{{ ro.cart.product }}</th>
+            <th scope="col">{{ ro.cart.quantity }}</th>
+            <th scope="col">{{ ro.cart.price }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (line of reading.lines; track $index) {
+            <tr>
+              <td>{{ line.name }}</td>
+              <td>{{ formatQuantity(line.quantity) }}</td>
+              <td>{{ formatLei(line.line_total) }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <p class="receipt-total">
+      <span>{{ ro.cart.total }}</span>
+      <strong>{{ reading.total ? formatLei(reading.total) : ro.cart.receiptNotRead }}</strong>
+    </p>
+    <button type="button" class="close-result" (click)="receipt.set(null)">
       {{ ro.cart.close }}
     </button>
   </div>

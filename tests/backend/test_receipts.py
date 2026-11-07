@@ -28,6 +28,7 @@ from app.models import (
     User,
 )
 from app.receipts import router as receipts_router
+from app.receipts.matching import receipt_code
 
 PHOTO = ("bon.jpg", b"fake jpeg bytes", "image/jpeg")
 DAY = datetime(2026, 10, 26, 11, 39)
@@ -442,3 +443,100 @@ def test_completed_list_says_its_receipts_are_done(db: Session, active_list: Act
 
     assert response.status_code == 409
     assert "plan" not in response.json()["detail"]
+
+
+# --- POST /api/receipts/read ------------------------------------------------
+
+
+def read(client: TestClient, file=PHOTO):
+    return client.post("/api/receipts/read", files={"file": file})
+
+
+def test_reading_returns_what_the_receipt_says(auth_client: TestClient, db: Session, fake_reader) -> None:
+    fake_reader.receipt = ReceiptData(
+        store_name="Lidl",
+        purchased_at=datetime(2026, 10, 26, 11, 39),
+        total=Decimal("25.97"),
+        lines=[
+            ReceiptLine(raw_text="Chips", quantity=Decimal("1.000"), line_total=Decimal("7.99")),
+            ReceiptLine(raw_text="Suc", quantity=Decimal("1.000"), line_total=Decimal("9.99")),
+            ReceiptLine(raw_text="Chips", quantity=Decimal("1.000"), line_total=Decimal("7.99")),
+        ],
+        identifier="Z 0347 / BF 0025",
+    )
+    receipts_before = db.scalar(select(func.count()).select_from(Receipt))
+
+    response = read(auth_client)
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "store_name": "Lidl",
+        "purchased_at": "2026-10-26T11:39:00",
+        "identifier": "Z 0347 / BF 0025",
+        "identifier_printed": True,
+        "total": "25.97",
+        "lines": [
+            {"name": "Chips", "quantity": "2.000", "line_total": "15.98"},
+            {"name": "Suc", "quantity": "1.000", "line_total": "9.99"},
+        ],
+    }
+    assert db.scalar(select(func.count()).select_from(Receipt)) == receipts_before
+
+
+def test_reading_generates_an_identifier_when_none_is_printed(auth_client: TestClient, fake_reader) -> None:
+    fake_reader.receipt = ReceiptData(
+        store_name="Magazin care nu e in baza de date",
+        purchased_at=DAY,
+        total=Decimal("7.99"),
+        lines=[ReceiptLine(raw_text="Chips", quantity=Decimal(1), line_total=Decimal("7.99"))],
+    )
+
+    body = read(auth_client).json()
+
+    assert body["identifier"] == receipt_code("Magazin care nu e in baza de date", DAY, Decimal("7.99"))
+    assert body["identifier_printed"] is False
+
+
+def test_generated_identifier_ignores_ocr_differences_in_a_rescan() -> None:
+    first = receipt_code("Lidl", datetime(2026, 10, 26, 11, 39), Decimal("25.97"))
+
+    assert first == receipt_code("LIDL", datetime(2026, 10, 26), Decimal("25.970"))
+    assert first != receipt_code("Lidl", datetime(2026, 10, 26), Decimal("25.98"))
+
+
+def test_reading_leaves_unread_fields_empty(auth_client: TestClient, fake_reader) -> None:
+    fake_reader.receipt = ReceiptData(
+        store_name="",
+        purchased_at=None,
+        total=None,
+        lines=[ReceiptLine(raw_text="Chips", quantity=Decimal(1), line_total=Decimal("7.99"))],
+    )
+
+    body = read(auth_client).json()
+
+    assert (body["store_name"], body["purchased_at"], body["identifier"], body["total"]) == (None, None, None, None)
+    assert body["identifier_printed"] is False
+
+
+def test_reading_without_products_asks_for_a_new_photo(auth_client: TestClient, fake_reader) -> None:
+    fake_reader.receipt = ReceiptData(store_name="Lidl", purchased_at=DAY, total=Decimal("1.00"), lines=[])
+
+    response = read(auth_client)
+
+    assert response.status_code == 422
+    assert response.json()["detail"] == receipts_router.UNREADABLE
+
+
+def test_reading_failure_asks_for_a_new_photo(auth_client: TestClient, fake_reader) -> None:
+    fake_reader.error = DocumentError("too blurry")
+
+    assert read(auth_client).status_code == 422
+
+
+def test_reading_rejects_files_that_are_not_photos(auth_client: TestClient, fake_reader) -> None:
+    assert read(auth_client, ("bon.pdf", b"%PDF", "application/pdf")).status_code == 415
+    assert fake_reader.calls == []
+
+
+def test_reading_needs_a_login(client: TestClient, fake_reader) -> None:
+    assert read(client).status_code == 401

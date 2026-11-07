@@ -239,7 +239,8 @@ Scanning uses **no AI service**, and everything runs on the backend machine.
 1. **Crop the photo** with OpenCV: find the receipt, and straighten it when its corners are clear.
 2. **Read the text** with RapidOCR's Romanian model, which runs locally through `onnxruntime`. PDFs with text use `pypdf`, and scanned PDFs are turned into images first.
 3. **Parse the text** with regular expressions, using small rules per store.
-4. **Match products** with `rapidfuzz`, scoring `0.7 × name similarity + 0.3 × price closeness`.
+4. **Read the receipt's barcode or QR code** with `zxing-cpp`, which identifies the receipt more reliably than OCR on the `ID UNIC` line.
+5. **Match products** with `rapidfuzz`, scoring `0.7 × name similarity + 0.3 × price closeness`.
 
 The weights and the minimum score of 70 are starting values. On real, creased receipt photos, Tesseract read almost nothing while RapidOCR read the store, date, total and every item, so RapidOCR is the default. Set `OCR_ENGINE=tesseract` to switch back. To compare engines on your own photos, run `uv run python scripts/ocr_check.py "<photo folder>"`.
 
@@ -376,7 +377,7 @@ All routes are under `/api`.
 | Trash      | `GET /lists/trash`, `POST /lists/{id}/restore`                                                                         |
 | List items | `POST /lists/{id}/items`, `PATCH /lists/{id}/items/{item_id}`, `DELETE /lists/{id}/items/{item_id}`                    |
 | Plans      | `POST /lists/{id}/plans`, `POST /lists/{id}/suggestion/accept`, `POST /lists/{id}/activate`, `GET /lists/{id}/parts`   |
-| Receipts   | `POST /lists/{id}/receipts?store_id=`                                                                                  |
+| Receipts   | `POST /lists/{id}/receipts?store_id=`, `POST /receipts/read` (reads only: saves nothing, gives no points)              |
 | Import     | `POST /imports`, `POST /imports/confirm`                                                                               |
 | Wallet     | `GET /wallet`, `GET /rewards`, `POST /rewards/{id}/redeem`, `GET /vouchers` |
 | Cards          | Saved cards with a typed label, added from a photo or the camera, and a large code view |

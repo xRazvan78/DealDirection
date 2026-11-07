@@ -3,8 +3,8 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { Observable, catchError, finalize, forkJoin, map, of, switchMap } from 'rxjs';
 import { ApiService } from '../core/api';
-import { ImportPreview, Product, ReceiptResult } from '../core/models';
-import { formatLei } from '../shared/format';
+import { ImportPreview, Product, ReceiptReading } from '../core/models';
+import { formatLei, formatQuantity, formatReceiptDate } from '../shared/format';
 import { isPrice, isQuantity, normalizeAmount } from '../shared/money';
 import { ro } from '../shared/ro';
 import { CartItem, CartService } from './cart.service';
@@ -12,9 +12,6 @@ import { CartPlan, comparePlans } from './plans';
 
 // `/imports` scales a plan by days. A plain list has no days, so it stays as written.
 const IMPORT_DAYS = 1;
-
-// Receipts belong to a saved list on the backend, and the cart isn't saved there yet.
-const PLACEHOLDER_LIST_ID = 1;
 
 interface PricedImport {
   item: ImportPreview['items'][number];
@@ -32,6 +29,8 @@ export class Cart {
 
   protected readonly ro = ro;
   protected readonly formatLei = formatLei;
+  protected readonly formatQuantity = formatQuantity;
+  protected readonly formatReceiptDate = formatReceiptDate;
 
   protected readonly adding = signal(false);
   protected readonly newName = signal('');
@@ -69,7 +68,7 @@ export class Cart {
   protected readonly directionsFailed = signal(false);
   protected readonly scanning = signal(false);
   protected readonly receiptError = signal<string | null>(null);
-  protected readonly receiptResult = signal<ReceiptResult | null>(null);
+  protected readonly receipt = signal<ReceiptReading | null>(null);
 
   protected isChosen(plan: CartPlan): boolean {
     const items = this.cart.items();
@@ -208,19 +207,18 @@ export class Cart {
 
   protected scanReceipt(input: HTMLInputElement): void {
     const photo = input.files?.[0];
-    const store = this.store();
     input.value = '';
-    if (!photo || !store) {
+    if (!photo) {
       return;
     }
     this.scanning.set(true);
     this.receiptError.set(null);
-    this.receiptResult.set(null);
+    this.receipt.set(null);
     this.api
-      .uploadReceipt(PLACEHOLDER_LIST_ID, store.id, photo)
+      .readReceipt(photo)
       .pipe(finalize(() => this.scanning.set(false)))
       .subscribe({
-        next: (result) => this.receiptResult.set(result),
+        next: (reading) => this.receipt.set(reading),
         error: (error: HttpErrorResponse) => this.receiptError.set(receiptMessage(error)),
       });
   }
@@ -318,9 +316,9 @@ function receiptMessage(error: HttpErrorResponse): string {
   if (isFileRejected(error)) {
     return ro.cart.fileRejected;
   }
-  if (error.status === 409) {
-    return ro.cart.receiptUsed;
+  if (error.status !== 422) {
+    return ro.cart.receiptFailed;
   }
   const detail: unknown = (error.error as { detail?: unknown } | null)?.detail;
-  return error.status === 422 && typeof detail === 'string' ? detail : ro.cart.receiptUnreadable;
+  return typeof detail === 'string' ? detail : ro.cart.receiptUnreadable;
 }

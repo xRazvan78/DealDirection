@@ -29,6 +29,7 @@ class ReceiptData(_Frozen):
     purchased_at: datetime | None
     total: Decimal | None
     lines: list[ReceiptLine]
+    identifier: str | None = None  # the receipt's barcode, or else its printed number
 
 
 class Food(_Frozen):

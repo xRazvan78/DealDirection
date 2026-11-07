@@ -30,6 +30,7 @@ OCR_TIMEOUT_SECONDS = 30
 PDF_RENDER_SCALE = 300 / 72  # render scanned pages at 300 dpi
 TARGET_WIDTH = 1200  # px; about 30 px per character on a 40-column receipt (Tesseract)
 SAME_LINE = 0.5  # boxes whose centres differ by under half a box height share a line
+MAX_TILT = np.pi / 4  # radians; steeper text isn't a tilted photo but a sideways one
 
 
 def image_to_text(content: bytes, settings) -> str:
@@ -185,12 +186,20 @@ def _boxes_to_text(boxes: Sequence, texts: Sequence[str]) -> str:
     RapidOCR returns them as two boxes. Boxes whose vertical centres are close
     form one line, joined left to right with two spaces, the way the receipt
     parser expects.
+
+    A photo is rarely perfectly straight: across a receipt's width, 2 degrees
+    moves the price a whole line away from its name. So the boxes are first
+    turned by the text's own angle.
     """
+    all_points = [np.asarray(box, dtype=float) for box in boxes]
+    turn = _text_angle(all_points)
+    cos, sin = np.cos(turn), np.sin(turn)
+
     pieces = []
-    for box, text in zip(boxes, texts):
-        points = np.asarray(box, dtype=float)
-        ys = points[:, 1]
-        pieces.append((ys.mean(), max(ys.max() - ys.min(), 1.0), points[:, 0].min(), text))
+    for points, text in zip(all_points, texts):
+        xs = points[:, 0] * cos + points[:, 1] * sin
+        ys = points[:, 1] * cos - points[:, 0] * sin
+        pieces.append((ys.mean(), max(ys.max() - ys.min(), 1.0), xs.min(), text))
     pieces.sort()
 
     lines: list[list[tuple[float, str]]] = []
@@ -202,6 +211,17 @@ def _boxes_to_text(boxes: Sequence, texts: Sequence[str]) -> str:
         lines[-1].append((left, text))
 
     return "\n".join("  ".join(text for _, text in sorted(line)) for line in lines)
+
+
+def _text_angle(all_points: Sequence[np.ndarray]) -> float:
+    """The typical slope of the boxes' top edges, in radians; 0 if there are none.
+
+    The median ignores a few odd boxes, like a logo. Only the left-to-right
+    edge is used, so a sideways photo isn't treated as a slight tilt.
+    """
+    angles = [np.arctan2(p[1, 1] - p[0, 1], p[1, 0] - p[0, 0]) for p in all_points if len(p) == 4]
+    level = [angle for angle in angles if abs(angle) < MAX_TILT]
+    return float(np.median(level)) if level else 0.0
 
 
 # --- Tesseract --------------------------------------------------------------

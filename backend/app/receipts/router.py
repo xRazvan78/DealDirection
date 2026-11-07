@@ -1,6 +1,8 @@
 """Receipt upload, checks and points award. Owner: Member 3, Task 11.
 
 POST /api/lists/{list_id}/receipts?store_id= (multipart field `file`).
+POST /api/receipts/read (multipart field `file`) only reads a receipt: nothing
+is saved and no points are given, so it needs no list or store.
 
 Each store's part of an active list takes one receipt. The receipt is read
 by the document reader, checked, matched against that part's items, and the
@@ -38,13 +40,14 @@ from app.models import (
     User,
 )
 from app.points.logic import calculate_points
-from app.receipts.matching import CENT, fingerprint, merge_repeated_lines, score_matches
+from app.receipts.matching import CENT, fingerprint, merge_repeated_lines, receipt_code, score_matches
 from app.textutil import fold
 
 router = APIRouter(tags=["receipts"])
 
 IMAGE_TYPES = {"image/jpeg", "image/png", "image/webp"}
 RECEIPT_TIMEZONE = ZoneInfo("Europe/Bucharest")  # receipts print local time
+UNREADABLE = "Nu am putut citi bonul. Fă o poză nouă, cu lumină bună."
 
 Db = Annotated[Session, Depends(get_db)]
 CurrentUser = Annotated[User, Depends(current_user)]
@@ -74,12 +77,52 @@ class ReceiptResult(BaseModel):
     points: int
 
 
+class ReadLine(BaseModel):
+    name: str
+    quantity: Decimal  # repeated lines are added up, so two bags read as 2
+    line_total: Decimal
+
+
+class ReceiptReading(BaseModel):
+    """What a receipt says. A field OCR couldn't read is None."""
+
+    store_name: str | None
+    purchased_at: datetime | None
+    identifier: str | None
+    identifier_printed: bool  # False: none could be read, so the app generated this one
+    total: Decimal | None
+    lines: list[ReadLine]
+
+
 def _reject(code: int, message: str) -> HTTPException:
     return HTTPException(code, detail=message)
 
 
 def _max_upload_bytes() -> int:
     return get_settings().MAX_UPLOAD_MB * 1024 * 1024
+
+
+@router.post("/receipts/read")
+def read_receipt(file: UploadFile, user: CurrentUser, reader: Reader) -> ReceiptReading:
+    content = _read_upload(file)
+    try:
+        data = reader.read_receipt(content, file.content_type or "")
+    except DocumentError:
+        raise _reject(422, UNREADABLE) from None
+    if not data.lines:
+        raise _reject(422, UNREADABLE)
+
+    return ReceiptReading(
+        store_name=data.store_name or None,
+        purchased_at=data.purchased_at,
+        identifier=data.identifier or _generated_identifier(data),
+        identifier_printed=data.identifier is not None,
+        total=data.total,
+        lines=[
+            ReadLine(name=line.raw_text, quantity=line.quantity, line_total=line.line_total)
+            for line in merge_repeated_lines(data.lines)
+        ],
+    )
 
 
 @router.post("/lists/{list_id}/receipts")
@@ -118,7 +161,7 @@ def upload_receipt(
     try:
         data = reader.read_receipt(content, file.content_type or "")
     except DocumentError:
-        raise _reject(422, "Nu am putut citi bonul. Fă o poză nouă, cu lumină bună.") from None
+        raise _reject(422, UNREADABLE) from None
     _check_receipt(data, store)
 
     purchased_at = data.purchased_at.replace(tzinfo=RECEIPT_TIMEZONE)
@@ -203,6 +246,12 @@ def upload_receipt(
         modifier=modifier,
         points=result.points,
     )
+
+
+def _generated_identifier(data: ReceiptData) -> str | None:
+    if not data.store_name or data.purchased_at is None or data.total is None:
+        return None
+    return receipt_code(data.store_name, data.purchased_at, data.total)
 
 
 def _part_items(db: Session, list_id: int, store_id: int) -> list[tuple[ListItem, str]]:

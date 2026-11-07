@@ -374,6 +374,25 @@ def test_slightly_tilted_rows_stay_separate() -> None:
     assert ocr._boxes_to_text(boxes, texts) == "A  1,00\nB  2,00"
 
 
+def test_a_tilted_photo_keeps_each_name_with_its_price() -> None:
+    # Boxes turned 3 degrees: the price sits 21 px lower than its name, a whole
+    # line away, and the next row's name is nearer to it than its own.
+    def tilted(x: float, y: float) -> list[list[float]]:
+        slope = 0.0524  # tan(3 degrees)
+        width, height = 200, 24
+        return [
+            [x, y + x * slope],
+            [x + width, y + (x + width) * slope],
+            [x + width, y + height + (x + width) * slope],
+            [x, y + height + x * slope],
+        ]
+
+    boxes = [tilted(10, 100), tilted(400, 100), tilted(10, 130), tilted(400, 130)]
+    texts = ["A", "1,00", "B", "2,00"]
+
+    assert ocr._boxes_to_text(boxes, texts) == "A  1,00\nB  2,00"
+
+
 def test_no_boxes_gives_empty_text() -> None:
     assert ocr._boxes_to_text([], []) == ""
 

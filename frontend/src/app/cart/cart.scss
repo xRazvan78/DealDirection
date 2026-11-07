@@ -374,32 +374,33 @@ input:not([type='file']) {
   font-size: 14px;
 }
 
+.receipt-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 8;
+  background: rgb(11 37 69 / 50%);
+}
+
 .receipt-result {
   position: fixed;
-  right: 16px;
-  bottom: 84px;
-  left: 16px;
-  z-index: 8;
+  top: 50%;
+  left: 50%;
+  z-index: 9;
+  display: flex;
+  flex-direction: column;
+  width: min(calc(100vw - 32px), 460px);
+  max-height: calc(100dvh - 32px);
   padding: 16px;
   border-radius: 12px;
+  box-sizing: border-box;
   background: var(--navy);
   box-shadow: 0 4px 16px rgb(11 37 69 / 40%);
   color: var(--on-navy);
+  transform: translate(-50%, -50%);
 
   h2 {
-    margin: 0;
-    font-size: 16px;
-  }
-
-  p {
-    margin: 4px 0;
-    font-size: 14px;
-  }
-
-  .earned-points {
-    color: var(--accent);
-    font-size: 26px;
-    font-weight: 700;
+    margin: 0 0 8px;
+    font-size: 18px;
   }
 
   button {
@@ -411,5 +412,78 @@ input:not([type='file']) {
     background: var(--accent);
     color: var(--navy);
     font-weight: 700;
+  }
+}
+
+.receipt-details {
+  display: grid;
+  flex-shrink: 0;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 2px 12px;
+  margin: 0 0 8px;
+  font-size: 14px;
+
+  dt {
+    opacity: 0.75;
+  }
+
+  dd {
+    margin: 0;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+  }
+
+  small {
+    font-weight: 400;
+    opacity: 0.75;
+  }
+}
+
+.receipt-lines {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  border-top: 1px solid rgb(255 255 255 / 30%);
+  border-bottom: 1px solid rgb(255 255 255 / 30%);
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+
+  th {
+    position: sticky;
+    top: 0;
+    background: var(--navy);
+    font-size: 12px;
+    font-weight: 700;
+    text-align: left;
+  }
+
+  th,
+  td {
+    padding: 4px 0;
+    vertical-align: top;
+    overflow-wrap: anywhere;
+  }
+
+  th:not(:first-child),
+  td:not(:first-child) {
+    padding-left: 12px;
+    text-align: right;
+    white-space: nowrap;
+  }
+}
+
+.receipt-total {
+  display: flex;
+  flex-shrink: 0;
+  justify-content: space-between;
+  margin: 8px 0 0;
+  font-size: 16px;
+
+  strong {
+    color: var(--accent);
   }
 }
