@@ -120,6 +120,24 @@ type Handler = (request: HttpRequest<unknown>) => unknown;
 
 const handlers: Record<string, Handler> = {
   'GET /api/stores': () => stores,
+  // Visits the stores in the order asked, at made-up Sibiu addresses.
+  'GET /api/stores/route': (request) => {
+    const ids = (request.params.getAll('store_ids') ?? []).map(Number);
+    const stops = ids.map((id, index) => ({
+      store_id: id,
+      store_name: stores.find((store) => store.id === id)?.name ?? '',
+      address: `Adresă de test ${index + 1}, Sibiu`,
+      lat: 45.79 + index / 100,
+      lng: 24.15,
+      km: request.params.has('lat') || index > 0 ? 1.1 : null,
+    }));
+    const destination = stops.at(-1);
+    return {
+      stops,
+      total_km: stops.reduce((sum, { km }) => sum + (km ?? 0), 0),
+      maps_url: `https://www.google.com/maps/dir/?api=1&destination=${destination?.lat},${destination?.lng}`,
+    };
+  },
   'PUT /api/me/stores': (request) => {
     const { store_ids } = request.body as { store_ids: number[] };
     stores.forEach((store) => (store.selected = store_ids.includes(store.id)));

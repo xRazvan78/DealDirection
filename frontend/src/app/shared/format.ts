@@ -19,3 +19,8 @@ export function formatReceiptDate(value: string): string {
   const clock = time.slice(0, 5);
   return clock && clock !== '00:00' ? `${day} ${clock}` : day;
 }
+
+// A distance the backend rounded to one decimal, written the Romanian way: 0,8 km.
+export function formatKm(km: number): string {
+  return `${String(km).replace('.', ',')} km`;
+}

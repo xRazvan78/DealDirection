@@ -2,7 +2,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { Product, ReceiptReading, SearchResult } from '../core/models';
+import { Product, ReceiptReading, SearchResult, ShoppingRoute } from '../core/models';
 import { SavedListsService } from '../lists/saved-lists.service';
 import { ro } from '../shared/ro';
 import { Cart } from './cart';
@@ -901,25 +901,16 @@ describe('Cart', () => {
       expect(button('.directions').disabled).toBe(true);
     });
 
-    it('shows every store and picks the first', async () => {
-      cart.addProduct(auchan);
-      cart.addProduct(carrefour);
-      await open();
-      const shops = buttons('.shop');
-
-      expect(shops.map((shop) => shop.textContent?.trim())).toEqual(['Auchan', 'Carrefour']);
-      expect(shops[0].getAttribute('aria-pressed')).toBe('true');
-    });
-
-    it('lets the client pick another store', async () => {
+    it('lists every store in the cart', async () => {
       cart.addProduct(auchan);
       cart.addProduct(carrefour);
       await open();
 
-      buttons('.shop')[1].click();
-      await settle();
-
-      expect(buttons('.shop')[1].getAttribute('aria-pressed')).toBe('true');
+      expect(page.querySelectorAll('button.shop').length).toBe(0);
+      expect([...page.querySelectorAll('.shop')].map((shop) => shop.textContent?.trim())).toEqual([
+        'Auchan',
+        'Carrefour',
+      ]);
     });
   });
 
@@ -1081,8 +1072,17 @@ describe('Cart', () => {
     });
   });
 
-  describe('directions', () => {
+  describe('route', () => {
     let opened: { location: { href: string }; close: () => void };
+    const routeUrl = '/api/stores/route';
+    const route: ShoppingRoute = {
+      stops: [
+        { store_id: 2, store_name: 'Carrefour', address: 'Strada 2', lat: 44.41, lng: 26.1, km: 0.8 },
+        { store_id: 1, store_name: 'Auchan', address: 'Strada 1', lat: 44.5, lng: 26.1, km: 10.2 },
+      ],
+      total_km: 11,
+      maps_url: 'https://maps.test/route',
+    };
 
     function setLocation(result: 'allowed' | 'denied'): void {
       Object.defineProperty(navigator, 'geolocation', {
@@ -1096,6 +1096,12 @@ describe('Cart', () => {
       });
     }
 
+    function stopTexts(): string[] {
+      return [...page.querySelectorAll('.route li')].map((stop) =>
+        (stop.textContent ?? '').replace(/\s+/g, ' ').trim(),
+      );
+    }
+
     beforeEach(async () => {
       opened = { location: { href: '' }, close: vi.fn() };
       vi.spyOn(window, 'open').mockReturnValue(opened as unknown as Window);
@@ -1106,36 +1112,58 @@ describe('Cart', () => {
 
     afterEach(() => vi.restoreAllMocks());
 
-    it('opens the maps link for the chosen store, using the location', async () => {
-      setLocation('allowed');
-      buttons('.shop')[1].click();
-      await settle();
-
-      button('.directions').click();
-      const request = http.expectOne((r) => r.url === '/api/stores/2/directions');
-      expect(request.request.params.get('lat')).toBe('44.4');
-      expect(request.request.params.get('lng')).toBe('26.1');
-      request.flush({ address: 'Strada 1', maps_url: 'https://maps.test/2' });
-
-      expect(opened.location.href).toBe('https://maps.test/2');
+    it('is labelled as a route', () => {
+      expect(button('.directions').textContent?.trim()).toBe(ro.cart.directions);
     });
 
-    it('still works when location is denied', () => {
+    it('goes through every store in the cart, using the location', async () => {
+      setLocation('allowed');
+
+      button('.directions').click();
+      const request = http.expectOne((r) => r.url === routeUrl);
+      expect(request.request.params.getAll('store_ids')).toEqual(['1', '2']);
+      expect(request.request.params.get('lat')).toBe('44.4');
+      expect(request.request.params.get('lng')).toBe('26.1');
+      request.flush(route);
+      await settle();
+
+      expect(opened.location.href).toBe('https://maps.test/route');
+      expect(stopTexts()).toEqual([
+        'Carrefour · Strada 2 · 0,8 km',
+        'Auchan · Strada 1 · 10,2 km',
+      ]);
+    });
+
+    it('still works when location is denied, without a first distance', async () => {
       setLocation('denied');
 
       button('.directions').click();
-      const request = http.expectOne((r) => r.url === '/api/stores/1/directions');
+      const request = http.expectOne((r) => r.url === routeUrl);
       expect(request.request.params.has('lat')).toBe(false);
-      request.flush({ address: 'Strada 1', maps_url: 'https://maps.test/1' });
+      request.flush({ ...route, stops: [{ ...route.stops[0], km: null }, route.stops[1]] });
+      await settle();
 
-      expect(opened.location.href).toBe('https://maps.test/1');
+      expect(opened.location.href).toBe('https://maps.test/route');
+      expect(stopTexts()[0]).toBe('Carrefour · Strada 2');
+    });
+
+    it('explains a store without an address', async () => {
+      setLocation('denied');
+
+      button('.directions').click();
+      fail(routeUrl, 404);
+      await settle();
+
+      expect(page.textContent).toContain(ro.cart.routeNoAddress);
+      expect(opened.close).toHaveBeenCalled();
+      expect(page.querySelector('.route')).toBeNull();
     });
 
     it('explains a failure', async () => {
       setLocation('denied');
 
       button('.directions').click();
-      fail(/directions$/, 500);
+      fail(routeUrl, 500);
       await settle();
 
       expect(page.textContent).toContain(ro.cart.directionsFailed);
