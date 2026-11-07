@@ -52,6 +52,7 @@ export const en: Translations = {
     noShops: 'Stores appear after you add products found in the catalog.',
     directions: 'Route',
     directionsFailed: "We couldn't open the route. Try again.",
+    openMaps: 'Open in Google Maps',
     routeNoAddress: "A store in the cart has no address yet, so we couldn't plan the route.",
     scan: 'Scan receipt',
     scanning: 'Reading the receipt...',

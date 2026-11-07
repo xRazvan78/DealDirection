@@ -1073,7 +1073,6 @@ describe('Cart', () => {
   });
 
   describe('route', () => {
-    let opened: { location: { href: string }; close: () => void };
     const routeUrl = '/api/stores/route';
     const route: ShoppingRoute = {
       stops: [
@@ -1102,9 +1101,12 @@ describe('Cart', () => {
       );
     }
 
+    function mapsLink(): HTMLAnchorElement | null {
+      return page.querySelector<HTMLAnchorElement>('a.maps-link');
+    }
+
     beforeEach(async () => {
-      opened = { location: { href: '' }, close: vi.fn() };
-      vi.spyOn(window, 'open').mockReturnValue(opened as unknown as Window);
+      vi.spyOn(window, 'open');
       cart.addProduct(auchan);
       cart.addProduct(carrefour);
       await open();
@@ -1127,11 +1129,62 @@ describe('Cart', () => {
       request.flush(route);
       await settle();
 
-      expect(opened.location.href).toBe('https://maps.test/route');
       expect(stopTexts()).toEqual([
         'Carrefour · Strada 2 · 0,8 km',
         'Auchan · Strada 1 · 10,2 km',
       ]);
+    });
+
+    // Opening an empty tab first left phones on a blank page, so the app never leaves on its own.
+    it('stays in the app and offers a Google Maps link to tap', async () => {
+      setLocation('allowed');
+
+      button('.directions').click();
+      http.expectOne((r) => r.url === routeUrl).flush(route);
+      await settle();
+
+      expect(window.open).not.toHaveBeenCalled();
+      const link = mapsLink()!;
+      expect(link.href).toBe('https://maps.test/route');
+      expect(link.target).toBe('_blank');
+      expect(link.rel).toContain('noopener');
+      expect(link.textContent?.trim()).toBe(ro.cart.openMaps);
+    });
+
+    it('turns the Traseu button into the Google Maps link, in the same place', async () => {
+      setLocation('allowed');
+
+      button('.directions').click();
+      http.expectOne((r) => r.url === routeUrl).flush(route);
+      await settle();
+
+      expect(page.querySelector('button.directions')).toBeNull();
+      expect(page.querySelectorAll('.maps-link').length).toBe(1);
+    });
+
+    it('asks again when the cart has different stores', async () => {
+      setLocation('allowed');
+      button('.directions').click();
+      http.expectOne((r) => r.url === routeUrl).flush(route);
+      await settle();
+
+      cart.addProduct({ ...auchan, id: 7, store_id: 3, store_name: 'Kaufland' });
+      await settle();
+
+      expect(mapsLink()).toBeNull();
+      expect(page.querySelector('.route')).toBeNull();
+      expect(page.querySelector('button.directions')?.textContent?.trim()).toBe(
+        ro.cart.directions,
+      );
+    });
+
+    it('has no link before the route is known', async () => {
+      setLocation('allowed');
+
+      expect(mapsLink()).toBeNull();
+      button('.directions').click();
+      expect(mapsLink()).toBeNull();
+      http.expectOne((r) => r.url === routeUrl).flush(route);
     });
 
     it('still works when location is denied, without a first distance', async () => {
@@ -1143,8 +1196,8 @@ describe('Cart', () => {
       request.flush({ ...route, stops: [{ ...route.stops[0], km: null }, route.stops[1]] });
       await settle();
 
-      expect(opened.location.href).toBe('https://maps.test/route');
       expect(stopTexts()[0]).toBe('Carrefour · Strada 2');
+      expect(mapsLink()?.href).toBe('https://maps.test/route');
     });
 
     it('explains a store without an address', async () => {
@@ -1155,8 +1208,8 @@ describe('Cart', () => {
       await settle();
 
       expect(page.textContent).toContain(ro.cart.routeNoAddress);
-      expect(opened.close).toHaveBeenCalled();
       expect(page.querySelector('.route')).toBeNull();
+      expect(mapsLink()).toBeNull();
     });
 
     it('explains a failure', async () => {
@@ -1167,7 +1220,7 @@ describe('Cart', () => {
       await settle();
 
       expect(page.textContent).toContain(ro.cart.directionsFailed);
-      expect(opened.close).toHaveBeenCalled();
+      expect(mapsLink()).toBeNull();
     });
   });
 
