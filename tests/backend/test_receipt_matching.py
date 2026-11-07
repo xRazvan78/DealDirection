@@ -133,6 +133,12 @@ def test_merged_lines_count_for_a_bigger_list_quantity() -> None:
     assert (estimate, paid) == (Decimal("15.98"), Decimal("15.98"))
 
 
+def test_a_zero_misread_for_the_letter_o_still_merges() -> None:
+    merged = merge_repeated_lines([line("CHIO HULA H0OPS70G", "9.58"), line("CHIO HULA HOOPS70G", "4.79")])
+
+    assert [(m.quantity, m.line_total) for m in merged] == [(Decimal(2), Decimal("14.37"))]
+
+
 def test_different_lines_stay_apart() -> None:
     assert len(merge_repeated_lines([line("LAPTE 1L", "7.99"), line("LAPTE 2L", "12.99")])) == 2
 
@@ -146,22 +152,3 @@ def test_zero_and_letter_o_are_the_same_when_merging() -> None:
 
 def test_zero_in_a_size_is_not_a_letter() -> None:
     assert len(merge_repeated_lines([line("APA 0,5L", "2.00"), line("APA O,5L", "2.00")])) == 2
-
-
-# --- fingerprint from the fiscal key ----------------------------------------
-
-
-def test_fiscal_key_identifies_the_receipt_even_if_the_total_is_misread() -> None:
-    key = "3000077208|20261106|2136|289"
-
-    assert fingerprint(1, datetime(2026, 11, 6), Decimal("53.66"), key) == fingerprint(1, datetime(2026, 11, 6), Decimal("58.66"), key)
-
-
-def test_different_receipts_with_the_same_total_on_the_same_day_differ() -> None:
-    day, total = datetime(2026, 11, 6), Decimal("12.99")
-
-    assert fingerprint(1, day, total, "7000076643|20261106|2137|293") != fingerprint(1, day, total, "7000076643|20261106|2140|294")
-
-
-def test_without_a_fiscal_key_store_date_and_total_are_used() -> None:
-    assert fingerprint(1, datetime(2026, 11, 6), Decimal("12.99"), None) == fingerprint(1, datetime(2026, 11, 6), Decimal("12.99"))

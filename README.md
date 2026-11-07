@@ -247,9 +247,11 @@ FastAPI serves the Angular app and the `/api` routes from one HTTPS address.
 Scanning uses **no AI service**, and everything runs on the backend machine.
 
 1. **Crop the photo** with OpenCV: find the receipt, and straighten it when its corners are clear.
-2. **Read the text** with RapidOCR's Romanian model, which runs locally through `onnxruntime`. PDFs with text use `pypdf`, and scanned PDFs are turned into images first.
-3. **Parse the text** with regular expressions, using small rules per store.
-4. **Match products** with `rapidfuzz`, scoring `0.7 × name similarity + 0.3 × price closeness`.
+2. **Flatten the paper**, dividing by its own brightness, so shadows and the blue of a worn receipt go and the ink stays. On real receipts this read better than thresholding or a contrast boost, which damaged faded print.
+3. **Read the text** with RapidOCR's Romanian model, which runs locally through `onnxruntime`. PDFs with text use `pypdf`, and scanned PDFs are turned into images first.
+4. **Parse the text** with regular expressions, using small rules per store. If a photo's products don't add up to its total, it's read once more without the crop.
+5. **Read the receipt's barcode or QR code** with `zxing-cpp`, which identifies the receipt more reliably than OCR on the `ID UNIC` line.
+6. **Match products** with `rapidfuzz`, scoring `0.7 × name similarity + 0.3 × price closeness`.
 
 The weights and the minimum score of 70 are starting values. On real, creased receipt photos, Tesseract read almost nothing while RapidOCR read the store, date, total and every item, so RapidOCR is the default. Set `OCR_ENGINE=tesseract` to switch back. To compare engines on your own photos, run `uv run python scripts/ocr_check.py "<photo folder>"`.
 
@@ -364,7 +366,7 @@ Each unit has one job, and can be tested without the others.
 | `store_products`  | store, size-level category, type category, name, brand, barcode, price, unit, image, source URL, search_text, updated_at                   |
 | `shopping_lists`  | user, name, state, suggestion_shown, extra_store_id, created_at, deleted_at                                                                |
 | `list_items`      | list, size-level category, chosen product (empty for generic), brand, quantity, assigned store, assigned product, estimated_price, removed |
-| `receipts`        | list, store, fingerprint (unique), purchased_at, total, estimate, paid, modifier, points; unique on list and store                         |
+| `receipts`        | list, store, fingerprint, barcode (unique), unique_id (unique), fiscal_key (unique), purchased_at, total, estimate, paid, modifier, points; unique on list and store |
 | `receipt_lines`   | receipt, raw text, quantity, line total, matched list item                                                                                 |
 | `points_ledger`   | user, amount, reason, receipt, created_at                                                                                                  |
 | `vouchers`        | user, reward, store, code (unique), expires_at, used_at |
@@ -386,7 +388,7 @@ All routes are under `/api`.
 | Trash      | `GET /lists/trash`, `POST /lists/{id}/restore`                                                                         |
 | List items | `POST /lists/{id}/items`, `PATCH /lists/{id}/items/{item_id}`, `DELETE /lists/{id}/items/{item_id}`                    |
 | Plans      | `POST /lists/{id}/plans`, `POST /lists/{id}/suggestion/accept`, `POST /lists/{id}/activate`, `GET /lists/{id}/parts`   |
-| Receipts   | `POST /lists/{id}/receipts?store_id=`                                                                                  |
+| Receipts   | `POST /lists/{id}/receipts?store_id=`, `POST /receipts/read` (reads only: saves nothing, gives no points)              |
 | Import     | `POST /imports`, `POST /imports/confirm`                                                                               |
 | Wallet     | `GET /wallet`, `GET /rewards`, `POST /rewards/{id}/redeem`, `GET /vouchers` |
 | Cards      | `GET /card-brands`, `POST /cards/scan`, `GET /cards`, `POST /cards`, `DELETE /cards/{id}`                              |

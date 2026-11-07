@@ -46,17 +46,23 @@ _AMOUNT = r"\d+[.,]\d{2}"
 _VAT = r"[\s.\-]*[a-z]?"
 # The unit is any short word, because OCR misreads "BUC" as "BUD" or "BUX".
 # The sign is x, X, * or the "×" that OCR often reads instead.
-# A trailing amount ("= 7,99" or just "7,99") is the line total.
+# A trailing amount ("= 7,99" or just "7,99") is the line total. OCR can also
+# split off the number, when the "Lei" heading sits beside it: "1.000  Lei" then "BUC X 7.99".
 _QUANTITY_LINE = re.compile(
-    r"^(?P<qty>\d+(?:[.,]\d+)?)\s*(?:[a-z]{1,4}\.?)?\s*[x×*]\s*"
+    r"^(?:(?P<qty>\d+(?:[.,]\d+)?)\s*(?:[a-z]{1,4}\.?)?|buc\.?|kg\.?)\s*[x×*]\s*"
     rf"(?P<price>\d+[.,]\d{{2,3}})(?:\s*=?\s*(?P<total>{_AMOUNT}))?{_VAT}$"
 )
-_ITEM_LINE = re.compile(rf"^(?P<name>.*[a-z].*?)\s+(?P<total>{_AMOUNT}){_VAT}$")
+# A discount's amount may start with a minus: "-4,32".
+_ITEM_LINE = re.compile(rf"^(?P<name>.*[a-z].*?)\s+-?(?P<total>{_AMOUNT}){_VAT}$")
 # A minus after the amount ("4,32-C") or a discount word marks a discount.
 _DISCOUNT_LINE = re.compile(rf"^(?P<name>.*[a-z].*?)\s+-?(?P<amount>{_AMOUNT})\s*-[\s.]*[a-z]?$")
-_DISCOUNT_WORDS = ("discount", "reducere")
+_DISCOUNT_WORDS = ("discount", "reducere", "rabat", "promotie")
 _DEPOSIT_WORDS = ("ambalaj", "sgr", "garantie")
-_TRAILING_AMOUNT = re.compile(rf"\s+{_AMOUNT}[\s.\-]*[A-Za-z]?\s*$")
+_TRAILING_AMOUNT = re.compile(rf"\s+-?{_AMOUNT}[\s.\-]*[A-Za-z]?\s*$")
+# A price that OCR put on its own line, with at most its VAT letter: "7.99 B", "B 7,99".
+_PRICE_ALONE = re.compile(rf"^\W*[a-z]?\W*(?P<total>{_AMOUNT}){_VAT}\W*$")
+# A product's name has a real word in it, which a VAT letter or stray mark doesn't.
+_NAME_WORD = re.compile(r"[a-z]{3,}")
 # A price OCR garbled beyond reading, like "6.993" (6.99 B) or "35:99t" (35,99 A).
 _GARBLED_PRICE = re.compile(r"\s+\d+[.,:]\d{2}\S*\s*$")
 # Up to a few stray characters between TOTAL and the amount: "TOTAL. 42.98", "TOTAL LEI: 42,98".
@@ -64,13 +70,24 @@ _TOTAL_LINE = re.compile(rf"^total\b(?!\s*tva)[^\d]{{0,8}}?(?P<total>{_AMOUNT})"
 _NOT_ITEMS = ("subtotal", "total", "tva", "card", "numerar", "cash", "rest", "bon fiscal")
 _CENT = Decimal("0.01")
 
-_DATE_DMY = re.compile(r"(\d{2})[./-](\d{2})[./-](\d{4})(?:\s+(\d{2}):(\d{2})(?::(\d{2}))?)?")
+# Only a possible time counts: a misread one must not cost us the date before it.
+_TIME = r"(?:\s+(?:ora\W{0,2})?([01]\d|2[0-3])[:-]([0-5]\d)(?:[:-]([0-5]\d))?)?"
+_DATE_DMY = re.compile(rf"(\d{{2}})[./-](\d{{2}})[./-](\d{{4}}){_TIME}")
 _DATE_YMD = re.compile(r"(\d{4})-(\d{2})-(\d{2})(?:[ t](\d{2}):(\d{2})(?::(\d{2}))?)?")
 # "ORA:21-36-05". A seconds part cut short ("21-37-3") is left out.
 _ORA = re.compile(r"\bora\b\s*:?\s*(\d{1,2})[-:.](\d{2})(?:[-:.](\d{2})(?!\d))?")
 _ID_UNIC = re.compile(r"\bid\s*unic\b\s*:?\s*((?:\d ?){10,40})")
 _REGISTER = re.compile(r"\brl\b\s*:?\s*(\d{6,12})\b")
 _RECEIPT_NUMBER = re.compile(r"\bbf\b\.?\s*:?\s*(\d{1,6})\b")
+
+# A code printed to identify the receipt on its own: "ID BF: 8f31a2", "COD UNIC 1234".
+_RECEIPT_ID = re.compile(r"\b(?:id\W{0,2}(?:bf|bon|unic)|cod\s+unic)\b\W{0,3}(?P<id>(?=[a-z-]*\d)[0-9a-z-]{4,})")
+UNIQUE_ID_LENGTH = 32
+# A receipt number: "BF: 0025", "NR. BON 25", "BON FISCAL NR. 25".
+_BON_NUMBER = re.compile(
+    r"\b(?:bf|bon\s*(?:fiscal\s*)?(?:nr|numar)|(?:nr|numar)\W{0,2}bon(?:\s*fiscal)?)\b\W{0,3}(?P<number>\d+)\b"
+)
+_Z_NUMBER = re.compile(r"\bz\b\W{0,3}(?P<number>\d+)\b")
 
 
 def parse_receipt(text: str) -> ReceiptData:
@@ -91,6 +108,8 @@ def parse_receipt(text: str) -> ReceiptData:
         register_id=fiscal.register_id,
         receipt_number=fiscal.receipt_number,
         fiscal_key=fiscal.key,
+        identifier=_identifier(folded),
+        unique_id=_unique_id(fiscal),
     )
 
 
@@ -116,6 +135,26 @@ def _total(folded: list[str]) -> Decimal | None:
     return None
 
 
+def _identifier(folded: list[str]) -> str | None:
+    """The printed receipt code, or None if OCR didn't read one.
+
+    Receipt numbers restart at each daily Z report, so a plain number is only
+    unique together with its Z number.
+    """
+    code = _first_match(_RECEIPT_ID, folded, "id")
+    if code:
+        return code.upper()
+    number = _first_match(_BON_NUMBER, folded, "number")
+    if number is None:
+        return None
+    z_number = _first_match(_Z_NUMBER, folded, "number")
+    return f"Z {z_number} / BF {number}" if z_number else f"BF {number}"
+
+
+def _first_match(pattern: re.Pattern[str], folded: list[str], group: str) -> str | None:
+    return next((match.group(group) for match in map(pattern.search, folded) if match), None)
+
+
 def _items(raw_lines: list[str], folded: list[str]) -> tuple[list[ReceiptLine], Decimal]:
     """The products, with discounts taken off, and the total of bottle deposits."""
     items: list[ReceiptLine] = []
@@ -129,7 +168,7 @@ def _items(raw_lines: list[str], folded: list[str]) -> tuple[list[ReceiptLine], 
 
         quantity = _QUANTITY_LINE.match(line)
         if quantity:
-            pending_qty = _decimal(quantity.group("qty"))
+            pending_qty = _decimal(quantity.group("qty") or "1")
             if quantity.group("total"):
                 pending_total = _decimal(quantity.group("total"))
             else:
@@ -137,7 +176,14 @@ def _items(raw_lines: list[str], folded: list[str]) -> tuple[list[ReceiptLine], 
                 pending_total = (pending_qty * _decimal(quantity.group("price"))).quantize(_CENT, ROUND_HALF_UP)
             continue
 
-        if line.startswith(_NOT_ITEMS):
+        if line.startswith(_NOT_ITEMS) or line == "lei":
+            continue
+
+        price = _PRICE_ALONE.match(line)
+        if price:
+            # Its name is on another line. The printed price beats a computed one.
+            if pending_qty is not None:
+                pending_total = _decimal(price.group("total"))
             continue
 
         # A minus before the VAT letter can also be OCR misreading a space
@@ -156,11 +202,14 @@ def _items(raw_lines: list[str], folded: list[str]) -> tuple[list[ReceiptLine], 
         if item:
             name = _TRAILING_AMOUNT.sub("", raw)
             total = _decimal(item.group("total"))
-        elif pending_total is not None and re.search(r"[a-z]", line):
+        elif pending_total is not None:
             # No readable price on the name line: take it from the quantity line.
             name, total = _GARBLED_PRICE.sub("", raw), pending_total
         else:
             continue
+
+        if not _NAME_WORD.search(fold(name)):
+            continue  # stray OCR marks; the real name may still be on the next line
 
         if any(word in line for word in _DEPOSIT_WORDS):
             deposits += total  # a bottle deposit: paid, but not a product
@@ -210,6 +259,21 @@ def _fiscal(folded: list[str]) -> _Fiscal:
     if register and day and clock and number:
         key = f"{register}|{day:%Y%m%d}|{clock:%H%M}|{number}"
     return _Fiscal(purchased_at, receipt_id, register, number, key)
+
+
+def _unique_id(fiscal: _Fiscal) -> str | None:
+    """The ID UNIC, only if it's whole and agrees with the rest of the receipt.
+
+    Duplicate checks rely on it, and a misread would let a receipt through twice.
+    """
+    code = fiscal.receipt_id
+    if code is None or len(code) != UNIQUE_ID_LENGTH:
+        return None
+    if fiscal.purchased_at and code[10:18] != fiscal.purchased_at.strftime("%Y%m%d"):
+        return None
+    if fiscal.receipt_number and int(code[-4:]) != int(fiscal.receipt_number[-4:]):
+        return None
+    return code
 
 
 def _date(folded: list[str]) -> tuple[date | None, time | None]:

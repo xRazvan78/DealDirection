@@ -36,6 +36,9 @@ class ReceiptData(_Frozen):
     receipt_number: str | None = None  # "BF" number, without leading zeros
     # register|date|HHMM|number: identifies one paper receipt even if the ID UNIC is misread
     fiscal_key: str | None = None
+    identifier: str | None = None  # the best printed number OCR read, checked or not
+    barcode: str | None = None  # the decoded barcode or QR code
+    unique_id: str | None = None  # the ID UNIC, only if it passed its checks
 
 
 class Food(_Frozen):

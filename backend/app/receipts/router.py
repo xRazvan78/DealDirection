@@ -1,6 +1,8 @@
 """Receipt upload, checks and points award. Owner: Member 3, Task 11.
 
 POST /api/lists/{list_id}/receipts?store_id= (multipart field `file`).
+POST /api/receipts/read (multipart field `file`) only reads a receipt: nothing
+is saved and no points are given, so it needs no list or store.
 
 Each store's part of an active list takes one receipt. The receipt is read
 by the document reader, checked, matched against that part's items, and the
@@ -17,7 +19,7 @@ from zoneinfo import ZoneInfo
 
 from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, status
 from pydantic import BaseModel
-from sqlalchemy import func, select
+from sqlalchemy import func, or_, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -38,13 +40,15 @@ from app.models import (
     User,
 )
 from app.points.logic import calculate_points
-from app.receipts.matching import CENT, fingerprint, merge_repeated_lines, score_matches
+from app.receipts.matching import CENT, fingerprint, merge_repeated_lines, receipt_code, score_matches
 from app.textutil import fold
 
 router = APIRouter(tags=["receipts"])
 
 IMAGE_TYPES = {"image/jpeg", "image/png", "image/webp"}
 RECEIPT_TIMEZONE = ZoneInfo("Europe/Bucharest")  # receipts print local time
+UNREADABLE = "Nu am putut citi bonul. Fă o poză nouă, cu lumină bună."
+_CODES = ("barcode", "unique_id", "fiscal_key")  # what identifies one paper receipt
 
 Db = Annotated[Session, Depends(get_db)]
 CurrentUser = Annotated[User, Depends(current_user)]
@@ -76,12 +80,55 @@ class ReceiptResult(BaseModel):
     adds_up: bool | None = None
 
 
+class ReadLine(BaseModel):
+    name: str
+    quantity: Decimal  # repeated lines are added up, so two bags read as 2
+    line_total: Decimal
+
+
+class ReceiptReading(BaseModel):
+    """What a receipt says. A field OCR couldn't read is None."""
+
+    store_name: str | None
+    purchased_at: datetime | None
+    identifier: str | None  # the barcode if it could be read, else the printed ID
+    identifier_printed: bool  # False: none could be read, so the app generated this one
+    total: Decimal | None
+    deposits: Decimal  # bottle deposits: part of the total, but not products
+    lines: list[ReadLine]
+
+
 def _reject(code: int, message: str) -> HTTPException:
     return HTTPException(code, detail=message)
 
 
 def _max_upload_bytes() -> int:
     return get_settings().MAX_UPLOAD_MB * 1024 * 1024
+
+
+@router.post("/receipts/read")
+def read_receipt(file: UploadFile, user: CurrentUser, reader: Reader) -> ReceiptReading:
+    content = _read_upload(file)
+    try:
+        data = reader.read_receipt(content, file.content_type or "")
+    except DocumentError:
+        raise _reject(422, UNREADABLE) from None
+    if not data.lines:
+        raise _reject(422, UNREADABLE)
+
+    shown = data.barcode or data.unique_id or data.identifier
+    return ReceiptReading(
+        store_name=data.store_name or None,
+        purchased_at=data.purchased_at,
+        identifier=shown or _generated_identifier(data),
+        identifier_printed=shown is not None,
+        total=data.total,
+        deposits=data.deposits,
+        lines=[
+            ReadLine(name=line.raw_text, quantity=line.quantity, line_total=line.line_total)
+            for line in merge_repeated_lines(data.lines)
+        ],
+    )
 
 
 @router.post("/lists/{list_id}/receipts")
@@ -120,12 +167,12 @@ def upload_receipt(
     try:
         data = reader.read_receipt(content, file.content_type or "")
     except DocumentError:
-        raise _reject(422, "Nu am putut citi bonul. Fă o poză nouă, cu lumină bună.") from None
+        raise _reject(422, UNREADABLE) from None
     _check_receipt(data, store)
 
     purchased_at = data.purchased_at.replace(tzinfo=RECEIPT_TIMEZONE)
-    print_ = fingerprint(store.id, purchased_at, data.total, data.fiscal_key)
-    if db.scalar(select(Receipt.id).where(Receipt.fingerprint == print_)) is not None:
+    print_ = fingerprint(store.id, purchased_at, data.total)
+    if _used_before(db, print_, data):
         raise _reject(status.HTTP_409_CONFLICT, "Acest bon a fost deja folosit.")
 
     # The reader matches on expected_price; score_matches prices with estimated_price.
@@ -154,6 +201,9 @@ def upload_receipt(
         list_id=list_id,
         store_id=store.id,
         fingerprint=print_,
+        barcode=data.barcode,
+        unique_id=data.unique_id,
+        fiscal_key=data.fiscal_key,
         purchased_at=purchased_at,
         total=data.total,
         estimate=estimate,
@@ -206,6 +256,36 @@ def upload_receipt(
         points=result.points,
         adds_up=data.adds_up,
     )
+
+
+def _used_before(db: Session, print_: str, data: ReceiptData) -> bool:
+    """Has this paper receipt been saved before?
+
+    A scan may read any mix of the barcode, the ID UNIC and the fiscal key, and
+    they can't be converted into each other. So a match on any one means the
+    same receipt, and a receipt with the same store, day and total is also the
+    same one, unless a code read on both scans shows they differ: that's two
+    real, identical shops.
+    """
+    codes = [getattr(Receipt, name) == getattr(data, name) for name in _CODES if getattr(data, name)]
+    if codes and db.scalar(select(Receipt.id).where(or_(*codes))) is not None:
+        return True
+
+    columns = [getattr(Receipt, name) for name in _CODES]
+    similar = db.execute(select(*columns).where(Receipt.fingerprint == print_)).all()
+    return any(not _shown_different(row, data) for row in similar)
+
+
+def _shown_different(row, data: ReceiptData) -> bool:
+    return any(
+        getattr(row, name) and getattr(data, name) and getattr(row, name) != getattr(data, name) for name in _CODES
+    )
+
+
+def _generated_identifier(data: ReceiptData) -> str | None:
+    if not data.store_name or data.purchased_at is None or data.total is None:
+        return None
+    return receipt_code(data.store_name, data.purchased_at, data.total)
 
 
 def _part_items(db: Session, list_id: int, store_id: int) -> list[tuple[ListItem, str]]:

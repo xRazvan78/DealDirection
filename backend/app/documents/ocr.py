@@ -30,9 +30,13 @@ OCR_TIMEOUT_SECONDS = 30
 PDF_RENDER_SCALE = 300 / 72  # render scanned pages at 300 dpi
 TARGET_WIDTH = 1200  # px; about 30 px per character on a 40-column receipt (Tesseract)
 SAME_LINE = 0.5  # boxes whose centres differ by under half a box height share a line
+MAX_TILT = np.pi / 4  # radians; steeper text isn't a tilted photo but a sideways one
+FLATTEN_SIDE = 1000  # px; the paper's brightness changes slowly, so this is plenty
+MIN_PAPER = 0.05  # of the photo; anything smaller isn't the receipt
+MAX_COLOUR_PAPER = 0.9  # of the photo; by colour, this much means nothing was told apart
 
 
-def image_to_text(content: bytes, settings) -> str:
+def image_to_text(content: bytes, settings, flattened: bool = False, cropped: bool = True) -> str:
     """OCR a photo of a receipt or list.
 
     `settings` needs OCR_ENGINE, plus OCR_RAPID_LANG for RapidOCR or
@@ -41,7 +45,26 @@ def image_to_text(content: bytes, settings) -> str:
     image = cv2.imdecode(np.frombuffer(content, dtype=np.uint8), cv2.IMREAD_COLOR)
     if image is None:
         raise DocumentError("The file isn't a readable image")
-    return _ocr(_find_receipt(image), settings)
+    if cropped:
+        image = _find_receipt(image)
+    return _ocr(cv2.cvtColor(flatten(image), cv2.COLOR_GRAY2BGR) if flattened else image, settings)
+
+
+def flatten(image: np.ndarray) -> np.ndarray:
+    """Even out the paper, as greyscale: shadows and colour go, the ink stays.
+
+    Worn thermal receipts turn blue and darken in patches. Dividing by the
+    paper's own brightness at each spot fixes that without harming thin, faded
+    print, which fixed thresholding and contrast boosts both did on real photos.
+    """
+    grey = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY) if image.ndim == 3 else image
+    scale = min(FLATTEN_SIDE / max(grey.shape), 1)
+    small = cv2.resize(grey, None, fx=scale, fy=scale, interpolation=cv2.INTER_AREA)
+    size = max(small.shape) // 25 | 1  # wider than a letter, so the ink is closed over
+    paper = cv2.morphologyEx(small, cv2.MORPH_CLOSE, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (size, size)))
+    paper = cv2.GaussianBlur(paper, (size, size), 0)
+    paper = cv2.resize(paper, (grey.shape[1], grey.shape[0]), interpolation=cv2.INTER_LINEAR)
+    return cv2.divide(grey, paper, scale=255)
 
 
 def pdf_to_text(content: bytes, settings) -> str:
@@ -86,22 +109,38 @@ def _find_receipt(image: np.ndarray) -> np.ndarray:
 
 
 def _crop_to_paper(image: np.ndarray) -> np.ndarray:
-    """Crop to the largest bright, colourless area: the paper.
+    """Crop to the paper: the largest bright, colourless area.
 
     This works on wood, cloth or other busy backgrounds where edge finding
-    picks up the texture. If no such area is found, the photo is kept whole.
+    picks up the texture. A dark or blue receipt isn't bright or colourless, so
+    failing that, it's the bluest area, which still stands out from a warm
+    table. If no such area is found, the photo is kept whole.
     """
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-    paper = cv2.inRange(hsv, (0, 0, 120), (180, 60, 255))
-    paper = cv2.morphologyEx(paper, cv2.MORPH_CLOSE, np.ones((25, 25), np.uint8))
-    count, _, stats, _ = cv2.connectedComponentsWithStats(paper)
+    bright = cv2.inRange(hsv, (0, 0, 120), (180, 60, 255))
+    crop = _largest_area(image, bright, 1.0)
+    if crop is not None:
+        return crop
+
+    # In Lab, a low `b` is blue and a high one is yellow, at any brightness.
+    yellowness = cv2.cvtColor(image, cv2.COLOR_BGR2LAB)[:, :, 2]
+    _, bluest = cv2.threshold(yellowness, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+    crop = _largest_area(image, bluest, MAX_COLOUR_PAPER)
+    return image if crop is None else crop
+
+
+def _largest_area(image: np.ndarray, mask: np.ndarray, most: float) -> np.ndarray | None:
+    """The mask's biggest patch, if its share of the photo is believable."""
+    closed = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, np.ones((25, 25), np.uint8))
+    count, _, stats, _ = cv2.connectedComponentsWithStats(closed)
     if count < 2:
-        return image
+        return None
 
     largest = 1 + int(np.argmax(stats[1:, cv2.CC_STAT_AREA]))
     x, y, width, height, area = stats[largest]
-    if area < 0.05 * image.shape[0] * image.shape[1]:
-        return image
+    photo = image.shape[0] * image.shape[1]
+    if not MIN_PAPER * photo <= area <= most * photo:
+        return None
     return image[y : y + height, x : x + width]
 
 
@@ -185,12 +224,20 @@ def _boxes_to_text(boxes: Sequence, texts: Sequence[str]) -> str:
     RapidOCR returns them as two boxes. Boxes whose vertical centres are close
     form one line, joined left to right with two spaces, the way the receipt
     parser expects.
+
+    A photo is rarely perfectly straight: across a receipt's width, 2 degrees
+    moves the price a whole line away from its name. So the boxes are first
+    turned by the text's own angle.
     """
+    all_points = [np.asarray(box, dtype=float) for box in boxes]
+    turn = _text_angle(all_points)
+    cos, sin = np.cos(turn), np.sin(turn)
+
     pieces = []
-    for box, text in zip(boxes, texts):
-        points = np.asarray(box, dtype=float)
-        ys = points[:, 1]
-        pieces.append((ys.mean(), max(ys.max() - ys.min(), 1.0), points[:, 0].min(), text))
+    for points, text in zip(all_points, texts):
+        xs = points[:, 0] * cos + points[:, 1] * sin
+        ys = points[:, 1] * cos - points[:, 0] * sin
+        pieces.append((ys.mean(), max(ys.max() - ys.min(), 1.0), xs.min(), text))
     pieces.sort()
 
     lines: list[list[tuple[float, str]]] = []
@@ -202,6 +249,17 @@ def _boxes_to_text(boxes: Sequence, texts: Sequence[str]) -> str:
         lines[-1].append((left, text))
 
     return "\n".join("  ".join(text for _, text in sorted(line)) for line in lines)
+
+
+def _text_angle(all_points: Sequence[np.ndarray]) -> float:
+    """The typical slope of the boxes' top edges, in radians; 0 if there are none.
+
+    The median ignores a few odd boxes, like a logo. Only the left-to-right
+    edge is used, so a sideways photo isn't treated as a slight tilt.
+    """
+    angles = [np.arctan2(p[1, 1] - p[0, 1], p[1, 0] - p[0, 0]) for p in all_points if len(p) == 4]
+    level = [angle for angle in angles if abs(angle) < MAX_TILT]
+    return float(np.median(level)) if level else 0.0
 
 
 # --- Tesseract --------------------------------------------------------------

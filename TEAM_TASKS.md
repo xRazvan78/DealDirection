@@ -83,7 +83,7 @@ Stop for 10 minutes at each one, and make a cut if you're behind.
 - [ ] Task 3: build the optimiser, with every listed test case.
 - [ ] Task 8: add shopping lists.
 - [x] Task 9: add plans, the one-time suggestion and directions. IGNORE FOR NOW
-- [ ] Task 13: add the wallet, simulated rewards and the cards API.
+- [ ] Task 13: add the wallet, simulated rewards.
 - [ ] Connect all screens to the real API, and fix integration bugs.
 - [ ] Task 19: write the full-loop test, and run the app on a phone over HTTPS.
 

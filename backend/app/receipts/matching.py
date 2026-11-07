@@ -14,6 +14,7 @@ from app.documents.schemas import LineMatch, ReceiptLine
 from app.textutil import fold
 
 CENT = Decimal("0.01")
+CODE_LENGTH = 12
 _ZERO_IN_WORD = re.compile(r"(?<=[a-z])0|0(?=[a-z])")  # a zero touching letters is a misread "o"
 
 
@@ -26,19 +27,26 @@ class MatchedLine:
     paid: Decimal  # the receipt's price for that quantity
 
 
-def fingerprint(store_id: int, purchased_at: datetime, total: Decimal, fiscal_key: str | None = None) -> str:
-    """Identify a paper receipt, so it can only earn points once.
+def fingerprint(store_id: int, purchased_at: datetime, total: Decimal) -> str:
+    """What every scan of a paper receipt shares: its store, date and total.
 
-    With a fiscal key (register, date, time and receipt number, see
-    receipt_parser) two receipts with the same total on the same day stay
-    apart, and a misread total can't make a rescan look new. Without one, the
-    store, date and total are used; the time is left out there, because OCR
-    reads it on one scan and misses it on the next.
+    The receipt's own codes tell apart two identical shops on one day, but a
+    scan may not read them, so this stays the same whichever ones it did read.
+    The time of day is left out on purpose: OCR reads it on one scan and misses
+    it on the next. See _used_before() in router.py.
     """
-    if fiscal_key:
-        return hashlib.sha256(f"fiscal|{fiscal_key}".encode()).hexdigest()
     key = f"{store_id}|{purchased_at.date().isoformat()}|{total.quantize(CENT)}"
     return hashlib.sha256(key.encode()).hexdigest()
+
+
+def receipt_code(store_name: str, purchased_at: datetime, total: Decimal) -> str:
+    """A short code for a receipt with no readable printed identifier.
+
+    Works for any shop, even one that isn't in the database, and rescanning
+    the same paper gives the same code, for the reasons given in fingerprint().
+    """
+    key = f"{fold(store_name)}|{purchased_at.date().isoformat()}|{total.quantize(CENT)}"
+    return hashlib.sha256(key.encode()).hexdigest()[:CODE_LENGTH].upper()
 
 
 def merge_repeated_lines(lines: Sequence[ReceiptLine]) -> list[ReceiptLine]:

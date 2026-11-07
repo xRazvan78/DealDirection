@@ -2,7 +2,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { Product, ReceiptResult, SearchResult } from '../core/models';
+import { Product, ReceiptReading, SearchResult } from '../core/models';
 import { SavedListsService } from '../lists/saved-lists.service';
 import { ro } from '../shared/ro';
 import { Cart } from './cart';
@@ -20,13 +20,26 @@ const auchan: Product = {
 };
 const carrefour: Product = { ...auchan, id: 6, store_id: 2, store_name: 'Carrefour', name: 'Unt' };
 const match: SearchResult[] = [{ size_category_id: 100, path: 'Lapte', generic: auchan }];
-const receipt: ReceiptResult = {
-  matched: [{ name: 'Lapte', line_total: '8.50' }],
-  unmatched_items: [],
-  estimate: '8.50',
-  paid: '8.50',
-  modifier: '1.00',
-  points: 85,
+const receipt: ReceiptReading = {
+  store_name: 'Lidl',
+  purchased_at: '2026-10-26T11:39:00',
+  identifier: 'Z 0347 / BF 0025',
+  identifier_printed: true,
+  total: '21.84',
+  deposits: '0',
+  lines: [
+    { name: 'Chips preparate manual', quantity: '2.000', line_total: '15.98' },
+    { name: 'Banane', quantity: '0.734', line_total: '5.86' },
+  ],
+};
+const unreadFields: ReceiptReading = {
+  store_name: null,
+  purchased_at: null,
+  identifier: null,
+  identifier_printed: false,
+  total: null,
+  deposits: '0',
+  lines: receipt.lines,
 };
 
 describe('Cart', () => {
@@ -886,7 +899,6 @@ describe('Cart', () => {
 
       expect(page.querySelector('.shops')?.textContent).toContain(ro.cart.noShops);
       expect(button('.directions').disabled).toBe(true);
-      expect(button('.scan').disabled).toBe(true);
     });
 
     it('shows every store and picks the first', async () => {
@@ -1133,15 +1145,26 @@ describe('Cart', () => {
 
   describe('receipt', () => {
     const photo = new File(['x'], 'bon.jpg', { type: 'image/jpeg' });
+    const readUrl = '/api/receipts/read';
 
     beforeEach(async () => {
-      cart.addProduct(auchan);
       await open();
     });
 
     function upload(): void {
       pickFile('.receipt-input', photo);
     }
+
+    async function read(reading: ReceiptReading): Promise<string> {
+      upload();
+      http.expectOne(readUrl).flush(reading);
+      await settle();
+      return page.querySelector('.receipt-result')?.textContent ?? '';
+    }
+
+    it('can be used with an empty cart', () => {
+      expect(button('.scan').disabled).toBe(false);
+    });
 
     it('opens the camera, with a file picker as fallback', () => {
       const input = page.querySelector('.receipt-input');
@@ -1150,18 +1173,63 @@ describe('Cart', () => {
       expect(input?.getAttribute('capture')).toBe('environment');
     });
 
-    it('sends the photo for the chosen store and shows the points', async () => {
+    it('sends the photo to be read', () => {
       upload();
 
-      const request = http.expectOne((r) => /\/receipts$/.test(r.url));
-      expect(request.request.params.get('store_id')).toBe('1');
+      const request = http.expectOne(readUrl);
       expect((request.request.body as FormData).get('file')).toBe(photo);
       request.flush(receipt);
-      await settle();
+    });
 
-      const result = page.querySelector('.receipt-result')?.textContent;
-      expect(result).toContain(ro.cart.receiptValid);
-      expect(result).toContain('85');
+    it('shows the shop, date and identifier', async () => {
+      const result = await read(receipt);
+
+      expect(result).toContain('Lidl');
+      expect(result).toContain('26.10.2026 11:39');
+      expect(result).toContain('Z 0347 / BF 0025');
+      expect(result).not.toContain(ro.cart.receiptIdentifierGenerated);
+    });
+
+    it('shows every product with how many were bought', async () => {
+      await read(receipt);
+
+      const rows = [...page.querySelectorAll('.receipt-result tbody tr')].map((row) =>
+        [...row.querySelectorAll('td')].map((cell) => cell.textContent?.trim()),
+      );
+
+      expect(rows).toEqual([
+        ['Chips preparate manual', '2', '15,98 lei'],
+        ['Banane', '0,734', '5,86 lei'],
+      ]);
+      expect(page.querySelector('.receipt-total')?.textContent).toContain('21,84 lei');
+    });
+
+    it('shows bottle deposits apart from the products', async () => {
+      await read({ ...receipt, deposits: '1.50' });
+
+      expect(page.querySelector('.receipt-deposits')?.textContent).toContain('1,50 lei');
+      expect(page.querySelectorAll('.receipt-result tbody tr').length).toBe(2);
+    });
+
+    it('leaves out the deposits row when there are none', async () => {
+      await read(receipt);
+
+      expect(page.querySelector('.receipt-deposits')).toBeNull();
+    });
+
+    it('marks an identifier the app generated', async () => {
+      const result = await read({ ...receipt, identifier: 'A1B2C3', identifier_printed: false });
+
+      expect(result).toContain('A1B2C3');
+      expect(result).toContain(ro.cart.receiptIdentifierGenerated);
+    });
+
+    it('says which details could not be read', async () => {
+      await read(unreadFields);
+
+      for (const field of ['.receipt-store', '.receipt-date', '.receipt-identifier', '.receipt-total']) {
+        expect(page.querySelector(field)?.textContent).toContain(ro.cart.receiptNotRead);
+      }
     });
 
     it('blocks a second upload while the first is running', async () => {
@@ -1169,40 +1237,39 @@ describe('Cart', () => {
       await settle();
 
       expect(button('.scan').disabled).toBe(true);
-      http.expectOne((r) => /\/receipts$/.test(r.url)).flush(receipt);
+      http.expectOne(readUrl).flush(receipt);
     });
 
-    it('explains a receipt that was already used', async () => {
+    it('shows the server reason a receipt was rejected', async () => {
       upload();
 
-      fail(/\/receipts$/, 409);
+      fail(readUrl, 422, 'Motivul de la server');
       await settle();
 
-      expect(page.textContent).toContain(ro.cart.receiptUsed);
-    });
-
-    it('shows the server reason for a wrong store', async () => {
-      upload();
-
-      fail(/\/receipts$/, 422, 'Bonul trebuie să fie de la Auchan');
-      await settle();
-
-      expect(page.textContent).toContain('Bonul trebuie să fie de la Auchan');
+      expect(page.textContent).toContain('Motivul de la server');
     });
 
     it('asks for a retake of an unreadable receipt', async () => {
       upload();
 
-      fail(/\/receipts$/, 422);
+      fail(readUrl, 422);
       await settle();
 
       expect(page.textContent).toContain(ro.cart.receiptUnreadable);
     });
 
-    it('can close the result', async () => {
+    it('does not blame the photo when the request itself failed', async () => {
       upload();
-      http.expectOne((r) => /\/receipts$/.test(r.url)).flush(receipt);
+
+      fail(readUrl, 500);
       await settle();
+
+      expect(page.textContent).toContain(ro.cart.receiptFailed);
+      expect(page.textContent).not.toContain(ro.cart.receiptUnreadable);
+    });
+
+    it('can close the result', async () => {
+      await read(receipt);
 
       button('.close-result').click();
       await settle();

@@ -130,6 +130,8 @@ describe('App', () => {
 
     expect(tabs).toEqual(['Home', 'Cart', 'Cards']);
     expect(menu).toEqual(['Lists', 'Point Shop', 'Settings']);
+  });
+
   it('shows no count on the cart tab while the cart is empty', async () => {
     const page = await openAt('/browse');
 
