@@ -1,9 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { CartService } from '../cart/cart.service';
+import { ReceiptReading } from '../core/models';
 import { ro } from '../shared/ro';
 import { Lists } from './lists';
 import { SavedListsService } from './saved-lists.service';
+
+const receipt: ReceiptReading = {
+  store_name: 'Kaufland',
+  purchased_at: '2026-11-06T12:37:00',
+  identifier: '123',
+  identifier_printed: true,
+  total: '140.39',
+  deposits: '0',
+  lines: [{ name: 'PEPSI ZERO', quantity: '1', line_total: '10.99' }],
+};
 
 describe('Lists', () => {
   let fixture: ComponentFixture<Lists>;
@@ -226,6 +237,58 @@ describe('Lists', () => {
 
     expect(lists.lists()).toEqual([]);
     expect(names()).toEqual([]);
+  });
+
+  describe('with a receipt', () => {
+    beforeEach(async () => {
+      saveList('Prima');
+      lists.finish(receipt);
+      await open();
+    });
+
+    it('marks the list and shows what the receipt says', async () => {
+      const card = page.querySelector('.list-card')?.textContent;
+
+      expect(card).toContain(ro.lists.hasReceipt);
+      expect(card).toContain('Kaufland');
+      expect(card).toContain('140,39 lei');
+    });
+
+    it('shows the receipt instead of opening the cart', async () => {
+      await press('.open-list');
+
+      expect(page.querySelector('.receipt-result')?.textContent).toContain('PEPSI ZERO');
+      expect(cart.items()).toEqual([]);
+      expect(navigate).not.toHaveBeenCalled();
+    });
+
+    it('only offers to close the receipt', async () => {
+      await press('.open-list');
+
+      expect(page.querySelector('.accept-receipt')).toBeNull();
+      await press('.close-result');
+
+      expect(page.querySelector('.receipt-result')).toBeNull();
+    });
+
+    it('does not warn about unsaved changes', async () => {
+      cart.add({ name: 'Nesalvat', quantity: '1', price: '1' });
+      await fixture.whenStable();
+
+      await press('.open-list');
+
+      expect(page.querySelector('.unsaved-warning')).toBeNull();
+      expect(cart.items()[0].name).toBe('Nesalvat');
+    });
+
+    it('offers only delete', async () => {
+      expect(page.querySelector('.rename')).toBeNull();
+
+      await press('.delete');
+      await press('.confirm-delete');
+
+      expect(lists.lists()).toEqual([]);
+    });
   });
 
   it('can call off a delete', async () => {

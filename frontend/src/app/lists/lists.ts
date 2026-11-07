@@ -2,6 +2,8 @@ import { DatePipe } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { CartService } from '../cart/cart.service';
+import { ReceiptReading } from '../core/models';
+import { ReceiptDialog } from '../receipt/receipt-dialog';
 import { formatLei } from '../shared/format';
 import { totalOf } from '../shared/money';
 import { ro } from '../shared/ro';
@@ -11,7 +13,7 @@ import { SavedList, SavedListsService } from './saved-lists.service';
 type NextStep = { listId: number } | 'new';
 
 @Component({
-  imports: [DatePipe],
+  imports: [DatePipe, ReceiptDialog],
   selector: 'app-lists',
   styleUrl: './lists.scss',
   templateUrl: './lists.html',
@@ -26,13 +28,14 @@ export class Lists {
   protected readonly renamingId = signal<number | null>(null);
   protected readonly newName = signal('');
   protected readonly deletingId = signal<number | null>(null);
+  protected readonly viewing = signal<ReceiptReading | null>(null);
 
   protected countOf(items: readonly unknown[]): string {
     return `${items.length} ${items.length === 1 ? ro.lists.product : ro.lists.products}`;
   }
 
   protected totalOf(list: SavedList): string {
-    return formatLei(totalOf(list.items));
+    return formatLei(list.receipt?.total ?? totalOf(list.items));
   }
 
   protected openCart(): void {
@@ -40,6 +43,10 @@ export class Lists {
   }
 
   protected openList(list: SavedList): void {
+    if (list.receipt) {
+      this.viewing.set(list.receipt);
+      return;
+    }
     if (list.id === this.saved.current()?.id) {
       this.openCart();
       return;

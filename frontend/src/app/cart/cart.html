@@ -342,61 +342,10 @@
 }
 
 @if (receipt(); as reading) {
-  <div class="receipt-backdrop" (click)="receipt.set(null)"></div>
-  <div
-    class="receipt-result"
-    role="dialog"
-    aria-modal="true"
-    [attr.aria-label]="ro.cart.receiptTitle"
-  >
-    <h2>{{ ro.cart.receiptTitle }}</h2>
-    <dl class="receipt-details">
-      <dt>{{ ro.cart.receiptStore }}</dt>
-      <dd class="receipt-store">{{ reading.store_name ?? ro.cart.receiptNotRead }}</dd>
-      <dt>{{ ro.cart.receiptDate }}</dt>
-      <dd class="receipt-date">
-        {{ reading.purchased_at ? formatReceiptDate(reading.purchased_at) : ro.cart.receiptNotRead }}
-      </dd>
-      <dt>{{ ro.cart.receiptIdentifier }}</dt>
-      <dd class="receipt-identifier">
-        {{ reading.identifier ?? ro.cart.receiptNotRead }}
-        @if (reading.identifier && !reading.identifier_printed) {
-          <small>({{ ro.cart.receiptIdentifierGenerated }})</small>
-        }
-      </dd>
-    </dl>
-    <div class="receipt-lines">
-      <table>
-        <thead>
-          <tr>
-            <th scope="col">{{ ro.cart.product }}</th>
-            <th scope="col">{{ ro.cart.quantity }}</th>
-            <th scope="col">{{ ro.cart.price }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (line of reading.lines; track $index) {
-            <tr>
-              <td>{{ line.name }}</td>
-              <td>{{ formatQuantity(line.quantity) }}</td>
-              <td>{{ formatLei(line.line_total) }}</td>
-            </tr>
-          }
-        </tbody>
-      </table>
-    </div>
-    @if (reading.deposits !== '0') {
-      <p class="receipt-deposits">
-        <span>{{ ro.cart.receiptDeposits }}</span>
-        <span>{{ formatLei(reading.deposits) }}</span>
-      </p>
-    }
-    <p class="receipt-total">
-      <span>{{ ro.cart.total }}</span>
-      <strong>{{ reading.total ? formatLei(reading.total) : ro.cart.receiptNotRead }}</strong>
-    </p>
-    <button type="button" class="close-result" (click)="receipt.set(null)">
-      {{ ro.cart.close }}
-    </button>
-  </div>
+  <app-receipt-dialog
+    [reading]="reading"
+    [deciding]="true"
+    (accepted)="acceptReceipt(reading)"
+    (dismissed)="receipt.set(null)"
+  />
 }

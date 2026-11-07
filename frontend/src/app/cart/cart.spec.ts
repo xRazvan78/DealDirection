@@ -1302,13 +1302,39 @@ describe('Cart', () => {
       expect(page.textContent).not.toContain(ro.cart.receiptUnreadable);
     });
 
-    it('can close the result', async () => {
+    it('asks to accept or cancel the receipt', async () => {
       await read(receipt);
 
-      button('.close-result').click();
+      expect(button('.cancel-receipt').textContent).toContain(ro.cart.cancel);
+      expect(button('.accept-receipt').textContent).toContain(ro.cart.accept);
+      expect(page.querySelector('.close-result')).toBeNull();
+    });
+
+    it('keeps the list in the cart when cancelled', async () => {
+      cart.add({ name: 'Mere', quantity: '1', price: '5' });
+      await read(receipt);
+
+      button('.cancel-receipt').click();
       await settle();
 
       expect(page.querySelector('.receipt-result')).toBeNull();
+      expect(cart.items().length).toBe(1);
+      expect(TestBed.inject(SavedListsService).lists()).toEqual([]);
+    });
+
+    it('moves the list out of the cart when accepted', async () => {
+      const lists = TestBed.inject(SavedListsService);
+      cart.add({ name: 'Mere', quantity: '1', price: '5' });
+      await read(receipt);
+
+      button('.accept-receipt').click();
+      await settle();
+
+      expect(page.querySelector('.receipt-result')).toBeNull();
+      expect(cart.items()).toEqual([]);
+      expect(lists.current()).toBeNull();
+      expect(lists.lists()[0].items[0].name).toBe('Mere');
+      expect(lists.lists()[0].receipt).toEqual(receipt);
     });
   });
 });

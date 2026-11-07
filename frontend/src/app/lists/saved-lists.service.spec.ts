@@ -1,7 +1,18 @@
 import { TestBed } from '@angular/core/testing';
 import { CartService } from '../cart/cart.service';
+import { ReceiptReading } from '../core/models';
 import { setLanguage } from '../shared/language';
 import { SavedListsService } from './saved-lists.service';
+
+const receipt: ReceiptReading = {
+  store_name: 'Kaufland',
+  purchased_at: '2026-11-06T12:37:00',
+  identifier: '123',
+  identifier_printed: true,
+  total: '10.00',
+  deposits: '0',
+  lines: [{ name: 'MERE', quantity: '2', line_total: '10.00' }],
+};
 
 describe('SavedListsService', () => {
   let cart: CartService;
@@ -179,6 +190,71 @@ describe('SavedListsService', () => {
     setup();
 
     expect(lists.lists()).toEqual([]);
+  });
+
+  describe('with a receipt', () => {
+    it('saves a new list and empties the cart', () => {
+      addItem();
+
+      lists.finish(receipt);
+
+      expect(lists.lists()[0]).toMatchObject({ name: 'Lista 1', receipt });
+      expect(lists.lists()[0].items[0].name).toBe('Mere');
+      expect(cart.items()).toEqual([]);
+      expect(lists.current()).toBeNull();
+      expect(lists.unsaved()).toBe(false);
+    });
+
+    it('keeps the latest changes to an open list', () => {
+      addItem();
+      lists.saveCurrent('Săptămâna');
+      addItem('Pere');
+
+      lists.finish(receipt);
+
+      expect(lists.lists().length).toBe(1);
+      expect(lists.lists()[0].name).toBe('Săptămâna');
+      expect(lists.lists()[0].items.length).toBe(2);
+    });
+
+    it('never goes back in the cart', () => {
+      addItem();
+      lists.finish(receipt);
+
+      lists.open(lists.lists()[0].id);
+
+      expect(cart.items()).toEqual([]);
+      expect(lists.current()).toBeNull();
+    });
+
+    it('can no longer be renamed', () => {
+      addItem();
+      lists.finish(receipt);
+
+      lists.rename(lists.lists()[0].id, 'Nouă');
+
+      expect(lists.lists()[0].name).toBe('Lista 1');
+    });
+
+    it('can be deleted', () => {
+      addItem();
+      lists.finish(receipt);
+
+      lists.remove(lists.lists()[0].id);
+
+      expect(lists.lists()).toEqual([]);
+    });
+
+    it('stays closed after a reload', () => {
+      addItem();
+      lists.finish(receipt);
+      TestBed.resetTestingModule();
+
+      setup();
+
+      expect(lists.lists()[0].receipt).toEqual(receipt);
+      expect(cart.items()).toEqual([]);
+    });
   });
 
   it('clears everything', () => {

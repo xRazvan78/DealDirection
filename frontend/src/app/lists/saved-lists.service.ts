@@ -1,5 +1,6 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { CartItem, CartService } from '../cart/cart.service';
+import { ReceiptReading } from '../core/models';
 import { ro } from '../shared/ro';
 
 export interface SavedList {
@@ -7,6 +8,8 @@ export interface SavedList {
   name: string;
   items: CartItem[];
   updatedAt: string;
+  // Set once the list has been bought. From then on it can only be viewed or deleted.
+  receipt?: ReceiptReading;
 }
 
 const LISTS_KEY = 'dealdirection.lists';
@@ -53,9 +56,17 @@ export class SavedListsService {
     this.cart.setCurrentList(id);
   }
 
+  // Saves what's in the cart, then closes it with the receipt, which empties the cart.
+  finish(receipt: ReceiptReading): void {
+    this.saveCurrent();
+    const id = this.cart.currentListId();
+    this.save(this.lists().map((list) => (list.id === id ? { ...list, receipt } : list)));
+    this.cart.clear();
+  }
+
   open(id: number): void {
     const list = this.lists().find((saved) => saved.id === id);
-    if (list) {
+    if (list && !list.receipt) {
       this.cart.setCurrentList(id);
       this.cart.replace(list.items);
     }
@@ -68,7 +79,11 @@ export class SavedListsService {
   rename(id: number, name: string): void {
     const trimmed = name.trim();
     if (trimmed) {
-      this.save(this.lists().map((list) => (list.id === id ? { ...list, name: trimmed } : list)));
+      this.save(
+        this.lists().map((list) =>
+          list.id === id && !list.receipt ? { ...list, name: trimmed } : list,
+        ),
+      );
     }
   }
 

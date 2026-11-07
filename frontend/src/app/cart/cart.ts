@@ -15,7 +15,8 @@ import { Observable, catchError, finalize, forkJoin, map, of, switchMap } from '
 import { ApiService } from '../core/api';
 import { ImportPreview, Product, ReceiptReading, ShoppingRoute } from '../core/models';
 import { SavedListsService } from '../lists/saved-lists.service';
-import { formatKm, formatLei, formatQuantity, formatReceiptDate } from '../shared/format';
+import { ReceiptDialog } from '../receipt/receipt-dialog';
+import { formatKm, formatLei } from '../shared/format';
 import {
   addQuantities,
   decreaseQuantity,
@@ -37,6 +38,7 @@ interface PricedImport {
 
 @Component({
   host: { '(window:resize)': 'keepFieldInView()' },
+  imports: [ReceiptDialog],
   selector: 'app-cart',
   styleUrl: './cart.scss',
   templateUrl: './cart.html',
@@ -52,8 +54,6 @@ export class Cart {
 
   protected readonly ro = ro;
   protected readonly formatLei = formatLei;
-  protected readonly formatQuantity = formatQuantity;
-  protected readonly formatReceiptDate = formatReceiptDate;
   protected readonly formatKm = formatKm;
 
   protected readonly adding = signal(false);
@@ -314,6 +314,17 @@ export class Cart {
         next: (reading) => this.receipt.set(reading),
         error: (error: HttpErrorResponse) => this.receiptError.set(receiptMessage(error)),
       });
+  }
+
+  // The list leaves the cart for good: from now on it's only in the saved lists.
+  protected acceptReceipt(reading: ReceiptReading): void {
+    this.lists.finish(reading);
+    this.receipt.set(null);
+    this.adding.set(false);
+    this.editing.set(false);
+    this.naming.set(false);
+    this.route.set(null);
+    this.importNote.set(null);
   }
 
   private findStore(itemId: number, name: string): void {
