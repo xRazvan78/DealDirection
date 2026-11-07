@@ -42,8 +42,8 @@ def main(folder: Path, engine: str) -> None:
     base = get_settings()
     runs = RUNS[engine] if engine != "both" else RUNS["rapidocr"] + RUNS["tesseract"]
 
-    print("| Photo | Engine | Seconds | Store | Date | Total | Items |")
-    print("|---|---|---|---|---|---|---|")
+    print("| Photo | Engine | Seconds | Store | Date | Total | Adds up | Fiscal key | Items |")
+    print("|---|---|---|---|---|---|---|---|---|")
     for photo in photos:
         content = photo.read_bytes()
         for name, psm in runs:
@@ -59,18 +59,18 @@ def main(folder: Path, engine: str) -> None:
             try:
                 text = image_to_text(content, settings)
             except DocumentError as error:
-                print(f"| {photo.name} | {label} | - | failed: {error} | | | |")
+                print(f"| {photo.name} | {label} | - | failed: {error} | | | | | |")
                 continue
             seconds = time.perf_counter() - start
 
             (out / f"{photo.stem}.{label.replace(' ', '.')}.txt").write_text(text, encoding="utf-8")
             receipt = parse_receipt(text)
-            date = receipt.purchased_at.strftime("%d.%m.%Y") if receipt.purchased_at else "missing"
+            date = receipt.purchased_at.strftime("%d.%m.%Y %H:%M") if receipt.purchased_at else "missing"
             total = receipt.total if receipt.total is not None else "missing"
             items = "; ".join(f"{line.raw_text} {line.line_total}" for line in receipt.lines) or "none"
             print(
                 f"| {photo.name} | {label} | {seconds:.1f} | {receipt.store_name or 'missing'} "
-                f"| {date} | {total} | {items} |"
+                f"| {date} | {total} | {receipt.adds_up} | {receipt.fiscal_key or 'missing'} | {items} |"
             )
 
     print(f"\nOCR text saved in {out}")

@@ -28,7 +28,14 @@ class ReceiptData(_Frozen):
     store_name: str
     purchased_at: datetime | None
     total: Decimal | None
-    lines: list[ReceiptLine]
+    lines: list[ReceiptLine]  # products only: discounts are taken off, deposits left out
+    deposits: Decimal = Decimal(0)  # bottle deposits (SGR): paid, but not products
+    adds_up: bool | None = None  # products + deposits == total; None without a total
+    receipt_id: str | None = None  # the ID UNIC digits, as read
+    register_id: str | None = None  # the cash register's series, printed after "RL"
+    receipt_number: str | None = None  # "BF" number, without leading zeros
+    # register|date|HHMM|number: identifies one paper receipt even if the ID UNIC is misread
+    fiscal_key: str | None = None
 
 
 class Food(_Frozen):

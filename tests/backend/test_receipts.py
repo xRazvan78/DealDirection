@@ -442,3 +442,40 @@ def test_completed_list_says_its_receipts_are_done(db: Session, active_list: Act
 
     assert response.status_code == 409
     assert "plan" not in response.json()["detail"]
+
+
+# --- Fiscal key and the total check -----------------------------------------
+
+
+def test_two_receipts_with_the_same_total_and_day_but_different_fiscal_ids_both_count(db: Session, active_list: ActiveList, stores, fake_reader) -> None:
+    milk = active_list.items["Lapte integral Albalact 1 l"]
+    fake_reader.receipt = receipt(total="10.00", lines=[("LAPTE", "1", "10.00")]).model_copy(update={"fiscal_key": "111|20261026|1139|240"})
+    fake_reader.matches = [LineMatch(line_index=0, item_id=milk.id)]
+    assert upload(active_list, stores[0]).status_code == 200
+
+    other = _make_list(db, _user(db, "receipts-fiscal@example.com"), {stores[0]: [("Lapte integral Albalact 1 l", "10.00", "1")]})
+    fake_reader.receipt = fake_reader.receipt.model_copy(update={"fiscal_key": "111|20261026|1141|241"})
+    fake_reader.matches = [LineMatch(line_index=0, item_id=other.items["Lapte integral Albalact 1 l"].id)]
+
+    assert upload(other, stores[0]).status_code == 200
+
+
+def test_same_fiscal_id_with_a_misread_total_is_still_a_duplicate(db: Session, active_list: ActiveList, stores, fake_reader) -> None:
+    milk = active_list.items["Lapte integral Albalact 1 l"]
+    fake_reader.receipt = receipt(total="10.00", lines=[("LAPTE", "1", "10.00")]).model_copy(update={"fiscal_key": "111|20261026|1139|240"})
+    fake_reader.matches = [LineMatch(line_index=0, item_id=milk.id)]
+    assert upload(active_list, stores[0]).status_code == 200
+
+    other = _make_list(db, _user(db, "receipts-misread@example.com"), {stores[0]: [("Lapte integral Albalact 1 l", "10.00", "1")]})
+    fake_reader.receipt = receipt(total="16.00", lines=[("LAPTE", "1", "10.00")]).model_copy(update={"fiscal_key": "111|20261026|1139|240"})
+    fake_reader.matches = [LineMatch(line_index=0, item_id=other.items["Lapte integral Albalact 1 l"].id)]
+
+    assert upload(other, stores[0]).status_code == 409
+
+
+def test_result_says_whether_the_receipt_adds_up(active_list: ActiveList, fake_reader) -> None:
+    milk = active_list.items["Lapte integral Albalact 1 l"]
+    fake_reader.receipt = receipt(total="10.00", lines=[("LAPTE", "1", "10.00")]).model_copy(update={"adds_up": True})
+    fake_reader.matches = [LineMatch(line_index=0, item_id=milk.id)]
+
+    assert upload(active_list, active_list.stores[0]).json()["adds_up"] is True
