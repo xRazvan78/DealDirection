@@ -13,7 +13,7 @@ import {
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { Observable, catchError, finalize, forkJoin, map, of, switchMap } from 'rxjs';
 import { ApiService } from '../core/api';
-import { ImportPreview, Product, ReceiptReading, ShoppingRoute } from '../core/models';
+import { Product, ReceiptReading, ShoppingRoute } from '../core/models';
 import { SavedListsService } from '../lists/saved-lists.service';
 import { formatKm, formatLei, formatQuantity, formatReceiptDate } from '../shared/format';
 import {
@@ -26,14 +26,6 @@ import {
 import { ro } from '../shared/ro';
 import { CartItem, CartService } from './cart.service';
 import { CartPlan, comparePlans } from './plans';
-
-// `/imports` scales a plan by days. A plain list has no days, so it stays as written.
-const IMPORT_DAYS = 1;
-
-interface PricedImport {
-  item: ImportPreview['items'][number];
-  generic: Product | null;
-}
 
 @Component({
   host: { '(window:resize)': 'keepFieldInView()' },
@@ -70,11 +62,6 @@ export class Cart {
 
   protected readonly naming = signal(false);
   protected readonly listName = signal('');
-
-  protected readonly importOpen = signal(false);
-  protected readonly importing = signal(false);
-  protected readonly importError = signal<string | null>(null);
-  protected readonly importNote = signal<string | null>(null);
 
   private readonly categoryKey = computed(() => {
     const ids = this.cart.items().flatMap(({ sizeCategoryId }) => sizeCategoryId ?? []);
@@ -162,7 +149,6 @@ export class Cart {
     this.draft.set(this.cart.items());
     this.editingId.set(null);
     this.editFailed.set(false);
-    this.importNote.set(null);
     this.editing.set(true);
   }
 
@@ -240,28 +226,6 @@ export class Cart {
     rows
       .filter((row) => row.name !== previous.get(row.id))
       .forEach((row) => this.findStore(row.id, row.name));
-  }
-
-  protected importFile(input: HTMLInputElement): void {
-    const file = input.files?.[0];
-    input.value = '';
-    if (!file) {
-      return;
-    }
-    this.importing.set(true);
-    this.importError.set(null);
-    this.importNote.set(null);
-    this.api
-      .importList(IMPORT_DAYS, { file })
-      .pipe(
-        switchMap((preview) => this.priceImport(preview)),
-        finalize(() => this.importing.set(false)),
-      )
-      .subscribe({
-        next: ({ priced, unmapped }) => this.addImported(priced, unmapped),
-        error: (error: HttpErrorResponse) =>
-          this.importError.set(isFileRejected(error) ? ro.cart.fileRejected : ro.cart.importFailed),
-      });
   }
 
   // One Google Maps trip through every store in the cart, in the order the backend found shortest.
@@ -347,43 +311,6 @@ export class Cart {
       ),
     );
     return forkJoin(lookups).pipe(map((entries) => new Map(entries)));
-  }
-
-  private priceImport(preview: ImportPreview) {
-    const lookups = preview.items.map((item) =>
-      this.api
-        .getCategoryProducts(item.size_category_id)
-        .pipe(map(({ generic }): PricedImport => ({ item, generic }))),
-    );
-    return (lookups.length ? forkJoin(lookups) : of<PricedImport[]>([])).pipe(
-      map((priced) => ({ priced, unmapped: preview.unmapped })),
-    );
-  }
-
-  private addImported(priced: PricedImport[], unmapped: string[]): void {
-    for (const { item, generic } of priced) {
-      const quantity = String(item.packs);
-      if (generic) {
-        this.cart.add({
-          name: generic.name,
-          quantity,
-          price: generic.price,
-          store: { id: generic.store_id, name: generic.store_name },
-          sizeCategoryId: item.size_category_id,
-        });
-      } else {
-        this.cart.add({
-          name: item.food,
-          quantity,
-          price: '0',
-          sizeCategoryId: item.size_category_id,
-        });
-      }
-    }
-    unmapped.forEach((food) => this.cart.add({ name: food, quantity: '1', price: '0' }));
-    if (unmapped.length || priced.some(({ generic }) => !generic)) {
-      this.importNote.set(ro.cart.needsPrice);
-    }
   }
 }
 
