@@ -81,7 +81,6 @@ describe('language', () => {
       [
         'appName',
         'browse.pointShop',
-        'cart.pdf',
         'cart.total',
         'login.email',
         'nav.wallet',

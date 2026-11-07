@@ -14,10 +14,11 @@ button {
 
 /* The lower section is too tall to share a short screen with a scrolling table, which
    would shrink until no product shows. So the table shows every product, and the page
-   scrolls instead. Phone browsers' own bars make most screens this short. */
+   scrolls instead. Phone browsers' own bars make most screens this short. It still fills
+   the screen when the list is short, so the receipt stays at the bottom. */
 @media (max-height: 760px) {
   :host {
-    flex: none;
+    flex: 1 0 auto;
   }
 
   .table {
@@ -32,7 +33,7 @@ button {
 
 .table {
   display: flex;
-  flex: 1;
+  flex: 0 1 auto;
   flex-direction: column;
   min-height: 120px;
   border-radius: var(--radius-md);
@@ -268,69 +269,6 @@ input:not([type='file']):focus {
   }
 }
 
-.import-bar {
-  display: flex;
-  flex-shrink: 0;
-
-  > button,
-  .import-choices button {
-    min-height: 40px;
-    border: 0;
-    border-radius: var(--radius-pill);
-    font-weight: 700;
-  }
-}
-
-.import {
-  flex: 1 1 100%;
-  min-width: 0;
-  background: var(--navy);
-  color: var(--on-navy);
-  transition:
-    flex-basis 0.32s var(--ease),
-    transform 0.16s var(--ease);
-}
-
-.import-choices {
-  display: flex;
-  flex: 0 0 0;
-  gap: 8px;
-  max-width: 0;
-  overflow: hidden;
-  visibility: hidden;
-  opacity: 0;
-  transform: translateX(32px);
-  transition:
-    flex-grow 0.32s var(--ease),
-    max-width 0.32s var(--ease),
-    opacity 0.32s var(--ease),
-    transform 0.32s var(--ease),
-    visibility 0.32s;
-
-  button {
-    flex: 1;
-    min-width: 0;
-    background: var(--accent);
-    color: var(--navy);
-  }
-}
-
-.import-bar.open {
-  gap: 8px;
-
-  .import {
-    flex: 0 0 96px;
-  }
-
-  .import-choices {
-    flex-grow: 1;
-    max-width: 100%;
-    visibility: visible;
-    opacity: 1;
-    transform: none;
-  }
-}
-
 .plans {
   display: grid;
   flex-shrink: 0;
@@ -385,6 +323,7 @@ input:not([type='file']):focus {
   flex-shrink: 0;
   grid-template-columns: 1fr 1fr;
   gap: 8px 12px;
+  margin-top: auto;
   padding: 8px 14px 10px;
   border-radius: var(--radius-md);
   background: var(--card);

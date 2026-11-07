@@ -652,10 +652,30 @@ describe('Cart', () => {
       await settle();
     }
 
-    it('cannot save an empty cart', async () => {
+    it('shows no list buttons until the first product', async () => {
       await open();
 
-      expect(button('.save-list').disabled).toBe(true);
+      expect(page.querySelector('.edit')).toBeNull();
+      expect(page.querySelector('.save-list')).toBeNull();
+
+      await addRow('Mere', '2', '5');
+      http.expectOne((r) => r.url === '/api/search').flush([]);
+      await settle();
+
+      expect(button('.edit').disabled).toBe(false);
+      expect(button('.save-list').disabled).toBe(false);
+    });
+
+    it('keeps the list buttons on an open list that was emptied', async () => {
+      addSomething();
+      await open();
+      await saveWithName('Vineri');
+
+      cart.replace([]);
+      await settle();
+
+      expect(button('.edit').disabled).toBe(true);
+      expect(button('.save-list').disabled).toBe(false);
     });
 
     it('asks for a name, suggesting the default', async () => {
@@ -746,125 +766,11 @@ describe('Cart', () => {
     });
   });
 
-  describe('import', () => {
-    const pdf = new File(['%PDF'], 'lista.pdf', { type: 'application/pdf' });
-    const photo = new File(['x'], 'lista.jpg', { type: 'image/jpeg' });
+  it('has no way to import a list', async () => {
+    await open();
 
-    it('hides the PDF and image choices at first', async () => {
-      await open();
-
-      expect(page.querySelector('.import-bar')?.classList.contains('open')).toBe(false);
-    });
-
-    it('opens the two choices when import is pressed, and closes them again', async () => {
-      await open();
-
-      button('.import').click();
-      await settle();
-      expect(page.querySelector('.import-bar')?.classList.contains('open')).toBe(true);
-      expect(button('.import-pdf').textContent).toContain(ro.cart.pdf);
-      expect(button('.import-image').textContent).toContain(ro.cart.image);
-
-      button('.import').click();
-      await settle();
-      expect(page.querySelector('.import-bar')?.classList.contains('open')).toBe(false);
-    });
-
-    it('only accepts the right file types', async () => {
-      await open();
-
-      expect(page.querySelector('.pdf-input')?.getAttribute('accept')).toBe('application/pdf');
-      expect(page.querySelector('.image-input')?.getAttribute('accept')).toBe('image/*');
-    });
-
-    it('fills the list from a PDF', async () => {
-      await open();
-      pickFile('.pdf-input', pdf);
-
-      const request = http.expectOne('/api/imports');
-      const body = request.request.body as FormData;
-      expect(body.get('file')).toBe(pdf);
-      expect(body.get('days')).toBe('1');
-      request.flush({
-        items: [{ food: 'lapte', size_category_id: 100, path: 'Lapte', packs: 2 }],
-        unmapped: [],
-      });
-      http
-        .expectOne('/api/categories/100/products')
-        .flush({ generic: auchan, products: [auchan] });
-      await settle();
-
-      expect(cart.items()[0]).toMatchObject({
-        name: 'Lapte 3.5% 1 l',
-        quantity: '2',
-        price: '8.50',
-        storeName: 'Auchan',
-      });
-    });
-
-    it('fills the list from an image', async () => {
-      await open();
-      pickFile('.image-input', photo);
-
-      http.expectOne('/api/imports').flush({ items: [], unmapped: ['ghimbir'] });
-      await settle();
-
-      expect(cart.items()[0]).toMatchObject({ name: 'ghimbir', quantity: '1', price: '0' });
-    });
-
-    it('clears the price warning once editing starts', async () => {
-      await open();
-      pickFile('.image-input', photo);
-      http.expectOne('/api/imports').flush({ items: [], unmapped: ['ghimbir'] });
-      await settle();
-
-      button('.edit').click();
-      await settle();
-
-      expect(page.textContent).not.toContain(ro.cart.needsPrice);
-    });
-
-    it('warns about foods it could not price', async () => {
-      await open();
-      pickFile('.image-input', photo);
-
-      http.expectOne('/api/imports').flush({ items: [], unmapped: ['ghimbir'] });
-      await settle();
-
-      expect(page.textContent).toContain(ro.cart.needsPrice);
-    });
-
-    it('shows that it is reading, and blocks a second file', async () => {
-      await open();
-      button('.import').click();
-      await settle();
-      pickFile('.pdf-input', pdf);
-      await settle();
-
-      expect(button('.import').textContent).toContain(ro.cart.reading);
-      expect(button('.import-pdf').disabled).toBe(true);
-      http.expectOne('/api/imports').flush({ items: [], unmapped: [] });
-    });
-
-    it('asks for a retry when nothing could be read', async () => {
-      await open();
-      pickFile('.pdf-input', pdf);
-
-      fail('/api/imports', 422);
-      await settle();
-
-      expect(page.textContent).toContain(ro.cart.importFailed);
-    });
-
-    it('explains a file that is too large', async () => {
-      await open();
-      pickFile('.pdf-input', pdf);
-
-      fail('/api/imports', 413);
-      await settle();
-
-      expect(page.textContent).toContain(ro.cart.fileRejected);
-    });
+    expect(page.querySelector('.import')).toBeNull();
+    expect(page.querySelector('input[accept="application/pdf"]')).toBeNull();
   });
 
   describe('summary', () => {
@@ -1281,6 +1187,15 @@ describe('Cart', () => {
       await settle();
 
       expect(page.textContent).toContain('Motivul de la server');
+    });
+
+    it('explains a photo that is too large', async () => {
+      upload();
+
+      fail(readUrl, 413);
+      await settle();
+
+      expect(page.textContent).toContain(ro.cart.fileRejected);
     });
 
     it('asks for a retake of an unreadable receipt', async () => {
