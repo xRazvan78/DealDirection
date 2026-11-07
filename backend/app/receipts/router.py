@@ -72,6 +72,8 @@ class ReceiptResult(BaseModel):
     paid: Decimal
     modifier: Decimal
     points: int
+    # Products + deposits matched the printed TOTAL; False suggests a misread line.
+    adds_up: bool | None = None
 
 
 def _reject(code: int, message: str) -> HTTPException:
@@ -122,7 +124,7 @@ def upload_receipt(
     _check_receipt(data, store)
 
     purchased_at = data.purchased_at.replace(tzinfo=RECEIPT_TIMEZONE)
-    print_ = fingerprint(store.id, purchased_at, data.total)
+    print_ = fingerprint(store.id, purchased_at, data.total, data.fiscal_key)
     if db.scalar(select(Receipt.id).where(Receipt.fingerprint == print_)) is not None:
         raise _reject(status.HTTP_409_CONFLICT, "Acest bon a fost deja folosit.")
 
@@ -202,6 +204,7 @@ def upload_receipt(
         paid=paid,
         modifier=modifier,
         points=result.points,
+        adds_up=data.adds_up,
     )
 
 

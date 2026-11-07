@@ -4,6 +4,7 @@ Pure logic: no database or HTTP, so the receipt rules are testable alone.
 """
 
 import hashlib
+import re
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from datetime import datetime
@@ -13,6 +14,7 @@ from app.documents.schemas import LineMatch, ReceiptLine
 from app.textutil import fold
 
 CENT = Decimal("0.01")
+_ZERO_IN_WORD = re.compile(r"(?<=[a-z])0|0(?=[a-z])")  # a zero touching letters is a misread "o"
 
 
 @dataclass(frozen=True)
@@ -24,13 +26,17 @@ class MatchedLine:
     paid: Decimal  # the receipt's price for that quantity
 
 
-def fingerprint(store_id: int, purchased_at: datetime, total: Decimal) -> str:
+def fingerprint(store_id: int, purchased_at: datetime, total: Decimal, fiscal_key: str | None = None) -> str:
     """Identify a paper receipt, so it can only earn points once.
 
-    Uses the store, the purchase date and the total. The time of day is left
-    out on purpose: OCR reads it on one scan and misses it on the next, and a
-    rescan of the same paper must still count as the same receipt.
+    With a fiscal key (register, date, time and receipt number, see
+    receipt_parser) two receipts with the same total on the same day stay
+    apart, and a misread total can't make a rescan look new. Without one, the
+    store, date and total are used; the time is left out there, because OCR
+    reads it on one scan and misses it on the next.
     """
+    if fiscal_key:
+        return hashlib.sha256(f"fiscal|{fiscal_key}".encode()).hexdigest()
     key = f"{store_id}|{purchased_at.date().isoformat()}|{total.quantize(CENT)}"
     return hashlib.sha256(key.encode()).hexdigest()
 
@@ -45,6 +51,7 @@ def merge_repeated_lines(lines: Sequence[ReceiptLine]) -> list[ReceiptLine]:
     merged: dict[str, ReceiptLine] = {}
     for line in lines:
         key = " ".join(fold(line.raw_text).split())  # OCR spacing varies between lines
+        key = _ZERO_IN_WORD.sub("o", key)  # OCR reads "HOOPS" as "H0OPS"
         seen = merged.get(key)
         merged[key] = (
             line
