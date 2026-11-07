@@ -319,9 +319,9 @@
     type="file"
     class="receipt-input"
     accept="image/*"
-    capture="environment"
     (change)="scanReceipt(receiptInput)"
   />
+  <!-- No capture attribute: the phone asks whether to take a photo or pick one from the gallery. -->
 </section>
 
 @if (directionsFailed()) {
